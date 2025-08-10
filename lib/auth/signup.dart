@@ -1,7 +1,161 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  bool _isLoading = false;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '494653563380-ukls9bl3snhfs08u1loiqn5a4f1boskd.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
+  );
+
+  // Check if Google Play Services is available
+  Future<bool> _checkPlayServicesAvailability() async {
+    try {
+      // Try to check if already signed in (this will fail if Play Services unavailable)
+      final bool isSignedIn = await _googleSignIn.isSignedIn();
+      return true; // If we get here, Play Services is available
+    } catch (e) {
+      print('Play Services check failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      print('Starting Google Sign-In...');
+
+      // Check Play Services availability first
+      final bool playServicesAvailable = await _checkPlayServicesAvailability();
+
+      if (!playServicesAvailable) {
+        _showSnackBar(
+          'Google Play Services is not available on this device. Please use a device with Google Play Services or try on a physical device.',
+          isError: true,
+          duration: 5,
+        );
+        return;
+      }
+
+      // Only sign out if Play Services is available
+      try {
+        await _googleSignIn.signOut();
+      } catch (signOutError) {
+        print('Sign out error (continuing anyway): $signOutError');
+        // Continue with sign in even if sign out fails
+      }
+
+      // Then sign in
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      print('Sign-in result: $googleUser');
+
+      if (googleUser == null) {
+        _showSnackBar('Sign-in was cancelled');
+        return;
+      }
+
+      // Get authentication details
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      print(
+        'Access token: ${googleAuth.accessToken != null ? 'Present' : 'Missing'}',
+      );
+      print('ID token: ${googleAuth.idToken != null ? 'Present' : 'Missing'}');
+
+      // Extract user information
+      final String username = googleUser.displayName ?? '';
+      final String email = googleUser.email;
+      final String profilePicUrl = googleUser.photoUrl ?? '';
+      final String googleId = googleUser.id;
+
+      print('Username: $username');
+      print('Email: $email');
+      print('Profile Picture URL: $profilePicUrl');
+      print('Google ID: $googleId');
+
+      // Navigate to confirmation screen with user data
+      Navigator.pushNamed(
+        context,
+        '/signup/confirmation',
+        arguments: {
+          'username': username,
+          'email': email,
+          'profilePicUrl': profilePicUrl,
+          'googleId': googleId,
+          'accessToken': googleAuth.accessToken,
+          'idToken': googleAuth.idToken,
+        },
+      );
+    } catch (error) {
+      print('Google Sign-In Error: $error');
+      print('Error type: ${error.runtimeType}');
+
+      // More specific error handling
+      if (error.toString().contains('12500')) {
+        _showSnackBar(
+          'Configuration error. Please check SHA-1 fingerprint.',
+          isError: true,
+        );
+      } else if (error.toString().contains('10') ||
+          error.toString().contains('SERVICE_INVALID') ||
+          error.toString().contains('Google Play Store')) {
+        _showSnackBar(
+          'Google Play Services not available. Please use a device with Google Play Services.',
+          isError: true,
+          duration: 4,
+        );
+      } else if (error.toString().contains('sign_in_failed')) {
+        _showSnackBar('Sign-in failed. Please try again.', isError: true);
+      } else {
+        _showSnackBar(
+          'Failed to sign in with Google: ${error.toString()}',
+          isError: true,
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Enhanced function to show snackbar messages
+  void _showSnackBar(String message, {bool isError = false, int duration = 3}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isError ? Colors.red.shade600 : null,
+        duration: Duration(seconds: duration),
+      ),
+    );
+  }
+
+  // Function to sign out (for testing purposes)
+  Future<void> _handleGoogleSignOut() async {
+    try {
+      await _googleSignIn.signOut();
+      _showSnackBar('Signed out successfully');
+    } catch (error) {
+      print('Sign out error: $error');
+      _showSnackBar('Sign out failed: $error', isError: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +175,7 @@ class SignUpScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // App Logo
+                  // Logo
                   Container(
                     width: 100,
                     height: 100,
@@ -58,15 +212,17 @@ class SignUpScreen extends StatelessWidget {
                     "Find your perfect job match",
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
-
                   const SizedBox(height: 40),
 
-                  // Sign Up Options
                   _buildAuthButton(
                     icon: Icons.mail_outline,
                     text: "Continue with Email",
                     color: Colors.blue.shade700,
                     textColor: Colors.white,
+                    onPressed: () {
+                      // Navigate to email signup screen
+                      Navigator.pushNamed(context, '/signup/email');
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -75,10 +231,12 @@ class SignUpScreen extends StatelessWidget {
                     text: "Continue with Phone",
                     color: Colors.green.shade600,
                     textColor: Colors.white,
+                    onPressed: () {
+                      // Navigate to phone signup screen
+                      Navigator.pushNamed(context, '/signup/phone');
+                    },
                   ),
                   const SizedBox(height: 16),
-
-                  // Google Button
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
@@ -100,76 +258,47 @@ class SignUpScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.network(
-                            "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-                            height: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text("Continue with Google"),
-                        ],
-                      ),
+                      onPressed: _isLoading ? null : _handleGoogleSignIn,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.network(
+                                  "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
+                                  height: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text("Continue with Google"),
+                              ],
+                            ),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
-
-                  // Divider with "or"
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: Colors.grey.shade400,
-                          thickness: 1,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          "or",
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: Colors.grey.shade400,
-                          thickness: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Already have account
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Already have an account? Sign in",
-                      style: TextStyle(
-                        color: Colors.blue.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
+                  // Debug: Sign out button (remove in production)
                   const SizedBox(height: 20),
-
-                  // Footer text
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  TextButton(
+                    onPressed: _handleGoogleSignOut,
                     child: Text(
-                      "By continuing, you agree to our Terms of Service and Privacy Policy",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                        height: 1.4,
-                      ),
-                      textAlign: TextAlign.center,
+                      "Sign Out (Debug)",
+                      style: TextStyle(color: Colors.grey.shade600),
                     ),
+                  ),
+
+                  // Helper text for testing
+                  const SizedBox(height: 20),
+                  Text(
+                    "Note: Google Sign-In requires Google Play Services.\nTest on a physical device or emulator with Google Play.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
