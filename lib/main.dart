@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/auth/confirmscreen.dart';
 import 'package:internappflutter/auth/signup.dart';
 
 void main() async {
@@ -42,9 +41,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/': (context) => const SignUpScreen(),
         '/signup': (context) => const SignUpScreen(),
-        '/signup/confirmation': (context) => const SignUpConfirmationScreen(),
       },
     );
   }

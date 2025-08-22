@@ -1,8 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/auth/otp_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -12,337 +11,304 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool _isLoading = false;
-
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId:
-        '494653563380-ukls9bl3snhfs08u1loiqn5a4f1boskd.apps.googleusercontent.com',
-    scopes: ['email', 'profile'],
-  );
-
-  // Check if Google Play Services is available
-  Future<bool> _checkPlayServicesAvailability() async {
-    try {
-      // Try to check if already signed in (this will fail if Play Services unavailable)
-      final bool isSignedIn = await _googleSignIn.isSignedIn();
-      return true; // If we get here, Play Services is available
-    } catch (e) {
-      print('Play Services check failed: $e');
-      return false;
-    }
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      print('Starting Google Sign-In...');
-
-      // Check Play Services availability first
-      final bool playServicesAvailable = await _checkPlayServicesAvailability();
-
-      if (!playServicesAvailable) {
-        _showSnackBar(
-          'Google Play Services is not available on this device. Please use a device with Google Play Services or try on a physical device.',
-          isError: true,
-          duration: 5,
-        );
-        return;
-      }
-
-      // Only sign out if Play Services is available
-      try {
-        await _googleSignIn.signOut();
-      } catch (signOutError) {
-        print('Sign out error (continuing anyway): $signOutError');
-        // Continue with sign in even if sign out fails
-      }
-
-      // Then sign in
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      print('Sign-in result: $googleUser');
-
-      if (googleUser == null) {
-        _showSnackBar('Sign-in was cancelled');
-        return;
-      }
-
-      // Get authentication details
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      print(
-        'Access token: ${googleAuth.accessToken != null ? 'Present' : 'Missing'}',
-      );
-      print('ID token: ${googleAuth.idToken != null ? 'Present' : 'Missing'}');
-
-      // Extract user information
-      final String username = googleUser.displayName ?? '';
-      final String email = googleUser.email;
-      final String profilePicUrl = googleUser.photoUrl ?? '';
-      final String googleId = googleUser.id;
-
-      print('Username: $username');
-      print('Email: $email');
-      print('Profile Picture URL: $profilePicUrl');
-      print('Google ID: $googleId');
-
-      // Navigate to confirmation screen with user data
-      Navigator.pushNamed(
-        context,
-        '/signup/confirmation',
-        arguments: {
-          'username': username,
-          'email': email,
-          'profilePicUrl': profilePicUrl,
-          'googleId': googleId,
-          'accessToken': googleAuth.accessToken,
-          'idToken': googleAuth.idToken,
-        },
-      );
-    } catch (error) {
-      print('Google Sign-In Error: $error');
-      print('Error type: ${error.runtimeType}');
-
-      // More specific error handling
-      if (error.toString().contains('12500')) {
-        _showSnackBar(
-          'Configuration error. Please check SHA-1 fingerprint.',
-          isError: true,
-        );
-      } else if (error.toString().contains('10') ||
-          error.toString().contains('SERVICE_INVALID') ||
-          error.toString().contains('Google Play Store')) {
-        _showSnackBar(
-          'Google Play Services not available. Please use a device with Google Play Services.',
-          isError: true,
-          duration: 4,
-        );
-      } else if (error.toString().contains('sign_in_failed')) {
-        _showSnackBar('Sign-in failed. Please try again.', isError: true);
-      } else {
-        _showSnackBar(
-          'Failed to sign in with Google: ${error.toString()}',
-          isError: true,
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  // Enhanced function to show snackbar messages
-  void _showSnackBar(String message, {bool isError = false, int duration = 3}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: isError ? Colors.red.shade600 : null,
-        duration: Duration(seconds: duration),
-      ),
-    );
-  }
-
-  // Function to sign out (for testing purposes)
-  Future<void> _handleGoogleSignOut() async {
-    try {
-      await _googleSignIn.signOut();
-      _showSnackBar('Signed out successfully');
-    } catch (error) {
-      print('Sign out error: $error');
-      _showSnackBar('Sign out failed: $error', isError: true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.grey.shade50, Colors.grey.shade100],
-          ),
-        ),
-        child: SafeArea(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Logo
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.shade100,
-                          blurRadius: 10,
-                          spreadRadius: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Row with Logo + Signup
+                Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            "assets/svg/logo.svg",
+                            height: 18,
+                            width: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          SvgPicture.asset(
+                            "assets/svg/logo_text.svg",
+                            height: 18,
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF010101),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                         ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.work_outline,
-                      color: Colors.blue.shade700,
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Heading
-                  Text(
-                    "Join Our Community",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Find your perfect job match",
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(height: 40),
-
-                  _buildAuthButton(
-                    icon: Icons.mail_outline,
-                    text: "Continue with Email",
-                    color: Colors.blue.shade700,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      // Navigate to email signup screen
-                      Navigator.pushNamed(context, '/signup/email');
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildAuthButton(
-                    icon: Icons.phone_android,
-                    text: "Continue with Phone",
-                    color: Colors.green.shade600,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      // Navigate to phone signup screen
-                      Navigator.pushNamed(context, '/signup/phone');
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.shade200,
-                          blurRadius: 4,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.grey.shade800,
-                        side: BorderSide.none,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        onPressed: () {},
+                        child: Text(
+                          "Sign up",
+                          style: GoogleFonts.jost(color: Colors.white),
                         ),
                       ),
-                      onPressed: _isLoading ? null : _handleGoogleSignIn,
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.network(
-                                  "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-                                  height: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                const Text("Continue with Google"),
-                              ],
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Highlighted Text
+                Container(
+                  color: Colors.transparent, // optional background
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        color: Colors.yellow,
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                          "JOIN AND START",
+                          style: GoogleFonts.jost(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "MATCHING WITH\nJOBS TODAY",
+                        style: GoogleFonts.jost(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                        ),
+                      ),
+                    ], // ✅ this closes children: []
+                  ),
+                ),
+
+                SizedBox(height: 15),
+                // Phone Number Input
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Phone Number",
+                      style: GoogleFonts.jost(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          hintText: "+91 95674 43452",
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                            fontFamily: GoogleFonts.jost().fontFamily,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                // Get OTP Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 54.0,
+                  child: Stack(
+                    children: [
+                      // Bottom layer (3D effect)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 0, // thickness of the 3D effect
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(
+                              255,
+                              0,
+                              0,
+                              0,
+                            ), // darker shade for depth
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      // Top button
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                    ),
-                  ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(
+                                  milliseconds: 400,
+                                ),
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        OtpPage(),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      const begin = Offset(
+                                        1.0,
+                                        0.0,
+                                      ); // Slide from right
+                                      const end =
+                                          Offset.zero; // End at normal position
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(
+                                            CurveTween(curve: Curves.easeInOut),
+                                          );
 
-                  // Debug: Sign out button (remove in production)
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: _handleGoogleSignOut,
-                    child: Text(
-                      "Sign Out (Debug)",
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                  ),
+                                      return SlideTransition(
+                                        position: animation.drive(tween),
+                                        child: child,
+                                      );
+                                    },
+                              ),
+                            );
+                          },
 
-                  // Helper text for testing
-                  const SizedBox(height: 20),
-                  Text(
-                    "Note: Google Sign-In requires Google Play Services.\nTest on a physical device or emulator with Google Play.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    textAlign: TextAlign.center,
+                          child: const Text(
+                            "Get OTP",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 5),
+
+                // Divider with OR
+                Row(
+                  children: const [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Text("OR"),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+
+                const SizedBox(height: 5),
+
+                // Continue with Google
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          offset: const Offset(0, 4), // shadow only at bottom
+                          blurRadius: 6,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 12,
+                        ),
+                      ),
+                      onPressed: () {},
+                      icon: SvgPicture.asset(
+                        "assets/svg/google_logo.svg",
+                        height: 24,
+                        width: 24,
+                      ),
+                      label: Text(
+                        "Continue with Google",
+                        style: GoogleFonts.jost(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment:
+                      Alignment.centerRight, // or .topRight, .bottomRight
+                  child: Image.asset(
+                    "assets/images/Cartoon_Network_Bear_Sticker.png",
+                    fit: BoxFit.fitHeight,
+                  ),
+                ),
+                Image.asset(
+                  "assets/images/group_bottom.png",
+                  height: 100,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAuthButton({
-    required IconData icon,
-    required String text,
-    required Color color,
-    Color textColor = Colors.white,
-    VoidCallback? onPressed,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.2),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: textColor,
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 0,
-        ),
-        onPressed: onPressed,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
-          ],
         ),
       ),
     );
