@@ -79,8 +79,12 @@ flutter:
     # - assets/svg/Cartoon_Network_Bear_Sticker.svg
     - assets/svg/google_logo.svg
     - assets/images/Cartoon_Network_Bear_Sticker.png
-    - assets/svg/group_bottom.svg
-    - assets/images/group_bottom.png
+    - assets/svg/Group_bottom.svg
+    - assets/images/Group_bottom.png
+    - assets/idBackground.png
+    - assets/placeholder.png
+    - assets/addItem.png
+    - assets/Button.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

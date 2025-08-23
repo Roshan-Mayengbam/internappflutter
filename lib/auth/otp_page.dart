@@ -163,7 +163,7 @@ class OtpPage extends StatelessWidget {
                   ),
                 ),
                 Image.asset(
-                  "assets/images/group_bottom.png",
+                  "assets/images/Group_bottom.png",
                   height: 100,
                   width: double.infinity,
                   fit: BoxFit.cover,
