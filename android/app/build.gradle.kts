@@ -8,6 +8,8 @@ plugins {
 android {
     namespace = "com.myapp.internappflutter"
     compileSdk = 36
+
+    
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -21,7 +23,10 @@ android {
 
     defaultConfig {
         applicationId = "com.myapp.internappflutter"
-        minSdk = flutter.minSdkVersion   
+
+      
+        minSdk = 23
+
         targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -40,17 +45,17 @@ flutter {
 }
 
 dependencies {
-    // Firebase BOM - Updated to a more recent version
+    // Firebase BOM (latest stable)
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
-    // Firebase services - Use standard versions, not KTX
+    // Firebase services
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-analytics")
-    
-    // Google Play Services Auth - Required for Google Sign-In
+
+    // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")
-    
-    // MultiDex support
+
+    // MultiDex
     implementation("androidx.multidex:multidex:2.0.1")
 }

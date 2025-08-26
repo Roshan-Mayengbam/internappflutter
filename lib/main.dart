@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/signup.dart';
+import 'package:internappflutter/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,9 +40,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: '/signup',
       routes: {
-        '/': (context) => const SignUpScreen(),
+        '/': (context) => const HomePage(),
         '/signup': (context) => const SignUpScreen(),
       },
     );

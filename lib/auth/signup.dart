@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/auth/otp_page.dart';
+import 'package:internappflutter/home/home_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -44,6 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ],
                       ),
                       ElevatedButton(
+                        
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF010101),
                           shape: RoundedRectangleBorder(
@@ -54,7 +56,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             vertical: 10,
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          //for now, navigating to home page on sign up button press
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                          );
+                        },
                         child: Text(
                           "Sign up",
                           style: GoogleFonts.jost(color: Colors.white),
