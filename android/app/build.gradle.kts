@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.myapp.internappflutter"
+    namespace = "com.myapp.hyrup"
     compileSdk = 36
 
     
@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.myapp.internappflutter"
+        applicationId = "com.myapp.hyrup"
 
       
         minSdk = 23
@@ -46,7 +46,7 @@ flutter {
 
 dependencies {
     // Firebase BOM (latest stable)
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
 
     // Firebase services
     implementation("com.google.firebase:firebase-auth")

@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -31,6 +18,22 @@
 
   <title>internappflutter</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- ✅ Google Sign-In Web Client ID -->
+  <meta name="google-signin-client_id" content="730899264601-xxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com">
+
+  <!-- ✅ Firebase Config for Flutter Web -->
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyC6JRLBGJuZSyh0y3xN9x2i1gqQCO7sV0g",
+      authDomain: "hyrup-84839.firebaseapp.com",
+      projectId: "hyrup-84839",
+      storageBucket: "hyrup-84839.firebasestorage.app",
+      messagingSenderId: "730899264601",
+      appId: "1:730899264601:web:f8278ceea8b7096b876d48",
+      measurementId: "G-CVHPH5PFM8"
+    };
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

@@ -2,32 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/signup.dart';
+import 'package:internappflutter/bottomnavbar.dart';
+import 'package:internappflutter/firebase_options.dart';
+import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/home/home_page.dart';
+import 'package:internappflutter/profile/profile.dart';
+import 'package:internappflutter/profile/profile2.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    if (Platform.isAndroid) {
-      await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: "AIzaSyARkzAMgD1HYK4z_qJJz-CbfTJObFT2Vz0",
-          appId: "1:494653563380:android:6b1dad9ff96c310745d9a1",
-          messagingSenderId: "494653563380",
-          projectId: "internapp-539eb",
-          storageBucket: "internapp-539eb.firebasestorage.app",
-        ),
-      );
-    }
-  } catch (e) {
-    if (kDebugMode) {
-      print('Error initializing Firebase: $e');
-    }
-  }
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -35,15 +21,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Job App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/signup',
+      initialRoute: '/',
       routes: {
-        '/': (context) => const HomePage(),
-        '/signup': (context) => const SignUpScreen(),
+        '/': (context) => const BottomnavbarAlternative(),
+        '/signup': (context) => const HomePage(),
       },
     );
   }
@@ -104,5 +91,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-
-// Dummy SignUpScreen for navigation

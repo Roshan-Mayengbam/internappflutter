@@ -8,7 +8,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> jobs = [
     {
       'jobTitle': 'UI/UX Designer',
@@ -28,11 +28,7 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
       'companyName': 'Pixel Labs',
       'location': 'Bangalore',
       'experienceLevel': '0-2 years',
-      'requirements': [
-        'React, Flutter',
-        'UI/UX skills',
-        'Team player',
-      ],
+      'requirements': ['React, Flutter', 'UI/UX skills', 'Team player'],
       'websiteUrl': 'www.pixellabs.com',
       'initialColorIndex': 1,
     },
@@ -41,117 +37,41 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
       'companyName': 'Tech Corp',
       'location': 'Remote',
       'experienceLevel': '1-3 years',
-      'requirements': [
-        '1+ year experience',
-        'Node.js, MongoDB',
-        'REST APIs',
-      ],
+      'requirements': ['1+ year experience', 'Node.js, MongoDB', 'REST APIs'],
       'websiteUrl': 'www.techcorp.com',
       'initialColorIndex': 2,
     },
   ];
 
-  late AnimationController _controller;
-  late Animation<Offset> _swipeAnimation;
-  Offset _dragOffset = Offset.zero;
-  double _dragRotation = 0.0;
-  bool _isDragging = false;
+  // Which card is currently on top
+  int _topIndex = 0;
 
-  bool _isAnimatingOut = false;
-  Offset _outgoingOffset = Offset.zero;
-  double _outgoingRotation = 0.0;
+  // Live drag progress to animate the stack (0.0 -> 1.0)
+  double _dragProgress = 0.0;
+  DismissDirection? _dragDirection;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-    _swipeAnimation = Tween<Offset>(begin: Offset.zero, end: Offset.zero).animate(_controller)
-      ..addListener(() {
-        setState(() {
-          if (_isAnimatingOut) {
-            _outgoingOffset = _swipeAnimation.value;
-          } else {
-            _dragOffset = _swipeAnimation.value;
-          }
-        });
-      });
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed && _isAnimatingOut) {
-        //Reset outgoing card's position
-        setState(() {
-          _outgoingOffset = Offset.zero;
-          _outgoingRotation = 0.0;
-          _dragOffset = Offset.zero;
-          _dragRotation = 0.0;
-          _isDragging = false;
-          _isAnimatingOut = false;
-        });
-        // Update the stack in the next frame
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {
-            final removed = jobs.removeAt(0);
-            jobs.add(removed);
-          });
-        });
-        _controller.reset();
-      } else if (status == AnimationStatus.completed) {
-        setState(() {
-          _dragOffset = Offset.zero;
-          _dragRotation = 0.0;
-          _isDragging = false;
-        });
-        _controller.reset();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onPanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _dragOffset += details.delta;
-      _dragRotation = _dragOffset.dx / 300;
-      _isDragging = true;
-    });
-  }
-
-  void _onPanEnd(DragEndDetails details) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final shouldSwipe = _dragOffset.dx.abs() > screenWidth * 0.25 || _dragOffset.dy.abs() > 150;
-    if (shouldSwipe) {
-      final endOffset = Offset(
-        _dragOffset.dx > 0 ? screenWidth : -screenWidth,
-        _dragOffset.dy,
-      );
-      _isAnimatingOut = true;
-      _outgoingOffset = _dragOffset;
-      _outgoingRotation = _dragRotation;
-      _swipeAnimation = Tween<Offset>(begin: _dragOffset, end: endOffset).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ));
-      _controller.forward(from: 0);
-    } else {
-      // Animate back to center
-      _swipeAnimation = Tween<Offset>(begin: _dragOffset, end: Offset.zero).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ));
-      _controller.forward(from: 0);
-    }
-  }
+  int _idx(int offset) => (_topIndex + offset) % jobs.length;
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = 320.0;
-    final cardHeight = 400.0;
+    const cardWidth = 320.0;
+    const cardHeight = 400.0;
+
+    // Back-card animation based on drag progress
+    final nextScale = 0.95 + (0.03 * _dragProgress);
+    final nextTranslateY = 24 - (8 * _dragProgress);
+
+    final thirdScale = 0.90 + (0.03 * _dragProgress * 0.5);
+    final thirdTranslateY = 48 - (8 * _dragProgress * 0.5);
+
+    // Top-card rotation based on drag direction
+    final topAngle =
+        (_dragDirection == DismissDirection.startToEnd
+            ? 1
+            : _dragDirection == DismissDirection.endToStart
+            ? -1
+            : 0) *
+        (0.20 * _dragProgress);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -161,13 +81,11 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
             // Top bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row( 
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  
                   Stack(
                     children: [
-                 
                       Positioned(
                         left: 8,
                         top: 8,
@@ -180,7 +98,6 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
                           ),
                         ),
                       ),
-                    
                       Container(
                         width: 48,
                         height: 48,
@@ -195,7 +112,6 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
                   ),
                   Row(
                     children: [
-                     
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -203,10 +119,12 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
                           border: Border.all(color: Colors.black, width: 2),
                         ),
                         padding: const EdgeInsets.all(8),
-                        child: const Icon(Icons.notifications_none, color: Colors.black),
+                        child: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                     
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -214,14 +132,17 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
                           border: Border.all(color: Colors.black, width: 2),
                         ),
                         padding: const EdgeInsets.all(8),
-                        child: const Icon(Icons.chat_bubble_outline, color: Colors.black),
+                        child: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            
+
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Align(
@@ -237,6 +158,8 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
               ),
             ),
             const SizedBox(height: 10),
+
+            // Card stack
             Expanded(
               child: Center(
                 child: SizedBox(
@@ -245,135 +168,94 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin 
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      // 3rd card 
+                      // 3rd card (bottom)
                       Transform.scale(
-                        scale: _isDragging ? 0.95 : 0.9,
+                        scale: thirdScale,
+                        alignment: Alignment.bottomRight,
                         child: Transform.translate(
-                          offset: _isDragging ? const Offset(0, 32) : const Offset(0, 48),
+                          offset: Offset(0, thirdTranslateY),
                           child: Transform.rotate(
-                            angle: 0.2,
+                            angle: 0.20, // slight playful tilt
                             alignment: Alignment.bottomRight,
-                            child: JobCard(
-                              jobTitle: jobs[2]['jobTitle'],
-                              companyName: jobs[2]['companyName'],
-                              location: jobs[2]['location'],
-                              experienceLevel: jobs[2]['experienceLevel'],
-                              requirements: List<String>.from(jobs[2]['requirements']),
-                              websiteUrl: jobs[2]['websiteUrl'],
-                              initialColorIndex: 2, 
-                            ),
+                            child: _JobItem(job: jobs[_idx(2)], fixedIndex: 2),
                           ),
                         ),
                       ),
-                      // 2nd card 
+
+                      // 2nd card (middle)
                       Transform.scale(
-                        scale: _isDragging ? 0.98 : 0.95,
+                        scale: nextScale,
+                        alignment: Alignment.bottomRight,
                         child: Transform.translate(
-                          offset: _isDragging ? const Offset(0, 16) : const Offset(0, 24),
+                          offset: Offset(0, nextTranslateY),
                           child: Transform.rotate(
-                            angle: 0.1,
+                            angle: 0.10,
                             alignment: Alignment.bottomRight,
-                            child: JobCard(
-                              jobTitle: jobs[1]['jobTitle'],
-                              companyName: jobs[1]['companyName'],
-                              location: jobs[1]['location'],
-                              experienceLevel: jobs[1]['experienceLevel'],
-                              requirements: List<String>.from(jobs[1]['requirements']),
-                              websiteUrl: jobs[1]['websiteUrl'],
-                              initialColorIndex: 1, 
-                            ),
+                            child: _JobItem(job: jobs[_idx(1)], fixedIndex: 1),
                           ),
                         ),
                       ),
-                      // Top card (draggable or animating out)
-                      if (_isAnimatingOut)
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: _outgoingOffset,
-                              child: Transform.rotate(
-                                angle: _outgoingRotation,
-                                child: JobCard(
-                                  jobTitle: jobs[0]['jobTitle'],
-                                  companyName: jobs[0]['companyName'],
-                                  location: jobs[0]['location'],
-                                  experienceLevel: jobs[0]['experienceLevel'],
-                                  requirements: List<String>.from(jobs[0]['requirements']),
-                                  websiteUrl: jobs[0]['websiteUrl'],
-                                  initialColorIndex: 0, 
-                                ),
-                              ),
-                            );
+
+                      // Top card (swipe with Dismissible)
+                      Transform.rotate(
+                        angle: topAngle,
+                        child: Dismissible(
+                          key: ValueKey('job_${_idx(0)}_$_topIndex'),
+                          direction: DismissDirection.horizontal,
+                          dismissThresholds: const {
+                            DismissDirection.startToEnd: 0.35,
+                            DismissDirection.endToStart: 0.35,
                           },
-                        )
-                      else
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: _dragOffset,
-                              child: Transform.rotate(
-                                angle: _dragRotation,
-                                child: GestureDetector(
-                                  onPanUpdate: _onPanUpdate,
-                                  onPanEnd: _onPanEnd,
-                                  child: JobCard(
-                                    jobTitle: jobs[0]['jobTitle'],
-                                    companyName: jobs[0]['companyName'],
-                                    location: jobs[0]['location'],
-                                    experienceLevel: jobs[0]['experienceLevel'],
-                                    requirements: List<String>.from(jobs[0]['requirements']),
-                                    websiteUrl: jobs[0]['websiteUrl'],
-                                    initialColorIndex: 0,
-                                  ),
-                                ),
-                              ),
-                            );
+                          onUpdate: (details) {
+                            setState(() {
+                              _dragProgress = details.progress.clamp(0.0, 1.0);
+                              _dragDirection = details.direction;
+                            });
                           },
+                          onDismissed: (_) {
+                            setState(() {
+                              _dragProgress = 0.0;
+                              _dragDirection = null;
+                              _topIndex = (_topIndex + 1) % jobs.length;
+                            });
+                          },
+                          confirmDismiss: (direction) async {
+                            // allow both left/right swipes
+                            return true;
+                          },
+                          child: _JobItem(job: jobs[_idx(0)], fixedIndex: 0),
                         ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            // Bottom navigation bar
-            Padding(
-              padding: const EdgeInsets.only(bottom: 18.0),
-              child: Center(
-                child: Container(
-                  
-                  width: 220,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: Colors.black, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
-                      Icon(Icons.home, color: Color(0xFF4BFF3D), size: 30),
-                      Icon(Icons.bookmark_border, color: Colors.black, size: 28),
-                      Icon(Icons.calendar_today_outlined, color: Colors.black, size: 28),
-                      Icon(Icons.person_outline, color: Colors.black, size: 28),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+
+            // Bottom nav
           ],
         ),
       ),
+    );
+  }
+}
+
+class _JobItem extends StatelessWidget {
+  final Map<String, dynamic> job;
+  final int fixedIndex; // just to pass an initialColorIndex reliably
+
+  const _JobItem({required this.job, required this.fixedIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    return JobCard(
+      jobTitle: job['jobTitle'],
+      companyName: job['companyName'],
+      location: job['location'],
+      experienceLevel: job['experienceLevel'],
+      requirements: List<String>.from(job['requirements']),
+      websiteUrl: job['websiteUrl'],
+      initialColorIndex: job['initialColorIndex'] ?? fixedIndex,
     );
   }
 }

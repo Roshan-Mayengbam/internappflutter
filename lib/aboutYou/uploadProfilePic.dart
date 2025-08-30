@@ -13,10 +13,8 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
-  
   File? pickedPhotoFile;
   File? pickedResumeFile;
-
 
   Future<void> _pickPhoto() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -27,11 +25,9 @@ class _UploadScreenState extends State<UploadScreen> {
       setState(() {
         pickedPhotoFile = File(result.files.single.path!);
       });
-      
     }
   }
 
- 
   Future<void> _pickResume() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -41,7 +37,6 @@ class _UploadScreenState extends State<UploadScreen> {
       setState(() {
         pickedResumeFile = File(result.files.single.path!);
       });
-      
     }
   }
 
@@ -54,16 +49,13 @@ class _UploadScreenState extends State<UploadScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-           
-          },
+          onPressed: () {},
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: LinearProgressIndicator(
@@ -76,15 +68,10 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             const SizedBox(height: 20),
 
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  "assets/bear.gif",
-                  height: 150,
-                  width: 164,
-                ),
+                Image.asset("assets/bear.gif", height: 150, width: 164),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 40.0),
                   child: SvgPicture.asset(
@@ -92,32 +79,32 @@ class _UploadScreenState extends State<UploadScreen> {
                     height: 60,
                     width: 40,
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
 
             const SizedBox(height: 25),
 
-            
             FileUploadWidget(
-                onTap: _pickPhoto,
-                file: pickedPhotoFile,
-                text: 'Profile Picture',
-                text1: 'JPG',
-                text2: 'PNG',
-                text3: '<1mb',
+              onTap: _pickPhoto,
+              file: pickedPhotoFile,
+              text: 'Profile Picture',
+              text1: 'JPG',
+              text2: 'PNG',
+              text3: '<1mb',
             ),
-           
+
             if (pickedPhotoFile != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: Text('Photo selected: ${pickedPhotoFile!.path.split('/').last}'),
+                child: Text(
+                  'Photo selected: ${pickedPhotoFile!.path.split('/').last}',
+                ),
               ),
 
             const SizedBox(height: 25),
 
-           
             FileUploadWidget(
               onTap: _pickResume,
               file: pickedResumeFile,
@@ -131,24 +118,26 @@ class _UploadScreenState extends State<UploadScreen> {
 
             InkWell(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                  return TagPage(profileImage: pickedPhotoFile);
-                }));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return TagPage(
+                        profileImage: pickedPhotoFile,
+                        userModel: null,
+                      );
+                    },
+                  ),
+                );
               },
-              child: Image.asset(
-                "assets/Button.png",
-                width: 500,
-                height: 50,
-              ),
+              child: Image.asset("assets/Button.png", width: 500, height: 50),
             ),
-             const SizedBox(height: 20), 
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 }
-
 
 class FileUploadWidget extends StatelessWidget {
   final File? file;
@@ -174,7 +163,6 @@ class FileUploadWidget extends StatelessWidget {
     const Color lightPurpleBg = Color(0xFFF2EAFF);
     const Color lightGreyText = Color(0xFF8A8A8A);
 
-    
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -183,7 +171,7 @@ class FileUploadWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
+            Text(
               '$text',
               style: TextStyle(
                 fontSize: 18,
@@ -193,8 +181,11 @@ class FileUploadWidget extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Container(
-              width: double.infinity, 
-              padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 24.0),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                vertical: 32.0,
+                horizontal: 24.0,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20.0),
@@ -207,9 +198,15 @@ class FileUploadWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              
-              child: _buildUploadPrompt(primaryPurple, lightGreyText, lightPurpleBg, text1! , text2! , text3! )
-                  
+
+              child: _buildUploadPrompt(
+                primaryPurple,
+                lightGreyText,
+                lightPurpleBg,
+                text1!,
+                text2!,
+                text3!,
+              ),
             ),
           ],
         ),
@@ -217,8 +214,14 @@ class FileUploadWidget extends StatelessWidget {
     );
   }
 
-
-  Widget _buildUploadPrompt(Color primaryPurple, Color lightGreyText, Color lightPurpleBg, String text1, String text2, String text3) {
+  Widget _buildUploadPrompt(
+    Color primaryPurple,
+    Color lightGreyText,
+    Color lightPurpleBg,
+    String text1,
+    String text2,
+    String text3,
+  ) {
     return Column(
       children: [
         Image.asset("assets/addItem.png"),
@@ -226,11 +229,18 @@ class FileUploadWidget extends StatelessWidget {
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: const TextStyle(fontSize: 16, color: Colors.black87, fontFamily: 'Inter'),
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+              fontFamily: 'Inter',
+            ),
             children: [
               TextSpan(
                 text: 'Click to Upload',
-                style: TextStyle(color: primaryPurple, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: primaryPurple,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const TextSpan(text: ' or drag and drop'),
             ],
@@ -256,9 +266,6 @@ class FileUploadWidget extends StatelessWidget {
     );
   }
 
-  
-
- 
   Widget _buildTag(String text, Color textColor, Color bgColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),

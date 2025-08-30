@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/aboutYou/tag.dart';
+import 'package:internappflutter/auth/google_signin.dart';
 import 'package:internappflutter/auth/otp_page.dart';
 import 'package:internappflutter/home/home_page.dart';
+
+import 'package:internappflutter/models/usermodel.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -12,6 +16,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController _phoneController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +51,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ],
                       ),
                       ElevatedButton(
-                        
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF010101),
                           shape: RoundedRectangleBorder(
@@ -129,6 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ],
                       ),
                       child: TextField(
+                        controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
@@ -283,7 +289,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           horizontal: 12,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () async {
+                        final user = await GoogleAuthService()
+                            .signInWithGoogle();
+                        if (user != null) {
+                          // ✅ Successfully signed in - Navigate to TagPage with user data
+                          final userModel = UserModel(
+                            name: user.displayName ?? 'Unknown User',
+                            email: user.email ?? 'No Email',
+                            profileImageUrl: user.photoURL,
+                            role: 'Student', // Default role, can be customized
+                          );
+
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TagPage(userModel: userModel),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Google Sign-In failed"),
+                            ),
+                          );
+                        }
+                      },
+
                       icon: SvgPicture.asset(
                         "assets/svg/google_logo.svg",
                         height: 24,
@@ -321,5 +353,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
   }
 }
