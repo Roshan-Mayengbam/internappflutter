@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const BottomnavbarAlternative(),
+        '/': (context) => const SignUpScreen(),
         '/signup': (context) => const HomePage(),
       },
     );
