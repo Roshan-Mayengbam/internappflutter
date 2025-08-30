@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/bottomnavbar.dart';
+import 'package:internappflutter/home/home_page.dart';
 
 class OtpPage extends StatelessWidget {
   const OtpPage({super.key});
@@ -138,7 +139,8 @@ class OtpPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(
+                      Navigator.push(
+                        context,
                         MaterialPageRoute(
                           builder: (context) => BottomnavbarAlternative(),
                         ),
