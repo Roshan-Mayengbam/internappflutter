@@ -226,63 +226,83 @@ class _JobCardState extends State<JobCard> {
   }
 
   Widget _buildJobTitleSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.jobTitle,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      widget.companyName,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    widget.jobTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.check_circle, color: Colors.blue, size: 16),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.companyName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.blue,
+                        size: 18,
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-        ),
+            ),
 
-        // Favorite button
-        InkWell(
-          onTap: toggleFavourite,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFCE4EC),
+            // Favorite button
+            InkWell(
+              onTap: toggleFavourite,
               borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    const BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(0, 5),
+                      blurRadius: 0,
+                      spreadRadius: -2,
+                    ),
+                  ],
+                  color: Colors.pink[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: const Icon(Icons.favorite, color: Colors.pink, size: 24),
+              ),
             ),
-            child: Icon(
-              Icons.favorite,
-              color: isFavorite ? Colors.red : Colors.grey,
-              size: 20,
-            ),
-          ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const Divider(
+          color: Color.fromARGB(255, 19, 16, 16),
+          thickness: 1,
+          height: 1,
         ),
       ],
     );
@@ -296,6 +316,12 @@ class _JobCardState extends State<JobCard> {
           children: [
             const Icon(Icons.location_on, color: Colors.grey, size: 20),
             const SizedBox(width: 4),
+            const SizedBox(height: 14),
+            const Divider(
+              color: Color.fromARGB(255, 19, 16, 16),
+              thickness: 6,
+              height: 30,
+            ),
             Expanded(
               child: Text(
                 widget.location,

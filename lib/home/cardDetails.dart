@@ -39,6 +39,29 @@ class _CarddetailsState extends State<Carddetails> {
         elevation: 0,
         title: Container(
           decoration: BoxDecoration(
+            boxShadow: [
+              // Bottom shadow
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(0, 5),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+              // Right shadow
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(5, 0),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+              // Bottom-right corner shadow (to make it symmetric)
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(5, 5),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+            ],
             color: AppConstants.backgroundColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
@@ -75,18 +98,25 @@ class _CarddetailsState extends State<Carddetails> {
                   const Spacer(), // 🔹 Pushes the love icon to the right
 
                   Container(
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: AppConstants.backgroundColor,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 6, 7, 8),
-                        width: 2,
-                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(0, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                      ],
+                      color: Colors.pink[200],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.black, width: 1),
                     ),
-                    padding: const EdgeInsets.all(8),
                     child: const Icon(
-                      Icons.favorite_border,
-                      color: Color.fromARGB(255, 7, 8, 9),
+                      Icons.favorite,
+                      color: Colors.pink,
+                      size: 24,
                     ),
                   ),
                 ],
@@ -96,7 +126,7 @@ class _CarddetailsState extends State<Carddetails> {
 
               Text(
                 widget.jobTitle,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 10),
               const Text(
@@ -105,59 +135,62 @@ class _CarddetailsState extends State<Carddetails> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 243, 246, 180),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 6, 7, 8),
-                        width: 2,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.check, size: 18, color: Colors.green),
-                        SizedBox(width: 5),
-                        Text("On-Site", style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 243, 246, 180),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 6, 7, 8),
-                        width: 2,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.check, size: 18, color: Colors.green),
-                        SizedBox(width: 5),
-                        Text("Full-Time", style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
+                  _buildTag("✓ On-site"),
+                  const SizedBox(width: 8),
+                  _buildTag("✓ Full-time"),
+
                   const Spacer(), // 🔹 Pushes the love icon to the right
                   Container(
-                    width: 48,
-                    height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD9FFCB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.black, width: 1),
+                      boxShadow: [
+                        // Bottom shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(0, 5),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Right shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(5, 0),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Bottom-right corner shadow (to make it symmetric)
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(5, 5),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                      ],
+                      color: AppConstants.backgroundColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: const Border(
+                        top: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 1,
+                        ), // thin
+                        left: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 1,
+                        ), // thin
+                        right: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 2,
+                        ), // thick
+                        bottom: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 2,
+                        ), // thick
+                      ),
                     ),
-                    child: const Icon(Icons.comment, color: Colors.black),
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.comment,
+                      color: const Color.fromARGB(255, 7, 8, 9),
+                    ),
                   ),
                 ],
               ),
@@ -310,6 +343,25 @@ class _CarddetailsState extends State<Carddetails> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.yellow[100],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12, color: Colors.black),
       ),
     );
   }

@@ -22,6 +22,29 @@ class ProfilePage extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
+                      boxShadow: [
+                        // Bottom shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(0, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Right shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 0),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Bottom-right corner shadow (to make it symmetric)
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                      ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -51,6 +74,29 @@ class ProfilePage extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
+                      boxShadow: [
+                        // Bottom shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(0, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Right shadow
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 0),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        // Bottom-right corner shadow (to make it symmetric)
+                        const BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                      ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -73,7 +119,7 @@ class ProfilePage extends StatelessWidget {
                   Text(
                     'John Raj',
                     style: GoogleFonts.ptSerif(
-                      fontSize: 36,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                       letterSpacing: 1.2,
@@ -88,19 +134,25 @@ class ProfilePage extends StatelessWidget {
                   ),
 
                   Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(
+                        255,
+                        209,
+                        255,
+                        182,
+                      ), // light green bg
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
+                      horizontal: 16,
                       vertical: 8,
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB8E6B8), // Light green
-                      borderRadius: BorderRadius.circular(20),
-                    ),
                     child: const Text(
-                      'Resume',
+                      "Resume",
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
