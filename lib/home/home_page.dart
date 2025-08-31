@@ -55,7 +55,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     const cardWidth = 320.0;
-    const cardHeight = 400.0;
+    const cardHeight = 480.0; // Increased from 400.0 to 480.0
 
     // Back-card animation based on drag progress
     final nextScale = 0.95 + (0.03 * _dragProgress);

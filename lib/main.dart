@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:internappflutter/auth/collegedetails.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/firebase_options.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const SignUpScreen(),
+        '/': (context) => const BottomnavbarAlternative(),
         '/signup': (context) => const HomePage(),
       },
     );
