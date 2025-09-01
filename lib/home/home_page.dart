@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'job_card.dart';
+import 'package:internappflutter/core/components/custom_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -84,58 +86,21 @@ class HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Stack(
-                    children: [
-                      Positioned(
-                        left: 8,
-                        top: 8,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9FFCB),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.black, width: 1),
-                        ),
-                        child: const Icon(Icons.tune, color: Colors.black),
-                      ),
-                    ],
+                  CustomButton(
+                    onPressed: () {},
+                    foregroundColor: const Color(0xFFD9FFCB),
+                    buttonIcon: Icons.tune,
                   ),
                   Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
-                        ),
+                      CustomButton(
+                        onPressed: () {},
+                        buttonIcon: Icons.chat_bubble_outline,
                       ),
                       const SizedBox(width: 12),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.chat_bubble_outline,
-                          color: Colors.black,
-                        ),
+                      CustomButton(
+                        onPressed: () {},
+                        buttonIcon: Icons.notifications_none,
                       ),
                     ],
                   ),

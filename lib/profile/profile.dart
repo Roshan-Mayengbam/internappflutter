@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/components/custom_button.dart';
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -18,19 +20,20 @@ class ProfilePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.black,
-                      size: 24,
-                    ),
-                  ),
+                  // Container(
+                  //   width: 50,
+                  //   height: 50,
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: const Icon(
+                  //     Icons.arrow_back,
+                  //     color: Colors.black,
+                  //     size: 24,
+                  //   ),
+                  // ),
+                  CustomButton(buttonIcon: Icons.arrow_back, onPressed: () {}),
                   Text(
                     'My Profile',
                     style: GoogleFonts.ptSerif(
@@ -47,19 +50,20 @@ class ProfilePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.edit,
-                      color: Colors.black,
-                      size: 24,
-                    ),
-                  ),
+                  // Container(
+                  //   width: 50,
+                  //   height: 50,
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: const Icon(
+                  //     Icons.edit,
+                  //     color: Colors.black,
+                  //     size: 24,
+                  //   ),
+                  // ),
+                  CustomButton(buttonIcon: Icons.edit, onPressed: () {}),
                 ],
               ),
 
