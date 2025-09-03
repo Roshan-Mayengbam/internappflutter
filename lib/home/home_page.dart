@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'job_card.dart';
+import 'package:internappflutter/bottomnavbar.dart';
+import 'package:internappflutter/core/components/custom_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -54,9 +57,8 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final cardWidth = screenSize.width - 40.0; // Full width minus padding
-    final cardHeight = screenSize.height * 0.50; // 50% of screen height
+    const cardWidth = 320.0;
+    const cardHeight = 480.0; // Increased from 400.0 to 480.0
 
     // Back-card animation based on drag progress
     final nextScale = 0.95 + (0.03 * _dragProgress);
@@ -368,9 +370,7 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
-            // Bottom nav space (you can add navigation here if needed)
-            const SizedBox(height: 20),
+            BottomnavbarAlternative(),
           ],
         ),
       ),

@@ -15,8 +15,9 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text("Explore")),
-    const Center(child: Text("Calendar Page")),
+    const Center(child: Text("Bookmarks Page")),
+    // const Center(child: Text("Calendar Page")),
+    const JobPage(),
     const ProfilePage(),
   ];
 
