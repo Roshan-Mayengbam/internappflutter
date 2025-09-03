@@ -65,10 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onPressed: () {
                           //for now, navigating to home page on sign up button press
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              // TODO : Change before commit
-                              builder: (context) => JobPage(),
-                            ),
+                            MaterialPageRoute(builder: (context) => HomePage()),
                           );
                         },
                         child: Text(
