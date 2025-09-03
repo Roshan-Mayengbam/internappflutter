@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
+import 'package:internappflutter/screens/job_page.dart';
 
 class BottomnavbarAlternative extends StatefulWidget {
   const BottomnavbarAlternative({super.key});

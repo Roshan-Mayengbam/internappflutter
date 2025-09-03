@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'job_card.dart';
-import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -370,7 +367,6 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            BottomnavbarAlternative(),
           ],
         ),
       ),

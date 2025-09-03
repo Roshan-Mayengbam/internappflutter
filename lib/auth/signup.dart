@@ -7,6 +7,7 @@ import 'package:internappflutter/auth/otp_page.dart';
 import 'package:internappflutter/home/home_page.dart';
 
 import 'package:internappflutter/models/usermodel.dart';
+import 'package:internappflutter/screens/job_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -65,7 +66,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           //for now, navigating to home page on sign up button press
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => const HomePage(),
+                              // TODO : Change before commit
+                              builder: (context) => JobPage(),
                             ),
                           );
                         },
