@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'job_card.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -56,8 +54,9 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const cardWidth = 320.0;
-    const cardHeight = 480.0; // Increased from 400.0 to 480.0
+    final screenSize = MediaQuery.of(context).size;
+    final cardWidth = screenSize.width - 40.0; // Full width minus padding
+    final cardHeight = screenSize.height * 0.50; // 50% of screen height
 
     // Back-card animation based on drag progress
     final nextScale = 0.95 + (0.03 * _dragProgress);
@@ -86,21 +85,161 @@ class HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(
-                    onPressed: () {},
-                    foregroundColor: const Color(0xFFD9FFCB),
-                    buttonIcon: Icons.tune,
+                  Stack(
+                    children: [
+                      Positioned(
+                        left: 8,
+                        top: 8,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            // Bottom shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(0, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Right shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 0),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Bottom-right corner shadow (to make it symmetric)
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                          ],
+                          color: const Color(0xFFD9FFCB),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.black, width: 1),
+                        ),
+                        child: const Icon(Icons.tune, color: Colors.black),
+                      ),
+                    ],
                   ),
                   Row(
                     children: [
-                      CustomButton(
-                        onPressed: () {},
-                        buttonIcon: Icons.chat_bubble_outline,
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            // Bottom shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(0, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Right shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 0),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Bottom-right corner shadow (to make it symmetric)
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: const Border(
+                            top: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            left: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            right: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
+                            bottom: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Colors.black,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      CustomButton(
-                        onPressed: () {},
-                        buttonIcon: Icons.notifications_none,
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            // Bottom shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(0, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Right shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 0),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            // Bottom-right corner shadow (to make it symmetric)
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: const Border(
+                            top: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            left: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            right: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
+                            bottom: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),
@@ -142,7 +281,18 @@ class HomePageState extends State<HomePage> {
                           child: Transform.rotate(
                             angle: 0.20, // slight playful tilt
                             alignment: Alignment.bottomRight,
-                            child: _JobItem(job: jobs[_idx(2)], fixedIndex: 2),
+                            child: JobCard(
+                              jobTitle: jobs[_idx(2)]['jobTitle'],
+                              companyName: jobs[_idx(2)]['companyName'],
+                              location: jobs[_idx(2)]['location'],
+                              experienceLevel: jobs[_idx(2)]['experienceLevel'],
+                              requirements: List<String>.from(
+                                jobs[_idx(2)]['requirements'],
+                              ),
+                              websiteUrl: jobs[_idx(2)]['websiteUrl'],
+                              initialColorIndex:
+                                  jobs[_idx(2)]['initialColorIndex'],
+                            ),
                           ),
                         ),
                       ),
@@ -156,7 +306,18 @@ class HomePageState extends State<HomePage> {
                           child: Transform.rotate(
                             angle: 0.10,
                             alignment: Alignment.bottomRight,
-                            child: _JobItem(job: jobs[_idx(1)], fixedIndex: 1),
+                            child: JobCard(
+                              jobTitle: jobs[_idx(1)]['jobTitle'],
+                              companyName: jobs[_idx(1)]['companyName'],
+                              location: jobs[_idx(1)]['location'],
+                              experienceLevel: jobs[_idx(1)]['experienceLevel'],
+                              requirements: List<String>.from(
+                                jobs[_idx(1)]['requirements'],
+                              ),
+                              websiteUrl: jobs[_idx(1)]['websiteUrl'],
+                              initialColorIndex:
+                                  jobs[_idx(1)]['initialColorIndex'],
+                            ),
                           ),
                         ),
                       ),
@@ -188,7 +349,18 @@ class HomePageState extends State<HomePage> {
                             // allow both left/right swipes
                             return true;
                           },
-                          child: _JobItem(job: jobs[_idx(0)], fixedIndex: 0),
+                          child: JobCard(
+                            jobTitle: jobs[_idx(0)]['jobTitle'],
+                            companyName: jobs[_idx(0)]['companyName'],
+                            location: jobs[_idx(0)]['location'],
+                            experienceLevel: jobs[_idx(0)]['experienceLevel'],
+                            requirements: List<String>.from(
+                              jobs[_idx(0)]['requirements'],
+                            ),
+                            websiteUrl: jobs[_idx(0)]['websiteUrl'],
+                            initialColorIndex:
+                                jobs[_idx(0)]['initialColorIndex'],
+                          ),
                         ),
                       ),
                     ],
@@ -197,7 +369,8 @@ class HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Bottom nav
+            // Bottom nav space (you can add navigation here if needed)
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -205,22 +378,26 @@ class HomePageState extends State<HomePage> {
   }
 }
 
-class _JobItem extends StatelessWidget {
-  final Map<String, dynamic> job;
-  final int fixedIndex; // just to pass an initialColorIndex reliably
+// class _JobItem extends StatelessWidget {
+//   final Map<String, dynamic> job;
+//   final int fixedIndex; // to pass an initialColorIndex reliably
 
-  const _JobItem({required this.job, required this.fixedIndex});
+//   const _JobItem({Key? key, required this.job, required this.fixedIndex})
+//     : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return JobCard(
-      jobTitle: job['jobTitle'],
-      companyName: job['companyName'],
-      location: job['location'],
-      experienceLevel: job['experienceLevel'],
-      requirements: List<String>.from(job['requirements']),
-      websiteUrl: job['websiteUrl'],
-      initialColorIndex: job['initialColorIndex'] ?? fixedIndex,
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 880, // set card height here
+//       child: JobCard(
+//         jobTitle: job['jobTitle'] ?? '',
+//         companyName: job['companyName'] ?? '',
+//         location: job['location'] ?? '',
+//         experienceLevel: job['experienceLevel'] ?? '',
+//         requirements: List<String>.from(job['requirements'] ?? []),
+//         websiteUrl: job['websiteUrl'] ?? '',
+//         initialColorIndex: job['initialColorIndex'] ?? fixedIndex,
+//       ),
+//     );
+//   }
+// }

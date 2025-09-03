@@ -15,7 +15,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text("Bookmarks Page")),
+    const Center(child: Text("Explore")),
     const Center(child: Text("Calendar Page")),
     const ProfilePage(),
   ];
@@ -52,17 +52,17 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
                       Icons.home,
                       color: _selectedIndex == 0
                           ? const Color(0xFF4BFF3D)
-                          : Colors.black,
+                          : const Color.fromARGB(255, 9, 9, 9),
                       size: 30,
                     ),
                     onPressed: () => setState(() => _selectedIndex = 0),
                   ),
                   IconButton(
                     icon: Icon(
-                      Icons.bookmark_border,
+                      Icons.search,
                       color: _selectedIndex == 1
                           ? const Color(0xFF4BFF3D)
-                          : Colors.black,
+                          : const Color.fromARGB(255, 15, 13, 13),
                       size: 28,
                     ),
                     onPressed: () => setState(() => _selectedIndex = 1),
@@ -72,7 +72,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
                       Icons.calendar_today_outlined,
                       color: _selectedIndex == 2
                           ? const Color(0xFF4BFF3D)
-                          : Colors.black,
+                          : const Color.fromARGB(255, 4, 3, 3),
                       size: 28,
                     ),
                     onPressed: () => setState(() => _selectedIndex = 2),
@@ -82,7 +82,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
                       Icons.person_outline,
                       color: _selectedIndex == 3
                           ? const Color(0xFF4BFF3D)
-                          : Colors.black,
+                          : const Color.fromARGB(255, 13, 13, 13),
                       size: 28,
                     ),
                     onPressed: () => setState(() => _selectedIndex = 3),
