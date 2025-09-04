@@ -1,16 +1,23 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:internappflutter/home/home_page.dart';
+import 'package:internappflutter/models/usermodel.dart';
+
 class TagPage extends StatelessWidget {
+  final UserModel? userModel;
   final File? profileImage;
 
-  const TagPage({
-    super.key,
-    required this.profileImage,
-  });
+  const TagPage({super.key, this.userModel, this.profileImage});
 
   @override
   Widget build(BuildContext context) {
+    // Use provided userModel or create default
+    final user =
+        userModel ??
+        UserModel(name: 'User', email: 'user@example.com', role: 'Student');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -28,7 +35,7 @@ class TagPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              _buildIdCard(context),
+              _buildIdCard(context, user),
               const Spacer(),
               const Text(
                 'Nice to get your details.\nLet\'s get dive in deep',
@@ -44,7 +51,15 @@ class TagPage extends StatelessWidget {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return HomePage();
+                        },
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -63,7 +78,7 @@ class TagPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIdCard(BuildContext context) {
+  Widget _buildIdCard(BuildContext context, UserModel user) {
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
@@ -86,11 +101,7 @@ class TagPage extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          child: Stack(
-            children: [
-              _buildCardDetails(),
-            ],
-          ),
+          child: Stack(children: [_buildCardDetails(user)]),
         ),
         Positioned(
           top: -60,
@@ -98,24 +109,60 @@ class TagPage extends StatelessWidget {
             width: 45,
             height: 120,
             decoration: const BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(8),
-                  bottomRight: Radius.circular(8),
-                )),
+              color: Colors.black,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+            ),
           ),
         ),
-        Positioned(
-          top: 135,
-          child: Image.asset('assets/placeholder.png', height: 200, width: 200,),
-        ),
+        // Moved profile image higher up in the stack
+        Positioned(top: 80, child: _buildProfileImage(user)),
       ],
     );
   }
 
-  
+  Widget _buildProfileImage(UserModel user) {
+    return Container(
+      width: 160, // Reduced size to fit better with new positioning
+      height: 160,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: profileImage != null
+            ? Image.file(profileImage!, fit: BoxFit.cover)
+            : user.profileImageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: user.profileImageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[300],
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.person, size: 60, color: Colors.grey),
+                ),
+              )
+            : Container(
+                color: Colors.grey[300],
+                child: const Icon(Icons.person, size: 60, color: Colors.grey),
+              ),
+      ),
+    );
+  }
 
-  Widget _buildCardDetails() {
+  Widget _buildCardDetails(UserModel user) {
     return Positioned(
       bottom: 24,
       left: 0,
@@ -123,22 +170,28 @@ class TagPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'John Raj',
-            style: TextStyle(
-              fontSize: 28,
+          // Added some top padding to account for the profile image above
+          const SizedBox(height: 80),
+          Text(
+            user.name,
+            style: const TextStyle(
+              fontSize: 24, // Slightly reduced to fit better
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildDetailColumn('Role', 'Student'),
-                _buildDetailColumn('Email', 'johnraj@gmail.com'),
+                Expanded(child: _buildDetailColumn('Role', user.role)),
+                const SizedBox(width: 10),
+                Expanded(child: _buildDetailColumn('Email', user.email)),
               ],
             ),
           ),
@@ -151,13 +204,7 @@ class TagPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 13,
-          ),
-        ),
+        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
         const SizedBox(height: 4),
         Text(
           value,
@@ -166,6 +213,8 @@ class TagPage extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

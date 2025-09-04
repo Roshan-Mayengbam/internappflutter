@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/home/cardDetails.dart';
 
 class JobCard extends StatefulWidget {
   final String jobTitle;
@@ -7,7 +8,7 @@ class JobCard extends StatefulWidget {
   final String experienceLevel;
   final List<String> requirements;
   final String websiteUrl;
-  final int initialColorIndex; 
+  final int initialColorIndex;
 
   const JobCard({
     super.key,
@@ -54,95 +55,116 @@ class _JobCardState extends State<JobCard> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: swapColours,
-      borderRadius: BorderRadius.circular(20),
-      child: Stack(
-        children: [
-          // Shadow card (back card)
-          Positioned(
-            top: 16,
-            left: 16,
-            right: -4,
-            bottom: -4,
-            child: Card(
-              elevation: 0,
-              color: Colors.black.withOpacity(1),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: swapColours,
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // Shadow card
+            Positioned(
+              top: 16,
+              left: 16,
+              right: -4,
+              bottom: -4,
+              child: Card(
+                elevation: 0,
+                color: Colors.black.withOpacity(1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: const BorderSide(color: Colors.black, width: 1),
+                ),
+              ),
+            ),
+            // Main card
+            Card(
+              elevation: 12,
+              shadowColor: Colors.black.withOpacity(1),
+              color: cardColors[colorIndex],
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 side: const BorderSide(color: Colors.black, width: 1),
               ),
-            ),
-          ),
-          // Main card
-          Card(
-            elevation: 12,
-            shadowColor: Colors.black.withOpacity(1),
-            color: cardColors[colorIndex],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(color: Colors.black, width: 1),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPosterCard(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cardColors[colorIndex],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildJobTitleSection(),
-                        const SizedBox(height: 12),
-                        _buildInfoSection(),
-                      ],
-                    ),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPosterCard(),
+                    const SizedBox(height: 12),
+                    _buildJobTitleSection(),
+                    const SizedBox(height: 12),
+                    _buildInfoSection(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
 
   Widget _buildPosterCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF4B20C2), 
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHiringTag(),
-          const SizedBox(height: 12),
-          Text(
-            widget.jobTitle.toUpperCase().replaceAll(' ', '\n'), 
-            style: const TextStyle(
-              color: Color(0xFFF9A825),
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              height: 1.1,
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => Carddetails(
+              jobTitle: widget.jobTitle,
+              companyName: widget.companyName,
+              location: widget.location,
+              experienceLevel: widget.experienceLevel,
+              requirements: widget.requirements,
+              websiteUrl: widget.websiteUrl,
             ),
           ),
-          const SizedBox(height: 12),
-        
-          ...widget.requirements.map((req) => _buildRequirementRow(req)).toList(),
-          const SizedBox(height: 16),
-          _buildWebsiteButton(),
-        ],
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF4B20C2),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHiringTag(),
+            const SizedBox(height: 12),
+            Text(
+              widget.jobTitle,
+              style: const TextStyle(
+                color: Color(0xFFF9A825),
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+
+            // Scrollable requirements
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 100),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: widget.requirements
+                      .map((req) => _buildRequirementRow(req))
+                      .toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildWebsiteButton(),
+          ],
+        ),
       ),
     );
   }
-
 
   Widget _buildHiringTag() {
     return Container(
@@ -162,19 +184,25 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-
   Widget _buildRequirementRow(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('•  ', style: TextStyle(color: Colors.white, fontSize: 14)),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 14)),
+          const Text('• ', style: TextStyle(color: Colors.white, fontSize: 14)),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
         ],
       ),
     );
   }
-
 
   Widget _buildWebsiteButton() {
     return Center(
@@ -189,79 +217,131 @@ class _JobCardState extends State<JobCard> {
           style: const TextStyle(
             color: Color(0xFF4B20C2),
             fontWeight: FontWeight.w600,
+            overflow: TextOverflow.ellipsis,
           ),
+          maxLines: 1,
         ),
       ),
     );
   }
 
-  
   Widget _buildJobTitleSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
       children: [
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.jobTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.jobTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.companyName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.blue,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Text(
-                  widget.companyName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  ),
+
+            // Favorite button
+            InkWell(
+              onTap: toggleFavourite,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    const BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(0, 5),
+                      blurRadius: 0,
+                      spreadRadius: -2,
+                    ),
+                  ],
+                  color: Colors.pink[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black, width: 1),
                 ),
-                const SizedBox(width: 4),
-                const Icon(Icons.check_circle, color: Colors.blue, size: 16),
-              ],
+                child: const Icon(Icons.favorite, color: Colors.pink, size: 24),
+              ),
             ),
           ],
         ),
-      
-        InkWell(
-          onTap: toggleFavourite,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFCE4EC),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(Icons.favorite, color: isFavorite ? Colors.red : Colors.grey, size: 20),
-          ),
+        const SizedBox(height: 12),
+        const Divider(
+          color: Color.fromARGB(255, 19, 16, 16),
+          thickness: 1,
+          height: 1,
         ),
       ],
     );
   }
 
-
   Widget _buildInfoSection() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.location_on, color: Colors.grey, size: 20),
-        const SizedBox(width: 4),
-        Text(
-          widget.location,
-          style: const TextStyle(color: Colors.black54, fontSize: 14),
-        ),
-        const SizedBox(width: 24),
-        const Icon(Icons.people_alt, color: Colors.grey, size: 20),
-        const SizedBox(width: 4),
-        Text(
-          widget.experienceLevel,
-          style: const TextStyle(color: Colors.black54, fontSize: 14),
+        Row(
+          children: [
+            const Icon(Icons.location_on, color: Colors.grey, size: 20),
+            const SizedBox(width: 4),
+            const SizedBox(height: 14),
+            const Divider(
+              color: Color.fromARGB(255, 19, 16, 16),
+              thickness: 6,
+              height: 30,
+            ),
+            Expanded(
+              child: Text(
+                widget.location,
+                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.people_alt, color: Colors.grey, size: 20),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                widget.experienceLevel,
+                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ],
     );

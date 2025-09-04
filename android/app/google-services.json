@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "494653563380",
-    "project_id": "internapp-539eb",
-    "storage_bucket": "internapp-539eb.firebasestorage.app"
+    "project_number": "730899264601",
+    "project_id": "hyrup-84839",
+    "storage_bucket": "hyrup-84839.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:494653563380:android:6b1dad9ff96c310745d9a1",
+        "mobilesdk_app_id": "1:730899264601:android:2917576ce8e608be876d48",
         "android_client_info": {
-          "package_name": "com.myapp.internappflutter"
+          "package_name": "com.myapp.hyrup"
         }
       },
       "oauth_client": [
         {
-          "client_id": "494653563380-03lhv5up3bfn9fl69qqikqaicelf11s1.apps.googleusercontent.com",
+          "client_id": "730899264601-375ndmqrdrqlrjv5jah98gla3hru0ad8.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.myapp.internappflutter",
+            "package_name": "com.myapp.hyrup",
             "certificate_hash": "3acfbed805b23c7e4bff02fe7a68ecc0481e5bc0"
           }
         },
         {
-          "client_id": "494653563380-ukls9bl3snhfs08u1loiqn5a4f1boskd.apps.googleusercontent.com",
+          "client_id": "730899264601-a2t1c4p9njffva1g025acq3va394h039.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyARkzAMgD1HYK4z_qJJz-CbfTJObFT2Vz0"
+          "current_key": "AIzaSyD9u0uPh7VzCGeOOfPecBoyEeXeqBqLs98"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "494653563380-ukls9bl3snhfs08u1loiqn5a4f1boskd.apps.googleusercontent.com",
+              "client_id": "730899264601-a2t1c4p9njffva1g025acq3va394h039.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

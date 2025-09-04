@@ -1,6 +1,5 @@
 plugins {
-    // Add the Google Services plugin version here
-    id("com.google.gms.google-services") version "4.4.2" apply false
+    id("com.google.gms.google-services") apply false
 }
 
 allprojects {

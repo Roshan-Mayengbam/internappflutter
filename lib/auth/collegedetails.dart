@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/courserange.dart';
+
 class Collegedetails extends StatefulWidget {
   const Collegedetails({super.key});
 
@@ -11,8 +12,6 @@ class Collegedetails extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
-   
 
   @override
   State<Collegedetails> createState() => _CollegedetailsState();
@@ -200,10 +199,10 @@ class _CollegedetailsState extends State<Collegedetails> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CourseRangePage()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => CourseRangePage()),
+                  // );
                   // Add your action here
                 },
                 style: ElevatedButton.styleFrom(
