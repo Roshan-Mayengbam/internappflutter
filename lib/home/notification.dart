@@ -104,7 +104,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                   color: Colors.blue,
                 ),
                 child: Image.asset(
-                  'assets/notificationbutton.png',
+                  'assets/images/notificationbutton.png',
                   fit: BoxFit.fill,
                 ),
               ),

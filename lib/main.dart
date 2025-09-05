@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/collegedetails.dart';
+import 'package:internappflutter/auth/courserange.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/home/home_page.dart';
+import 'package:internappflutter/home/notification.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
 
@@ -28,10 +30,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: '/CourseRangePage',
       routes: {
         '/': (context) => const BottomnavbarAlternative(),
         '/signup': (context) => const HomePage(),
+        '/notification': (context) => const NotificationScreen(),
+        '/CourseRangePage': (context) => const CourseRangePage(),
       },
     );
   }
