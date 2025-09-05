@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
+import 'package:internappflutter/profile/profile2.dart';
 
 class BottomnavbarAlternative extends StatefulWidget {
   const BottomnavbarAlternative({super.key});
@@ -17,7 +18,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(),
     const Center(child: Text("Explore")),
     const Center(child: Text("Calendar Page")),
-    const ProfilePage(),
+    const ProfilePage2(),
   ];
 
   @override
