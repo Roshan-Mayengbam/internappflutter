@@ -10,6 +10,54 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  final TextEditingController _searchController = TextEditingController();
+  List<String> allJobs = [
+    'Software Engineer Intern',
+    'Data Science Intern',
+    'Frontend Developer',
+    'Backend Developer',
+    'Mobile App Developer',
+    'UI/UX Designer',
+    'Product Manager Intern',
+    'Marketing Intern',
+    'Business Analyst',
+    'DevOps Engineer',
+  ];
+  List<String> filteredJobs = [];
+  bool isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredJobs = allJobs;
+  }
+
+  void _performSearch(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredJobs = allJobs;
+        isSearching = false;
+      } else {
+        isSearching = true;
+        filteredJobs = allJobs
+            .where((job) => job.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _navigateToSearchPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchPage(
+          onSearch: _performSearch,
+          searchController: _searchController,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +68,7 @@ class _ExplorePageState extends State<ExplorePage> {
             children: [
               SizedBox(width: 5),
               InkWell(
-                onTap: () {}, //nagivate to search page
+                onTap: _navigateToSearchPage,
                 child: Stack(
                   children: [
                     Container(
@@ -121,12 +169,12 @@ class _ExplorePageState extends State<ExplorePage> {
                 child: IconButton(
                   icon: Icon(Icons.notifications_none_outlined, size: 30),
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => NotificationScreen(),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotificationScreen(),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -158,7 +206,10 @@ class _ExplorePageState extends State<ExplorePage> {
                         border: Border.all(color: Colors.black),
                       ),
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Filter by category
+                          _performSearch(buttonLabels[index]);
+                        },
                         child: Text(
                           buttonLabels[index],
                           style: TextStyle(
@@ -177,83 +228,179 @@ class _ExplorePageState extends State<ExplorePage> {
             ),
           ),
           SizedBox(height: 30),
-          //           Expanded(
-          //             child: MasonryGridView.count(
-          //   crossAxisCount: 2, // 2 columns
-          //   mainAxisSpacing: 4,
-          //   crossAxisSpacing: 4,
-          //   itemCount: 50, //photos.length,
-          //   i//temBuilder: (context, index) {
-          //     return ClipRRect(
-          //       borderRadius: BorderRadius.circular(12),
-          //       child: Image.network(
-          //        photos[index],//conecting to the backend
-          //         fit: BoxFit.cover, // keep aspect ratio
-          //       ),
-          //     );
-          //  },
-          //  )
-
-          //            ),
-          //
+          // Search Results Display
+          if (isSearching)
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredJobs.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black,
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        filteredJobs[index],
+                        style: TextStyle(
+                          fontFamily: 'Jost',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        // Navigate to job details
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          // Original content when not searching
+          if (!isSearching)
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Tap the search bar to find jobs',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Jost',
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
-      // Floating bar at bottom center
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Container(
-        height: 56,
-        width: 260,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: Colors.black,
-          ), // Half of height for pill shape
-        ),
-        child: Row(
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+}
+
+// Dedicated Search Page
+class SearchPage extends StatefulWidget {
+  final Function(String) onSearch;
+  final TextEditingController searchController;
+
+  const SearchPage({
+    super.key,
+    required this.onSearch,
+    required this.searchController,
+  });
+
+  @override
+  State<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Search Jobs'),
+        backgroundColor: Color(0xFFD7C3FF),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
           children: [
-            SizedBox(width: 25),
-            InkWell(
-              onTap: () {
-                // Handle home image tap
-              },
-              child: Image.asset(
-                'assets/home.png', // Replace with your image path
-                height: 32,
-                width: 32,
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black,
+                    blurRadius: 0,
+                    spreadRadius: 1,
+                    offset: Offset(2, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: widget.searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Search for jobs, internships...',
+                  prefixIcon: Icon(Icons.search),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                onChanged: (value) {
+                  widget.onSearch(value);
+                },
+                onSubmitted: (value) {
+                  widget.onSearch(value);
+                  Navigator.pop(context);
+                },
               ),
             ),
-            SizedBox(width: 25),
-            InkWell(
-              onTap: () {
-                // Handle search image tap
-              },
-              child: Image.asset(
-                'assets/search.png', // Replace with your image path
-                height: 32,
-                width: 32,
+            SizedBox(height: 20),
+            Text(
+              'Popular Searches',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Jost',
               ),
             ),
-            SizedBox(width: 25),
-            InkWell(
-              onTap: () {
-                // Handle favorite image tap
-              },
-              child: Image.asset(
-                'assets/box.png', // Replace with your image path
-                height: 32,
-                width: 32,
-              ),
-            ),
-            SizedBox(width: 25),
-            InkWell(
-              onTap: () {
-                // Handle person image tap
-              },
-              child: Image.asset(
-                'assets/person.png', // Replace with your image path
-                height: 32,
-                width: 32,
-              ),
+            SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  [
+                        'Software Engineer',
+                        'Data Science',
+                        'UI/UX Design',
+                        'Marketing',
+                        'Product Manager',
+                      ]
+                      .map(
+                        (tag) => GestureDetector(
+                          onTap: () {
+                            widget.searchController.text = tag;
+                            widget.onSearch(tag);
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFD7C3FF),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: Text(
+                              tag,
+                              style: TextStyle(
+                                fontFamily: 'Jost',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
             ),
           ],
         ),

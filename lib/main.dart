@@ -9,6 +9,7 @@ import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/home/cardDetails.dart';
+import 'package:internappflutter/home/explore.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/home/notification.dart';
 import 'package:internappflutter/profile/profile.dart';
@@ -30,12 +31,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/CourseRangePage',
+      initialRoute: '/',
       routes: {
         '/': (context) => const BottomnavbarAlternative(),
         '/signup': (context) => const HomePage(),
         '/notification': (context) => const NotificationScreen(),
         '/CourseRangePage': (context) => const CourseRangePage(),
+        '/explore': (context) => const ExplorePage(),
       },
     );
   }
