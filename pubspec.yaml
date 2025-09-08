@@ -91,7 +91,10 @@ flutter:
     - assets/addItem.png
     - assets/Button.png
     - assets/images/notificationbutton.png
-    
+    - assets/images/person.png
+    - assets/images/box.png
+    - assets/images/search.png
+    - assets/images/home.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
