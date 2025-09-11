@@ -25,7 +25,8 @@ android {
         applicationId = "com.myapp.hyrup"
 
       
-        minSdk = 23
+        minSdkVersion(flutter.minSdkVersion)
+
 
         targetSdk = 35
         versionCode = flutter.versionCode

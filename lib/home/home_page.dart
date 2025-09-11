@@ -8,7 +8,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final List<Map<String, dynamic>> jobs = [
     {
       'jobTitle': 'UI/UX Designer',
@@ -43,6 +43,27 @@ class HomePageState extends State<HomePage> {
     },
   ];
 
+  // Notification data
+  Map notifications = {
+    'msg': [
+      'UI/UX Designer',
+      'UI/UX Designer',
+      'UI/UX Designer',
+      'UI/UX Designer',
+      'UI/UX Designer',
+    ],
+    'week': [
+      '1 week ago',
+      '1 week ago',
+      '1 week ago',
+      '1 week ago',
+      '1 week ago',
+    ],
+  };
+
+  late List<AnimationController> _controllers;
+  late List<Animation<Offset>> _animations;
+
   // Which card is currently on top
   int _topIndex = 0;
 
@@ -51,6 +72,66 @@ class HomePageState extends State<HomePage> {
   DismissDirection? _dragDirection;
 
   int _idx(int offset) => (_topIndex + offset) % jobs.length;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAnimations();
+  }
+
+  void _initAnimations() {
+    _controllers = List.generate(
+      notifications['msg'].length,
+      (index) => AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 400),
+      ),
+    );
+    _animations = List.generate(
+      notifications['msg'].length,
+      (index) => Tween<Offset>(begin: Offset.zero, end: Offset(1.5, 0)).animate(
+        CurvedAnimation(parent: _controllers[index], curve: Curves.easeInOut),
+      ),
+    );
+  }
+
+  void _slideAndRemove(int index) async {
+    await _controllers[index].forward();
+    setState(() {
+      notifications['msg'].removeAt(index);
+      notifications['week'].removeAt(index);
+      _controllers.removeAt(index);
+      _animations.removeAt(index);
+    });
+  }
+
+  void _slideAllAndRemove() async {
+    for (int i = 0; i < _controllers.length; i++) {
+      await Future.delayed(Duration(milliseconds: 100));
+      _controllers[i].forward();
+    }
+    await Future.delayed(Duration(milliseconds: 400));
+    setState(() {
+      notifications['msg'].clear();
+      notifications['week'].clear();
+      _controllers.clear();
+      _animations.clear();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant HomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initAnimations();
+  }
+
+  @override
+  void dispose() {
+    for (var c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +157,45 @@ class HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      endDrawer: Drawer(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 72.0),
+              child: ListView.builder(
+                itemCount: notifications['msg'].length,
+                itemBuilder: (context, index) {
+                  return SlideTransition(
+                    position: _animations[index],
+                    child: Dismissible(
+                      key: Key(notifications['msg'][index] + index.toString()),
+                      direction: DismissDirection.startToEnd,
+                      onDismissed: (direction) {
+                        //_slideAndRemove(index);
+                      },
+                      movementDuration: const Duration(milliseconds: 400),
+                      child: Card(
+                        child: ListTile(
+                          title: Text(notifications['msg'][index]),
+                          subtitle: Text(notifications['week'][index]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: _slideAllAndRemove,
+                child: Icon(Icons.clear_all),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -189,56 +309,61 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            // Bottom shadow
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
+                      Builder(
+                        builder: (context) => InkWell(
+                          onTap: () => Scaffold.of(context).openEndDrawer(),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                // Bottom shadow
+                                const BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(0, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                // Right shadow
+                                const BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                // Bottom-right corner shadow (to make it symmetric)
+                                const BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                              ],
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: const Border(
+                                top: BorderSide(
+                                  color: Color.fromARGB(255, 6, 7, 8),
+                                  width: 1,
+                                ), // thin
+                                left: BorderSide(
+                                  color: Color.fromARGB(255, 6, 7, 8),
+                                  width: 1,
+                                ), // thin
+                                right: BorderSide(
+                                  color: Color.fromARGB(255, 6, 7, 8),
+                                  width: 2,
+                                ), // thick
+                                bottom: BorderSide(
+                                  color: Color.fromARGB(255, 6, 7, 8),
+                                  width: 2,
+                                ), // thick
+                              ),
                             ),
-                            // Right shadow
-                            const BoxShadow(
+                            padding: const EdgeInsets.all(8),
+                            child: const Icon(
+                              Icons.notifications_none,
                               color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
                             ),
-                            // Bottom-right corner shadow (to make it symmetric)
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: const Border(
-                            top: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            left: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            right: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
-                            bottom: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
                           ),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -377,27 +502,3 @@ class HomePageState extends State<HomePage> {
     );
   }
 }
-
-// class _JobItem extends StatelessWidget {
-//   final Map<String, dynamic> job;
-//   final int fixedIndex; // to pass an initialColorIndex reliably
-
-//   const _JobItem({Key? key, required this.job, required this.fixedIndex})
-//     : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       height: 880, // set card height here
-//       child: JobCard(
-//         jobTitle: job['jobTitle'] ?? '',
-//         companyName: job['companyName'] ?? '',
-//         location: job['location'] ?? '',
-//         experienceLevel: job['experienceLevel'] ?? '',
-//         requirements: List<String>.from(job['requirements'] ?? []),
-//         websiteUrl: job['websiteUrl'] ?? '',
-//         initialColorIndex: job['initialColorIndex'] ?? fixedIndex,
-//       ),
-//     );
-//   }
-// }
