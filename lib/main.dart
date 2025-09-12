@@ -29,10 +29,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: '/signup',
       routes: {
         '/': (context) => const BottomnavbarAlternative(),
-        '/signup': (context) => const HomePage(),
+        '/signup': (context) => const SignUpScreen(),
       },
     );
   }
