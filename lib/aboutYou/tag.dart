@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:internappflutter/home/home_page.dart';
+import 'package:internappflutter/bottomnavbar.dart';
+
 import 'package:internappflutter/models/usermodel.dart';
 
 class TagPage extends StatelessWidget {
@@ -55,7 +56,7 @@ class TagPage extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
-                          return HomePage();
+                          return BottomnavbarAlternative();
                         },
                       ),
                     );

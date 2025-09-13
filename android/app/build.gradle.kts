@@ -23,16 +23,13 @@ android {
 
     defaultConfig {
         applicationId = "com.myapp.hyrup"
-
-      
-        minSdkVersion(flutter.minSdkVersion)
-
-
+        minSdk = 23
         targetSdk = 35
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 1
+        versionName = "1.0"
         multiDexEnabled = true
     }
+
 
     buildTypes {
         release {

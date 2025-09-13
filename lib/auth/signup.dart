@@ -289,28 +289,75 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           horizontal: 12,
                         ),
                       ),
-                      onPressed: () async {
-                        final user = await GoogleAuthService()
-                            .signInWithGoogle();
-                        if (user != null) {
-                          // ✅ Successfully signed in - Navigate to TagPage with user data
-                          final userModel = UserModel(
-                            name: user.displayName ?? 'Unknown User',
-                            email: user.email ?? 'No Email',
-                            profileImageUrl: user.photoURL,
-                            role: 'Student', // Default role, can be customized
-                          );
 
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TagPage(userModel: userModel),
+                      // Replace the Google sign-in button's onPressed method with this:
+                      onPressed: () async {
+                        // Show loading indicator
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Text("Signing in with Google..."),
+                              ],
                             ),
-                          );
-                        } else {
+                            duration: Duration(
+                              seconds: 10,
+                            ), // Long duration, will be dismissed manually
+                          ),
+                        );
+
+                        try {
+                          final user = await GoogleAuthService()
+                              .signInWithGoogle();
+
+                          // Dismiss the loading snackbar
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                          if (user != null) {
+                            // ✅ Successfully signed in AND backend registration succeeded
+                            final userModel = UserModel(
+                              name: user.displayName ?? 'Unknown User',
+                              email: user.email ?? 'No Email',
+                              profileImageUrl: user.photoURL,
+                              role:
+                                  'Student', // Default role, can be customized
+                            );
+
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TagPage(userModel: userModel),
+                              ),
+                            );
+                          } else {
+                            // ❌ Sign-in failed (either Google auth or backend registration)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Sign-in failed. Please try again.",
+                                ),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          // Dismiss loading and show error
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Google Sign-In failed"),
+                            SnackBar(
+                              content: Text("An error occurred: $e"),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 3),
                             ),
                           );
                         }

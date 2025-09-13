@@ -1,8 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:internappflutter/auth/signup.dart';
 
 class ProfilePage2 extends StatelessWidget {
   const ProfilePage2({Key? key}) : super(key: key);
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const SignUpScreen()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,11 +203,31 @@ class ProfilePage2 extends StatelessWidget {
                             _StatItem(number: '100k', label: 'Likes'),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        const Divider(
-                          color: Color.fromARGB(255, 222, 198, 198),
-                          thickness: 1,
-                          height: 30,
+                        const SizedBox(height: 20),
+
+                        // Sign Out button
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onPressed: () => _signOut(context),
+                            child: const Text(
+                              'Sign Out',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

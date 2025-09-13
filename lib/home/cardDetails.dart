@@ -28,49 +28,52 @@ class Carddetails extends StatefulWidget {
 }
 
 class _CarddetailsState extends State<Carddetails> {
-  IconData icon = Icons.arrow_back; // Example icon
+  IconData icon = Icons.arrow_back; // Back arrow icon
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              // Bottom shadow
-              const BoxShadow(
-                color: Colors.black,
-                offset: Offset(0, 5),
-                blurRadius: 0,
-                spreadRadius: -2,
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pop(context); // Go back when pressed
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(0, 5),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(5, 0),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(5, 5),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+              ],
+              color: AppConstants.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: const Color.fromARGB(255, 6, 7, 8),
+                width: 2,
               ),
-              // Right shadow
-              const BoxShadow(
-                color: Colors.black,
-                offset: Offset(5, 0),
-                blurRadius: 0,
-                spreadRadius: -2,
-              ),
-              // Bottom-right corner shadow (to make it symmetric)
-              const BoxShadow(
-                color: Colors.black,
-                offset: Offset(5, 5),
-                blurRadius: 0,
-                spreadRadius: -2,
-              ),
-            ],
-            color: AppConstants.backgroundColor,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: const Color.fromARGB(255, 6, 7, 8),
-              width: 2,
             ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: const Color.fromARGB(255, 7, 8, 9)),
           ),
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, color: const Color.fromARGB(255, 7, 8, 9)),
         ),
       ),
       body: SingleChildScrollView(
