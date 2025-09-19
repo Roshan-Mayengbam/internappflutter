@@ -10,13 +10,12 @@ import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/home/home_page.dart';
-import 'package:internappflutter/home/notification.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -30,12 +29,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/CourseRangePage',
+      initialRoute: '/signup',
       routes: {
         '/': (context) => const BottomnavbarAlternative(),
-        '/signup': (context) => const HomePage(),
-        '/notification': (context) => const NotificationScreen(),
-        '/CourseRangePage': (context) => const CourseRangePage(),
+        '/signup': (context) => const SignUpScreen(),
       },
     );
   }
