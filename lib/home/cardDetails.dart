@@ -272,7 +272,7 @@ class _CarddetailsState extends State<Carddetails> {
                 text: 'Job ID : ',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
                 children: [
@@ -294,7 +294,7 @@ class _CarddetailsState extends State<Carddetails> {
                 text: 'Job Type : ',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
                 children: [
@@ -316,7 +316,7 @@ class _CarddetailsState extends State<Carddetails> {
                 text: 'Qualification Skills : ',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
                 children: [

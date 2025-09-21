@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/aboutYou/tag.dart';
+import 'package:internappflutter/auth/FirebaseOTPService.dart';
 import 'package:internappflutter/auth/google_signin.dart';
 import 'package:internappflutter/auth/otp_page.dart';
+import 'package:internappflutter/auth/registerpage.dart';
+import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/home/home_page.dart';
-
 import 'package:internappflutter/models/usermodel.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,6 +19,99 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _phoneController = TextEditingController();
+  final FirebaseOTPService _otpService = FirebaseOTPService();
+  bool _isLoading = false;
+
+  // Validate phone number format
+  bool _isValidPhoneNumber(String phone) {
+    // Remove spaces and check if it's a valid Indian phone number
+    final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    return cleanPhone.length >= 10 && cleanPhone.startsWith('+91');
+  }
+
+  // Format phone number to E.164 format
+  String _formatPhoneNumber(String phone) {
+    String cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    if (!cleanPhone.startsWith('+91')) {
+      if (cleanPhone.startsWith('91')) {
+        cleanPhone = '+$cleanPhone';
+      } else if (cleanPhone.length == 10) {
+        cleanPhone = '+91$cleanPhone';
+      }
+    }
+    return cleanPhone;
+  }
+
+  // Send OTP
+  void _sendOTP() async {
+    final phoneNumber = _phoneController.text.trim();
+
+    if (phoneNumber.isEmpty) {
+      _showSnackBar('Please enter your phone number', Colors.red);
+      return;
+    }
+
+    if (!_isValidPhoneNumber(phoneNumber)) {
+      _showSnackBar('Please enter a valid phone number', Colors.red);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final formattedPhone = _formatPhoneNumber(phoneNumber);
+
+    await _otpService.sendOTP(
+      phoneNumber: formattedPhone,
+      onCodeSent: (message) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showSnackBar(message, Colors.green);
+
+        // Navigate to OTP page
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                OtpPage(phoneNumber: formattedPhone, otpService: _otpService),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  var tween = Tween(
+                    begin: begin,
+                    end: end,
+                  ).chain(CurveTween(curve: Curves.easeInOut));
+
+                  return SlideTransition(
+                    position: animation.drive(tween),
+                    child: child,
+                  );
+                },
+          ),
+        );
+      },
+      onError: (error) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showSnackBar(error, Colors.red);
+      },
+    );
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +157,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         onPressed: () {
-                          //for now, navigating to home page on sign up button press
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => const HomePage(),
+                              builder: (context) => const RegisterPage(),
                             ),
                           );
                         },
@@ -82,7 +176,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                 // Highlighted Text
                 Container(
-                  color: Colors.transparent, // optional background
+                  color: Colors.transparent,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -104,162 +198,138 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           fontSize: 30,
                         ),
                       ),
-                    ], // ✅ this closes children: []
-                  ),
-                ),
-
-                SizedBox(height: 15),
-                // Phone Number Input
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Phone Number",
-                      style: GoogleFonts.jost(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          hintText: "+91 95674 43452",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                            fontFamily: GoogleFonts.jost().fontFamily,
-                          ),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                // Get OTP Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 54.0,
-                  child: Stack(
-                    children: [
-                      // Bottom layer (3D effect)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          height: 0, // thickness of the 3D effect
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(
-                              255,
-                              0,
-                              0,
-                              0,
-                            ), // darker shade for depth
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      // Top button
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                transitionDuration: const Duration(
-                                  milliseconds: 400,
-                                ),
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        OtpPage(),
-                                transitionsBuilder:
-                                    (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                      child,
-                                    ) {
-                                      const begin = Offset(
-                                        1.0,
-                                        0.0,
-                                      ); // Slide from right
-                                      const end =
-                                          Offset.zero; // End at normal position
-                                      var tween = Tween(begin: begin, end: end)
-                                          .chain(
-                                            CurveTween(curve: Curves.easeInOut),
-                                          );
-
-                                      return SlideTransition(
-                                        position: animation.drive(tween),
-                                        child: child,
-                                      );
-                                    },
-                              ),
-                            );
-                          },
-
-                          child: const Text(
-                            "Get OTP",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 5),
+                SizedBox(height: 45),
+                // // Phone Number Input
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text(
+                //       "Phone Number",
+                //       style: GoogleFonts.jost(
+                //         fontWeight: FontWeight.w400,
+                //         fontSize: 12,
+                //       ),
+                //     ),
+                //     const SizedBox(height: 6),
+                //     Container(
+                //       decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.circular(12),
+                //         boxShadow: [
+                //           BoxShadow(
+                //             color: Colors.black26,
+                //             blurRadius: 6,
+                //             offset: Offset(0, 3),
+                //           ),
+                //         ],
+                //       ),
+                //       child: TextField(
+                //         controller: _phoneController,
+                //         keyboardType: TextInputType.phone,
+                //         enabled: !_isLoading,
+                //         decoration: InputDecoration(
+                //           contentPadding: const EdgeInsets.symmetric(
+                //             vertical: 12,
+                //             horizontal: 16,
+                //           ),
+                //           hintText: "+91 95674 43452",
+                //           hintStyle: TextStyle(
+                //             color: Colors.grey.shade600,
+                //             fontSize: 14,
+                //             fontFamily: GoogleFonts.jost().fontFamily,
+                //           ),
+                //           border: InputBorder.none,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
 
-                // Divider with OR
-                Row(
-                  children: const [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Text("OR"),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
+                // const SizedBox(height: 30),
 
-                const SizedBox(height: 5),
+                // // Get OTP Button
+                // SizedBox(
+                //   width: double.infinity,
+                //   height: 54.0,
+                //   child: Stack(
+                //     children: [
+                //       // Bottom layer (3D effect)
+                //       Positioned(
+                //         bottom: 0,
+                //         left: 0,
+                //         right: 0,
+                //         child: Container(
+                //           height: 0,
+                //           decoration: BoxDecoration(
+                //             color: const Color.fromARGB(255, 0, 0, 0),
+                //             borderRadius: BorderRadius.circular(12),
+                //           ),
+                //         ),
+                //       ),
+                //       // Top button
+                //       Positioned(
+                //         top: 0,
+                //         left: 0,
+                //         right: 0,
+                //         child: ElevatedButton(
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor: Colors.black,
+                //             shape: RoundedRectangleBorder(
+                //               borderRadius: BorderRadius.circular(12),
+                //             ),
+                //             padding: const EdgeInsets.symmetric(vertical: 14),
+                //             elevation: 0,
+                //           ),
+                //           onPressed: () {
+                //             Navigator.push(
+                //               context,
+                //               MaterialPageRoute(
+                //                 builder: (context) => RegisterPage(),
+                //               ),
+                //             );
+                //           },
+                //           child: _isLoading
+                //               ? const SizedBox(
+                //                   width: 20,
+                //                   height: 20,
+                //                   child: CircularProgressIndicator(
+                //                     strokeWidth: 2,
+                //                     color: Colors.white,
+                //                   ),
+                //                 )
+                //               : const Text(
+                //                   "Get OTP",
+                //                   style: TextStyle(
+                //                     fontSize: 16,
+                //                     fontWeight: FontWeight.w600,
+                //                     color: Colors.white,
+                //                   ),
+                //                 ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+
+                // const SizedBox(height: 5),
+
+                // // Divider with OR
+                // Row(
+                //   children: const [
+                //     Expanded(child: Divider()),
+                //     Padding(
+                //       padding: EdgeInsets.symmetric(horizontal: 10),
+                //       child: Text("OR"),
+                //     ),
+                //     Expanded(child: Divider()),
+                //   ],
+                // ),
+
+                // const SizedBox(height: 5),
 
                 // Continue with Google
                 SizedBox(
@@ -271,7 +341,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.25),
-                          offset: const Offset(0, 4), // shadow only at bottom
+                          offset: const Offset(0, 4),
                           blurRadius: 6,
                           spreadRadius: 0,
                         ),
@@ -289,80 +359,182 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           horizontal: 12,
                         ),
                       ),
-
-                      // Replace the Google sign-in button's onPressed method with this:
-                      onPressed: () async {
-                        // Show loading indicator
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Row(
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(width: 16),
+                                      Text("Signing in with Google..."),
+                                    ],
                                   ),
+                                  duration: Duration(seconds: 10),
                                 ),
-                                SizedBox(width: 16),
-                                Text("Signing in with Google..."),
-                              ],
-                            ),
-                            duration: Duration(
-                              seconds: 10,
-                            ), // Long duration, will be dismissed manually
-                          ),
-                        );
+                              );
 
-                        try {
-                          final user = await GoogleAuthService()
-                              .signInWithGoogle();
+                              // ✅ Fixed Flutter sign-in logic with better error handling
+                              try {
+                                final googleAuthService = GoogleAuthService();
+                                final user = await googleAuthService
+                                    .signInWithGoogle();
 
-                          // Dismiss the loading snackbar
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                // Hide any existing snackbars
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).hideCurrentSnackBar();
 
-                          if (user != null) {
-                            // ✅ Successfully signed in AND backend registration succeeded
-                            final userModel = UserModel(
-                              name: user.displayName ?? 'Unknown User',
-                              email: user.email ?? 'No Email',
-                              profileImageUrl: user.photoURL,
-                              role:
-                                  'Student', // Default role, can be customized
-                            );
+                                if (user != null) {
+                                  print(
+                                    "🔐 User signed in, checking database...",
+                                  );
 
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    TagPage(userModel: userModel),
-                              ),
-                            );
-                          } else {
-                            // ❌ Sign-in failed (either Google auth or backend registration)
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Sign-in failed. Please try again.",
-                                ),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 3),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          // Dismiss loading and show error
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("An error occurred: $e"),
-                              backgroundColor: Colors.red,
-                              duration: const Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      },
+                                  // Show loading indicator
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Row(
+                                        children: [
+                                          CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
+                                          ),
+                                          SizedBox(width: 16),
+                                          Text("Checking account..."),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.blue,
+                                      duration: Duration(
+                                        seconds: 10,
+                                      ), // Increased duration
+                                    ),
+                                  );
 
+                                  // ✅ Check if user exists in database
+                                  final checkResult = await googleAuthService
+                                      .checkIfUserExists();
+
+                                  // Hide loading indicator
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).hideCurrentSnackBar();
+
+                                  if (checkResult != null) {
+                                    if (checkResult['exists'] == true) {
+                                      // ✅ User exists - GO TO HOME
+                                      print(
+                                        "✅ User found in database - navigating to HomePage",
+                                      );
+
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              BottomnavbarAlternative(
+                                                userData: checkResult['user'],
+                                              ),
+                                        ),
+                                      );
+
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Welcome back!"),
+                                          backgroundColor: Colors.green,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    } else {
+                                      // ✅ User doesn't exist - GO TO REGISTER
+                                      print(
+                                        "👤 User not in database - navigating to RegisterPage",
+                                      );
+
+                                      final userModel = UserModel(
+                                        name:
+                                            user.displayName ?? 'Unknown User',
+                                        email: user.email ?? 'No Email',
+                                        phone: '',
+                                        profileImageUrl: user.photoURL,
+                                        uid: user.uid,
+                                        role: 'Student',
+                                      );
+
+                                      Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) => RegisterPage(
+                                            userModel: userModel,
+                                          ),
+                                        ),
+                                      );
+
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            "Please complete registration",
+                                          ),
+                                          backgroundColor: Colors.orange,
+                                          duration: Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    // ❌ Server error or network issue
+                                    print("❌ Server error occurred");
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Server error. Please check your connection and try again.",
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 4),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  // ❌ Google sign-in failed or was cancelled
+                                  print(
+                                    "❌ Google sign-in failed or was cancelled",
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Sign-in failed or was cancelled.",
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                print("❌ Exception during sign-in process: $e");
+
+                                // Hide any loading indicators
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).hideCurrentSnackBar();
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Error: $e"),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 4),
+                                  ),
+                                );
+                              }
+                            },
                       icon: SvgPicture.asset(
                         "assets/svg/google_logo.svg",
                         height: 24,
@@ -381,8 +553,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
 
                 Align(
-                  alignment:
-                      Alignment.centerRight, // or .topRight, .bottomRight
+                  alignment: Alignment.centerRight,
                   child: Image.asset(
                     "assets/images/Cartoon_Network_Bear_Sticker.png",
                     fit: BoxFit.fitHeight,
