@@ -142,7 +142,8 @@ class OtpPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BottomnavbarAlternative(),
+                          builder: (context) =>
+                              BottomnavbarAlternative(userData: null),
                         ),
                       );
                     },

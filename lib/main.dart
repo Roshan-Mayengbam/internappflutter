@@ -12,10 +12,12 @@ import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
+import 'package:internappflutter/screens/profile_screen.dart';
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(MyApp());
 }
 
@@ -31,8 +33,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/signup',
       routes: {
-        '/': (context) => const BottomnavbarAlternative(),
-        '/signup': (context) => const SignUpScreen(),
+        // '/': (context) => const BottomnavbarAlternative(),
+        '/signup': (context) => SignUpScreen(),
       },
     );
   }

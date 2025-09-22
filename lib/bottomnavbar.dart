@@ -3,10 +3,11 @@ import 'package:internappflutter/home/explore.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
+import 'package:internappflutter/screens/profile_screen.dart';
 import 'package:internappflutter/search/job_search.dart';
 
 class BottomnavbarAlternative extends StatefulWidget {
-  const BottomnavbarAlternative({super.key});
+  const BottomnavbarAlternative({super.key, required userData});
 
   @override
   State<BottomnavbarAlternative> createState() =>
@@ -20,7 +21,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(),
     const JobSearchScreen(),
     const Center(child: Text("Calendar Page")),
-    const ProfilePage2(),
+    const ProfileScreen(),
   ];
 
   @override

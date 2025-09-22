@@ -256,56 +256,66 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            // Bottom shadow
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
+                      InkWell(
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatListScreen(),
                             ),
-                            // Right shadow
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            // Bottom-right corner shadow (to make it symmetric)
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: const Border(
-                            top: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            left: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            right: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
-                            bottom: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
                           ),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.chat_bubble_outline,
-                          color: Colors.black,
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              // Bottom shadow
+                              const BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(0, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              // Right shadow
+                              const BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 0),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              // Bottom-right corner shadow (to make it symmetric)
+                              const BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                            ],
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: const Border(
+                              top: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 1,
+                              ), // thin
+                              left: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 1,
+                              ), // thin
+                              right: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 2,
+                              ), // thick
+                              bottom: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 2,
+                              ), // thick
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: const Icon(
+                            Icons.chat_bubble_outline,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -499,6 +509,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ChatListScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Chat List')),
+      body: Center(child: Text('Chat List Screen')),
     );
   }
 }

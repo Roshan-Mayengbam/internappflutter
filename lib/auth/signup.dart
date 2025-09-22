@@ -6,8 +6,6 @@ import 'package:internappflutter/auth/google_signin.dart';
 import 'package:internappflutter/auth/otp_page.dart';
 import 'package:internappflutter/home/home_page.dart';
 
-import 'package:internappflutter/models/usermodel.dart';
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -292,28 +290,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onPressed: () async {
                         final user = await GoogleAuthService()
                             .signInWithGoogle();
-                        if (user != null) {
-                          // ✅ Successfully signed in - Navigate to TagPage with user data
-                          final userModel = UserModel(
-                            name: user.displayName ?? 'Unknown User',
-                            email: user.email ?? 'No Email',
-                            profileImageUrl: user.photoURL,
-                            role: 'Student', // Default role, can be customized
-                          );
+                        // if (user != null) {
+                        //   // ✅ Successfully signed in - Navigate to TagPage with user data
+                        //   final userModel = UserModel(
+                        //     name: user.displayName ?? 'Unknown User',
+                        //     email: user.email ?? 'No Email',
+                        //     profileImageUrl: user.photoURL,
+                        //     role: 'Student', // Default role, can be customized
+                        //   );
 
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TagPage(userModel: userModel),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Google Sign-In failed"),
-                            ),
-                          );
-                        }
+                        //   Navigator.of(context).pushReplacement(
+                        //     MaterialPageRoute(
+                        //       builder: (context) =>
+                        //           TagPage(userModel: userModel),
+                        //     ),
+                        //   );
+                        // } else {
+                        //   ScaffoldMessenger.of(context).showSnackBar(
+                        //     const SnackBar(
+                        //       content: Text("Google Sign-In failed"),
+                        //     ),
+                        //   );
+                        // }
                       },
 
                       icon: SvgPicture.asset(
