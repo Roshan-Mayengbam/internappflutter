@@ -1,47 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:internappflutter/models/jobs.dart';
 import 'job_card.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required userData});
 
   @override
   State<HomePage> createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  final List<Map<String, dynamic>> jobs = [
-    {
-      'jobTitle': 'UI/UX Designer',
-      'companyName': 'Lumel Technologies',
-      'location': 'Chennai',
-      'experienceLevel': '0-2 years',
-      'requirements': [
-        '0 - 3 year experience',
-        'Strong design fundamentals',
-        'Knowledge of Figma',
-      ],
-      'websiteUrl': 'www.lumel.com',
-      'initialColorIndex': 0,
-    },
-    {
-      'jobTitle': 'Frontend Developer',
-      'companyName': 'Pixel Labs',
-      'location': 'Bangalore',
-      'experienceLevel': '0-2 years',
-      'requirements': ['React, Flutter', 'UI/UX skills', 'Team player'],
-      'websiteUrl': 'www.pixellabs.com',
-      'initialColorIndex': 1,
-    },
-    {
-      'jobTitle': 'Backend Developer',
-      'companyName': 'Tech Corp',
-      'location': 'Remote',
-      'experienceLevel': '1-3 years',
-      'requirements': ['1+ year experience', 'Node.js, MongoDB', 'REST APIs'],
-      'websiteUrl': 'www.techcorp.com',
-      'initialColorIndex': 2,
-    },
-  ];
+  // Convert API Job to display format
+  List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
+    return jobs.asMap().entries.map((entry) {
+      int index = entry.key;
+      Job job = entry.value;
+      return {
+        'jobTitle': job.title,
+        'companyName':
+            'Company', // You might want to extract this from recruiter field
+        'location': job.preferences.location,
+        'experienceLevel': '${job.preferences.minExperience}+ years',
+        'requirements': job.preferences.skills.isNotEmpty
+            ? job.preferences.skills
+            : ['Skills not specified'],
+        'websiteUrl': 'www.company.com',
+        'initialColorIndex': index % 3,
+        'description': job.description,
+        'salaryRange':
+            '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
+        'jobId': job.id, // Add jobId for applying
+      };
+    }).toList();
+  }
 
   // Notification data
   Map notifications = {
@@ -71,12 +63,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   double _dragProgress = 0.0;
   DismissDirection? _dragDirection;
 
-  int _idx(int offset) => (_topIndex + offset) % jobs.length;
+  int _idx(int offset, int totalJobs) => (_topIndex + offset) % totalJobs;
 
   @override
   void initState() {
     super.initState();
     _initAnimations();
+
+    // Load jobs when the widget initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<JobProvider>().fetchJobs();
+    });
   }
 
   void _initAnimations() {
@@ -119,6 +116,43 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
+  void _handleJobAction(String jobId, bool isLiked) async {
+    if (isLiked) {
+      print("🚀 Attempting to apply for job: $jobId");
+
+      // ✅ NO NEED TO PASS STUDENT ID - IT COMES FROM TOKEN
+      await context.read<JobProvider>().applyJob(jobId);
+
+      final jobProvider = context.read<JobProvider>();
+      if (jobProvider.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jobProvider.errorMessage!),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Applied to job successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      print("❌ Job rejected: $jobId");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Job rejected'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   @override
   void didUpdateWidget(covariant HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -136,24 +170,129 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final cardWidth = screenSize.width - 40.0; // Full width minus padding
-    final cardHeight = screenSize.height * 0.50; // 50% of screen height
+    final cardWidth = screenSize.width - 40.0;
+    final cardHeight = screenSize.height * 0.50;
 
-    // Back-card animation based on drag progress
-    final nextScale = 0.95 + (0.03 * _dragProgress);
-    final nextTranslateY = 24 - (8 * _dragProgress);
+    return Consumer<JobProvider>(
+      builder: (context, jobProvider, child) {
+        final displayJobs = jobsToDisplayFormat(jobProvider.jobs);
 
-    final thirdScale = 0.90 + (0.03 * _dragProgress * 0.5);
-    final thirdTranslateY = 48 - (8 * _dragProgress * 0.5);
+        // Show error message if there's an error
+        if (jobProvider.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(jobProvider.errorMessage!),
+                action: SnackBarAction(
+                  label: 'Retry',
+                  onPressed: () => jobProvider.fetchJobs(),
+                ),
+              ),
+            );
+          });
+        }
 
-    // Top-card rotation based on drag direction
-    final topAngle =
-        (_dragDirection == DismissDirection.startToEnd
-            ? 1
-            : _dragDirection == DismissDirection.endToStart
-            ? -1
-            : 0) *
-        (0.20 * _dragProgress);
+        if (displayJobs.isEmpty && !jobProvider.isLoading) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  // Top bar
+                  _buildTopBar(jobProvider),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "SWIPE AND PICK YOUR JOB",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Empty state
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.work_off,
+                            size: 80,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'No jobs available',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => jobProvider.fetchJobs(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Loading state
+        if (jobProvider.isLoading && displayJobs.isEmpty) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(jobProvider),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "SWIPE AND PICK YOUR JOB",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Back-card animation based on drag progress
+        final nextScale = 0.95 + (0.03 * _dragProgress);
+        final nextTranslateY = 24 - (8 * _dragProgress);
+
+        final thirdScale = 0.90 + (0.03 * _dragProgress * 0.5);
+        final thirdTranslateY = 48 - (8 * _dragProgress * 0.5);
+
+        // Top-card rotation based on drag direction
+        final topAngle =
+            (_dragDirection == DismissDirection.startToEnd
+                ? 1
+                : _dragDirection == DismissDirection.endToStart
+                ? -1
+                : 0) *
+            (0.20 * _dragProgress);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -256,66 +395,56 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   Row(
                     children: [
-                      InkWell(
-                        onTap: () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatListScreen(),
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            // Bottom shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(0, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
                             ),
-                          ),
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              // Bottom shadow
-                              const BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(0, 6),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                              // Right shadow
-                              const BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(6, 0),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                              // Bottom-right corner shadow (to make it symmetric)
-                              const BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(6, 6),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                            ],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: const Border(
-                              top: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
-                                width: 1,
-                              ), // thin
-                              left: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
-                                width: 1,
-                              ), // thin
-                              right: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
-                                width: 2,
-                              ), // thick
-                              bottom: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
-                                width: 2,
-                              ), // thick
+                            // Right shadow
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 0),
+                              blurRadius: 0,
+                              spreadRadius: -2,
                             ),
+                            // Bottom-right corner shadow (to make it symmetric)
+                            const BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                          ],
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: const Border(
+                            top: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            left: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 1,
+                            ), // thin
+                            right: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
+                            bottom: BorderSide(
+                              color: Color.fromARGB(255, 6, 7, 8),
+                              width: 2,
+                            ), // thick
                           ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(
-                            Icons.chat_bubble_outline,
-                            color: Colors.black,
-                          ),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(width: 12),
