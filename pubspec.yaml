@@ -92,6 +92,21 @@ flutter:
     - assets/Button.png
     - assets/images/UI.png
     - assets/images/Lumel_Logo.png
+    - assets/puzzle.png
+    - assets/girl.png
+    - assets/2image1.png
+    - assets/2text2.png
+    - assets/2text1.png
+    - assets/JUMP.png
+    - assets/IN.png
+    - assets/Star2.png
+    - assets/YOUR.png
+    - assets/DREAMS.png
+    - assets/TO.png
+    - assets/Union1.png
+    - assets/cwg.png
+    - assets/arrow_outward.png
+    - assets/google.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
