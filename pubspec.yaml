@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^6.3.0
   cached_network_image: ^3.4.1
   swipe_cards: ^2.0.0+1
+  provider: ^6.1.5+1
 
   
 
