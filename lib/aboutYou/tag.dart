@@ -1,105 +1,22 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:internappflutter/auth/courserange.dart';
-import 'package:internappflutter/auth/google_signin.dart';
-import 'package:internappflutter/bottomnavbar.dart';
 
-class TagPage extends StatefulWidget {
-  final FinalUserModel? userModel;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:internappflutter/home/home_page.dart';
+import 'package:internappflutter/models/usermodel.dart';
+
+class TagPage extends StatelessWidget {
+  final UserModel? userModel;
   final File? profileImage;
 
-  const TagPage({super.key, this.profileImage, required this.userModel});
-
-  @override
-  State<TagPage> createState() => _TagPageState();
-}
-
-class _TagPageState extends State<TagPage> {
-  final GoogleAuthService _authService = GoogleAuthService();
-  bool _isSubmitting = false;
-
-  Future<void> _submitUserData() async {
-    if (widget.userModel == null) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      // ✅ Debug print all collected data
-      print("=== FINAL USER DATA SUMMARY ===");
-      print("Name: ${widget.userModel!.name}");
-      print("Email: ${widget.userModel!.email}");
-      print("Phone: ${widget.userModel!.phone}");
-      print("UID: ${widget.userModel!.uid}");
-      print("Role: ${widget.userModel!.role}");
-      print("College: ${widget.userModel!.collegeName}");
-      print("University: ${widget.userModel!.university}");
-      print("Degree: ${widget.userModel!.degree}");
-      print("Course Range: ${widget.userModel!.courseRange}");
-      print("Profile Image: ${widget.profileImage?.path ?? 'None'}");
-      print("===============================");
-
-      // ✅ Submit complete user data to backend
-      final success = await _authService.submitCompleteUserData(
-        widget.userModel!,
-        widget.profileImage,
-      );
-
-      if (success) {
-        print("✅ User data submitted successfully!");
-
-        // Navigate to main app
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => BottomnavbarAlternative(userData: null),
-            ),
-          );
-        }
-      } else {
-        print("❌ Failed to submit user data");
-
-        // Show error message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to save your data. Please try again.'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      print("❌ Error during submission: $e");
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('An error occurred. Please try again.'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
-  }
+  const TagPage({super.key, this.userModel, this.profileImage});
 
   @override
   Widget build(BuildContext context) {
-    if (widget.userModel == null) {
-      return const Scaffold(
-        body: Center(child: Text("No user data available")),
-      );
-    }
+    // Use provided userModel or create default
+    final user =
+        userModel ??
+        UserModel(name: 'User', email: 'user@example.com', role: 'Student');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,7 +25,7 @@ class _TagPageState extends State<TagPage> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
@@ -118,10 +35,10 @@ class _TagPageState extends State<TagPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              _buildEnhancedIdCard(context, widget.userModel!),
+              _buildIdCard(context, user),
               const Spacer(),
               const Text(
-                'Nice to get your details.\nLet\'s dive in deep',
+                'Nice to get your details.\nLet\'s get dive in deep',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
@@ -134,33 +51,23 @@ class _TagPageState extends State<TagPage> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitUserData,
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return HomePage();
+                        },
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _isSubmitting ? Colors.grey : Colors.black,
+                    backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isSubmitting
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Text('Saving...', style: TextStyle(fontSize: 18)),
-                          ],
-                        )
-                      : Text('Next', style: TextStyle(fontSize: 18)),
+                  child: const Text('Next', style: TextStyle(fontSize: 18)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -171,14 +78,14 @@ class _TagPageState extends State<TagPage> {
     );
   }
 
-  Widget _buildEnhancedIdCard(BuildContext context, FinalUserModel user) {
+  Widget _buildIdCard(BuildContext context, UserModel user) {
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
         Container(
-          width: MediaQuery.of(context).size.width * 0.85,
-          height: 520,
+          width: MediaQuery.of(context).size.width * 0.75,
+          height: 450,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
@@ -194,7 +101,7 @@ class _TagPageState extends State<TagPage> {
               fit: BoxFit.contain,
             ),
           ),
-          child: Stack(children: [_buildEnhancedCardDetails(user)]),
+          child: Stack(children: [_buildCardDetails(user)]),
         ),
         Positioned(
           top: -60,
@@ -210,15 +117,16 @@ class _TagPageState extends State<TagPage> {
             ),
           ),
         ),
+        // Moved profile image higher up in the stack
         Positioned(top: 80, child: _buildProfileImage(user)),
       ],
     );
   }
 
-  Widget _buildProfileImage(FinalUserModel user) {
+  Widget _buildProfileImage(UserModel user) {
     return Container(
-      width: 140,
-      height: 140,
+      width: 160, // Reduced size to fit better with new positioning
+      height: 160,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 4),
@@ -231,38 +139,30 @@ class _TagPageState extends State<TagPage> {
         ],
       ),
       child: ClipOval(
-        child: widget.profileImage != null
-            ? Image.file(widget.profileImage!, fit: BoxFit.cover)
-            : (user.profileImageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: user.profileImageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-                    )),
+        child: profileImage != null
+            ? Image.file(profileImage!, fit: BoxFit.cover)
+            : user.profileImageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: user.profileImageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[300],
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.person, size: 60, color: Colors.grey),
+                ),
+              )
+            : Container(
+                color: Colors.grey[300],
+                child: const Icon(Icons.person, size: 60, color: Colors.grey),
+              ),
       ),
     );
   }
 
-  Widget _buildEnhancedCardDetails(FinalUserModel user) {
+  Widget _buildCardDetails(UserModel user) {
     return Positioned(
       bottom: 24,
       left: 0,
@@ -270,11 +170,12 @@ class _TagPageState extends State<TagPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 60),
+          // Added some top padding to account for the profile image above
+          const SizedBox(height: 80),
           Text(
             user.name,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 24, // Slightly reduced to fit better
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
@@ -294,36 +195,6 @@ class _TagPageState extends State<TagPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: _buildDetailColumn('College', user.collegeName),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildDetailColumn('University', user.university),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: _buildDetailColumn('Degree', user.degree)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildDetailColumn('Course Range', user.courseRange),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -333,21 +204,14 @@ class _TagPageState extends State<TagPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

@@ -14,24 +14,11 @@ import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // ✅ Initialize Firebase before the app runs
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // ✅ Wrap app with Provider(s)
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => JobProvider()),
-        // You can add more providers here (e.g. AuthProvider, UserProvider)
-      ],
-      child: MyApp(),
-    ),
-  );
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,9 +33,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/homePage',
       routes: {
-        // '/': (context) => const BottomnavbarAlternative(),
+        '/': (context) => const BottomnavbarAlternative(),
         '/signup': (context) => const SignUpScreen(),
-        '/homePage': (context) => const BottomnavbarAlternative(userData: null),
       },
     );
   }

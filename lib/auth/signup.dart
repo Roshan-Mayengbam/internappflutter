@@ -8,6 +8,7 @@ import 'package:internappflutter/auth/otp_page.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/home/home_page.dart';
+
 import 'package:internappflutter/models/usermodel.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -359,182 +360,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           horizontal: 12,
                         ),
                       ),
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(width: 16),
-                                      Text("Signing in with Google..."),
-                                    ],
-                                  ),
-                                  duration: Duration(seconds: 10),
-                                ),
-                              );
+                      onPressed: () async {
+                        final user = await GoogleAuthService()
+                            .signInWithGoogle();
+                        if (user != null) {
+                          // ✅ Successfully signed in - Navigate to TagPage with user data
+                          final userModel = UserModel(
+                            name: user.displayName ?? 'Unknown User',
+                            email: user.email ?? 'No Email',
+                            profileImageUrl: user.photoURL,
+                            role: 'Student', // Default role, can be customized
+                          );
 
-                              // ✅ Fixed Flutter sign-in logic with better error handling
-                              try {
-                                final googleAuthService = GoogleAuthService();
-                                final user = await googleAuthService
-                                    .signInWithGoogle();
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TagPage(userModel: userModel),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Google Sign-In failed"),
+                            ),
+                          );
+                        }
+                      },
 
-                                // Hide any existing snackbars
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).hideCurrentSnackBar();
-
-                                if (user != null) {
-                                  print(
-                                    "🔐 User signed in, checking database...",
-                                  );
-
-                                  // Show loading indicator
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Row(
-                                        children: [
-                                          CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  Colors.white,
-                                                ),
-                                          ),
-                                          SizedBox(width: 16),
-                                          Text("Checking account..."),
-                                        ],
-                                      ),
-                                      backgroundColor: Colors.blue,
-                                      duration: Duration(
-                                        seconds: 10,
-                                      ), // Increased duration
-                                    ),
-                                  );
-
-                                  // ✅ Check if user exists in database
-                                  final checkResult = await googleAuthService
-                                      .checkIfUserExists();
-
-                                  // Hide loading indicator
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).hideCurrentSnackBar();
-
-                                  if (checkResult != null) {
-                                    if (checkResult['exists'] == true) {
-                                      // ✅ User exists - GO TO HOME
-                                      print(
-                                        "✅ User found in database - navigating to HomePage",
-                                      );
-
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              BottomnavbarAlternative(
-                                                userData: checkResult['user'],
-                                              ),
-                                        ),
-                                      );
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Welcome back!"),
-                                          backgroundColor: Colors.green,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                    } else {
-                                      // ✅ User doesn't exist - GO TO REGISTER
-                                      print(
-                                        "👤 User not in database - navigating to RegisterPage",
-                                      );
-
-                                      final userModel = UserModel(
-                                        name:
-                                            user.displayName ?? 'Unknown User',
-                                        email: user.email ?? 'No Email',
-                                        phone: '',
-                                        profileImageUrl: user.photoURL,
-                                        uid: user.uid,
-                                        role: 'Student',
-                                      );
-
-                                      Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                          builder: (context) => RegisterPage(
-                                            userModel: userModel,
-                                          ),
-                                        ),
-                                      );
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Please complete registration",
-                                          ),
-                                          backgroundColor: Colors.orange,
-                                          duration: Duration(seconds: 3),
-                                        ),
-                                      );
-                                    }
-                                  } else {
-                                    // ❌ Server error or network issue
-                                    print("❌ Server error occurred");
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          "Server error. Please check your connection and try again.",
-                                        ),
-                                        backgroundColor: Colors.red,
-                                        duration: Duration(seconds: 4),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  // ❌ Google sign-in failed or was cancelled
-                                  print(
-                                    "❌ Google sign-in failed or was cancelled",
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Sign-in failed or was cancelled.",
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                print("❌ Exception during sign-in process: $e");
-
-                                // Hide any loading indicators
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).hideCurrentSnackBar();
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Error: $e"),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 4),
-                                  ),
-                                );
-                              }
-                            },
                       icon: SvgPicture.asset(
                         "assets/svg/google_logo.svg",
                         height: 24,

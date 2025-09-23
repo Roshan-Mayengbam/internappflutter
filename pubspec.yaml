@@ -48,10 +48,6 @@ dependencies:
   google_fonts: ^6.3.0
   cached_network_image: ^3.4.1
   swipe_cards: ^2.0.0+1
-  provider: ^6.1.5+1
-
-
-
 
   
 
@@ -96,8 +92,6 @@ flutter:
     - assets/Button.png
     - assets/images/UI.png
     - assets/images/Lumel_Logo.png
-    - assets/Union.png
-    - assets/text.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

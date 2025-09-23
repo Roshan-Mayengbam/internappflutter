@@ -177,6 +177,8 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 }
 
+TagPage({File? profileImage, required userModel}) {}
+
 class FileUploadWidget extends StatelessWidget {
   final File? file;
   final VoidCallback? onTap;
