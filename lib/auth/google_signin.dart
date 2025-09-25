@@ -58,7 +58,6 @@ class GoogleAuthService {
       final idToken = await currentUser.getIdToken();
       print("✅ ID token obtained");
 
-      // ✅ This will call: http://10.207.242.157:3000/student/check
       print("🔍 Calling: $baseUrl/check");
       print("🔑 Using UID: ${currentUser.uid}");
 
@@ -74,25 +73,39 @@ class GoogleAuthService {
 
       print("📡 Backend response status: ${response.statusCode}");
       print("📄 Backend response body: ${response.body}");
-      print("📄 Backend response headers: ${response.headers}");
 
       if (response.statusCode == 200) {
-        // User exists in database
         try {
           final responseData = jsonDecode(response.body);
-          print("✅ User exists - going to HomePage");
-          print("👤 User data: ${responseData['user']}");
-          return {"exists": true, "user": responseData['user']};
+          print("📄 Parsed response data: $responseData");
+          print("📄 Response keys: ${responseData.keys.toList()}");
+          print("📄 'exists' value: ${responseData['exists']}");
+          print("📄 'exists' type: ${responseData['exists'].runtimeType}");
+
+          // ✅ CRITICAL FIX: Check the 'exists' field from backend response
+          if (responseData.containsKey('exists')) {
+            if (responseData['exists'] == true &&
+                responseData.containsKey('user')) {
+              print("✅ User exists in database - has user data");
+              return {"exists": true, "user": responseData['user']};
+            } else if (responseData['exists'] == false) {
+              print("👤 User does not exist in database");
+              return {"exists": false};
+            } else {
+              print("❌ Unexpected exists value: ${responseData['exists']}");
+              return null;
+            }
+          } else {
+            print("❌ Response missing 'exists' field");
+            return null;
+          }
         } catch (parseError) {
           print("❌ JSON parsing error: $parseError");
+          print("❌ Raw response: ${response.body}");
           return null;
         }
-      } else if (response.statusCode == 404) {
-        // User doesn't exist in database
-        print("👤 User not found - going to RegisterPage");
-        return {"exists": false};
       } else {
-        print("❌ Unexpected response: ${response.statusCode}");
+        print("❌ Unexpected status code: ${response.statusCode}");
         print("❌ Response body: ${response.body}");
         return null;
       }
@@ -126,7 +139,6 @@ class GoogleAuthService {
           "lastName": userModel.name.split(" ").length > 1
               ? userModel.name.split(" ").skip(1).join(" ")
               : "",
-          "profilePicture": userModel.profileImageUrl,
         },
         "education": {
           "college": userModel.collegeName,

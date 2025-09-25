@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/collegedetails.dart';
 import 'package:internappflutter/auth/courserange.dart';
+import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
@@ -14,11 +15,21 @@ import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => JobProvider()), // example
+        // Add more providers here
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -31,10 +42,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/homePage',
+      initialRoute: '/signup',
       routes: {
-        '/': (context) => const BottomnavbarAlternative(),
-        '/signup': (context) => const SignUpScreen(),
+        '/homepage': (context) => const BottomnavbarAlternative(userData: null),
+        '/signup': (context) => const Page2(),
+        '/register': (context) => RegisterPage(userModel: null),
       },
     );
   }

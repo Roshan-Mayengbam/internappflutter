@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/aboutYou/uploadProfilePic.dart';
 import 'package:internappflutter/auth/collegedetails.dart';
+import 'package:internappflutter/auth/skills.dart'; // Import Skills page instead of experience
 import 'package:internappflutter/models/usermodel.dart';
 
 class CourseRangePage extends StatefulWidget {
-  final dynamic userModel; // ✅ Accept both UserModel and ExtendedUserModel
+  final ExtendedUserModel? extendedUserModel;
 
-  const CourseRangePage({super.key, required this.userModel});
+  const CourseRangePage({super.key, required this.extendedUserModel});
 
   @override
   State<CourseRangePage> createState() => _CourseRangePageState();
@@ -21,19 +22,21 @@ class _CourseRangePageState extends State<CourseRangePage> {
   @override
   void initState() {
     super.initState();
-    // ✅ Debug print to see received user data
-    if (widget.userModel != null) {
-      print("Received user data in CourseRangePage:");
-      print("Name: ${widget.userModel.name}");
-      print("Email: ${widget.userModel.email}");
-
-      // Check if it's ExtendedUserModel with college details
-      if (widget.userModel is ExtendedUserModel) {
-        final extendedModel = widget.userModel as ExtendedUserModel;
-        print("College Name: ${extendedModel.collegeName}");
-        print("University: ${extendedModel.university}");
-        print("Degree: ${extendedModel.degree}");
-      }
+    // ✅ Debug print to see received user data - FIXED parameter name
+    if (widget.extendedUserModel != null) {
+      print("=== RECEIVED DATA IN COURSE RANGE PAGE ===");
+      print("Name: ${widget.extendedUserModel!.name}");
+      print("Email: ${widget.extendedUserModel!.email}");
+      print("Phone: ${widget.extendedUserModel!.phone}");
+      print("UID: ${widget.extendedUserModel!.uid}");
+      print("Role: ${widget.extendedUserModel!.role}");
+      print("College Name: ${widget.extendedUserModel!.collegeName}");
+      print("University: ${widget.extendedUserModel!.university}");
+      print("Degree: ${widget.extendedUserModel!.degree}");
+      print("College Email: ${widget.extendedUserModel!.collegeEmailId}");
+      print("Skills: ${widget.extendedUserModel!.skills}");
+      print("Jobs: ${widget.extendedUserModel!.jobs}");
+      print("===============================");
     }
   }
 
@@ -220,80 +223,86 @@ class _CourseRangePageState extends State<CourseRangePage> {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          height: 54,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(4, 4),
+                blurRadius: 0,
+                spreadRadius: 2,
+              ),
+            ],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              // ✅ Validate selection
+              if (selectedOption == null) {
+                showValidationMessage();
+                return;
+              }
 
-            SizedBox(height: 24),
+              // ✅ Create CourseRange model from ExtendedUserModel + selected year
+              final courseRangeModel = CourseRange.fromExtended(
+                widget.extendedUserModel!,
+                year: selectedCourseRange!,
+              );
 
-            // Next button with validation
-            Container(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () {
-                  // ✅ Validate selection
-                  if (selectedOption == null) {
-                    showValidationMessage();
-                    return;
-                  }
+              // ✅ Print all data INCLUDING course range
+              print(
+                "=== COMPLETE DATA BEFORE NAVIGATION (WITH COURSE RANGE) ===",
+              );
+              print("Name: ${courseRangeModel.name}");
+              print("Email: ${courseRangeModel.email}");
+              print("Phone: ${courseRangeModel.phone}");
+              print("UID: ${courseRangeModel.uid}");
+              print("Role: ${courseRangeModel.role}");
+              print("College Name: ${courseRangeModel.collegeName}");
+              print("University: ${courseRangeModel.university}");
+              print("Degree: ${courseRangeModel.degree}");
+              print("College Email: ${courseRangeModel.collegeEmailId}");
+              print("Skills: ${courseRangeModel.skills}");
+              print("Jobs: ${courseRangeModel.jobs}");
+              print(
+                "Course Range/Year: ${courseRangeModel.year}",
+              ); // NEW FIELD ADDED
+              print("Full Model: ${courseRangeModel.toString()}");
+              print("===========================================");
 
-                  // ✅ Create final user model with course range
-                  final finalUserModel = FinalUserModel(
-                    // Base user data
-                    name: widget.userModel.name,
-                    email: widget.userModel.email,
-                    phone: widget.userModel.phone,
-                    profileImageUrl: widget.userModel.profileImageUrl,
-                    uid: widget.userModel.uid,
-                    role: widget.userModel.role,
-                    // College details - provide defaults if not ExtendedUserModel
-                    collegeName: widget.userModel is ExtendedUserModel
-                        ? (widget.userModel as ExtendedUserModel).collegeName
-                        : 'Unknown',
-                    university: widget.userModel is ExtendedUserModel
-                        ? (widget.userModel as ExtendedUserModel).university
-                        : 'Unknown',
-                    degree: widget.userModel is ExtendedUserModel
-                        ? (widget.userModel as ExtendedUserModel).degree
-                        : 'Unknown',
-                    collegeEmailId: widget.userModel is ExtendedUserModel
-                        ? (widget.userModel as ExtendedUserModel).collegeEmailId
-                        : '',
-                    // Course range
-                    courseRange: selectedCourseRange!,
-                  );
-
-                  print("Final user model with course range:");
-                  print(finalUserModel.toString());
-
-                  // ✅ Navigate to next page with complete data
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          UploadScreen(userModel: finalUserModel),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedOption != null
-                      ? Colors.black
-                      : Colors.grey[400],
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // ✅ Navigate to Skills page (which then goes to Experience)
+              // Note: You might want to navigate to Skills page instead of ExperiencePage directly
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Skills(
+                    extendedUserModel:
+                        courseRangeModel, // Pass the CourseRange model
                   ),
                 ),
-                child: Text(
-                  selectedOption != null ? 'Next' : 'Select Course Range',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB6A5FE),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-
-            SizedBox(height: 16),
-
-            // Bottom indicator
-          ],
+            child: Text(
+              selectedOption != null ? 'Next' : 'Select Course Range',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ),
     );
@@ -319,7 +328,7 @@ class FinalUserModel extends ExtendedUserModel {
          name: name,
          email: email,
          phone: phone,
-         profileImageUrl: profileImageUrl,
+
          uid: uid,
          role: role,
          collegeName: collegeName,

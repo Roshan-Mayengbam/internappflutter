@@ -24,7 +24,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(userData: null),
     const JobSearchScreen(),
     const Center(child: Text("Calendar Page")),
-    const ProfileScreen(),
+    const ProfilePage(),
   ];
 
   @override

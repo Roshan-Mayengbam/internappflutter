@@ -354,76 +354,92 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 60),
 
                 // Next Button
-                Container(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (fullNameController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Full Name is required")),
-                        );
-                        return;
-                      }
-                      if (phoneController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Phone Number is required")),
-                        );
-                        return;
-                      }
-                      if (emailController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Email is required")),
-                        );
-                        return;
-                      }
-
-                      // ✅ Create updated user model
-                      final updatedUserModel = UserModel(
-                        name: fullNameController.text.trim(),
-                        email: emailController.text.trim(),
-                        phone: phoneController.text.trim().isNotEmpty
-                            ? '+91${phoneController.text.trim()}'
-                            : null,
-                        profileImageUrl: widget.userModel?.profileImageUrl,
-                        uid: widget.userModel?.uid ?? '',
-                        role: widget.userModel?.role ?? 'Student',
-                      );
-
-                      print(
-                        "Updated user model: ${updatedUserModel.toString()}",
-                      );
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              Collegedetails(userModel: updatedUserModel),
-                        ),
-                      );
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Next',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 24),
                 const SizedBox(height: 20),
               ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          height: 54,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(4, 4),
+                blurRadius: 0,
+                spreadRadius: 2,
+              ),
+            ],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              if (fullNameController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Full Name is required")),
+                );
+                return;
+              }
+              if (phoneController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Phone Number is required")),
+                );
+                return;
+              }
+              if (emailController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Email is required")));
+                return;
+              }
+
+              // ✅ Create updated user model
+              final updatedUserModel = UserModel(
+                name: fullNameController.text.trim(),
+                email: emailController.text.trim(),
+                phone: phoneController.text.trim().isNotEmpty
+                    ? '+91${phoneController.text.trim()}'
+                    : null,
+
+                uid: widget.userModel?.uid ?? '',
+                role: widget.userModel?.role ?? 'Student',
+              );
+
+              print("Updated user model: ${updatedUserModel.toString()}");
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      Collegedetails(userModel: updatedUserModel),
+                ),
+              );
+            },
+
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB6A5FE),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.black), // 👈 border added
+              ),
+            ),
+
+            child: Text(
+              'Next',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),

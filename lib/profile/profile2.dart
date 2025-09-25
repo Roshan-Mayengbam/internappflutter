@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/signup.dart';
 
 class ProfilePage2 extends StatelessWidget {
@@ -15,7 +16,7 @@ class ProfilePage2 extends StatelessWidget {
 
       // Navigate to SignUpScreen and remove all previous routes
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const SignUpScreen()),
+        MaterialPageRoute(builder: (context) => const Page2()),
         (route) => false, // remove all previous routes
       );
     } catch (e) {

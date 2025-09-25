@@ -72,28 +72,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _showSnackBar(message, Colors.green);
 
         // Navigate to OTP page
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 400),
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                OtpPage(phoneNumber: formattedPhone, otpService: _otpService),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  const begin = Offset(1.0, 0.0);
-                  const end = Offset.zero;
-                  var tween = Tween(
-                    begin: begin,
-                    end: end,
-                  ).chain(CurveTween(curve: Curves.easeInOut));
+        // Navigator.push(
+        //   context,
+        //   PageRouteBuilder(
+        //     transitionDuration: const Duration(milliseconds: 400),
+        //     pageBuilder: (context, animation, secondaryAnimation) =>
+        //         OtpPage(phoneNumber: formattedPhone, otpService: _otpService),
+        //     transitionsBuilder:
+        //         (context, animation, secondaryAnimation, child) {
+        //           const begin = Offset(1.0, 0.0);
+        //           const end = Offset.zero;
+        //           var tween = Tween(
+        //             begin: begin,
+        //             end: end,
+        //           ).chain(CurveTween(curve: Curves.easeInOut));
 
-                  return SlideTransition(
-                    position: animation.drive(tween),
-                    child: child,
-                  );
-                },
-          ),
-        );
+        //           return SlideTransition(
+        //             position: animation.drive(tween),
+        //             child: child,
+        //           );
+        //         },
+        //   ),
+        // );
       },
       onError: (error) {
         setState(() {
@@ -160,7 +160,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => const RegisterPage(),
+                              builder: (context) =>
+                                  RegisterPage(userModel: null),
                             ),
                           );
                         },
@@ -368,14 +369,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           final userModel = UserModel(
                             name: user.displayName ?? 'Unknown User',
                             email: user.email ?? 'No Email',
-                            profileImageUrl: user.photoURL,
-                            role: 'Student', // Default role, can be customized
+                            role: 'Student',
+                            uid: '', // Default role, can be customized
                           );
 
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (context) =>
-                                  TagPage(userModel: userModel),
+                                  RegisterPage(userModel: userModel),
                             ),
                           );
                         } else {
