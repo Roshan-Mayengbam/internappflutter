@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:internappflutter/aboutYou/tag.dart';
+import 'package:internappflutter/auth/courserange.dart';
+import 'package:internappflutter/models/usermodel.dart';
 
 class UploadScreen extends StatefulWidget {
-  const UploadScreen({super.key});
+  final UserProject? userProject; // ✅ Add proper field declaration
+  const UploadScreen({super.key, required this.userProject});
 
   @override
   State<UploadScreen> createState() => _UploadScreenState();
@@ -44,100 +47,196 @@ class _UploadScreenState extends State<UploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: LinearProgressIndicator(
-                value: 0.8,
-                color: Colors.green,
-                backgroundColor: Colors.grey[300],
-                minHeight: 6,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            const SizedBox(height: 20),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset("assets/bear.gif", height: 150, width: 164),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 40.0),
-                  child: SvgPicture.asset(
-                    "assets/text.svg",
-                    height: 60,
-                    width: 40,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            const SizedBox(height: 25),
-
-            FileUploadWidget(
-              onTap: _pickPhoto,
-              file: pickedPhotoFile,
-              text: 'Profile Picture',
-              text1: 'JPG',
-              text2: 'PNG',
-              text3: '<1mb',
-            ),
-
-            if (pickedPhotoFile != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  'Photo selected: ${pickedPhotoFile!.path.split('/').last}',
-                ),
-              ),
-
-            const SizedBox(height: 25),
-
-            FileUploadWidget(
-              onTap: _pickResume,
-              file: pickedResumeFile,
-              text: 'Resume',
-              text1: 'PDF',
-              text2: 'DOCX',
-              text3: '<3mb',
-            ),
-
-            const SizedBox(height: 40),
-
-            InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return TagPage(
-                        profileImage: pickedPhotoFile,
-                        userModel: null,
-                      );
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: MediaQuery.of(context).padding.top),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () {
+                      Navigator.of(context).maybePop();
                     },
                   ),
-                );
-              },
-              child: Image.asset("assets/Button.png", width: 500, height: 50),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: LinearProgressIndicator(
+                        value: 0.6,
+                        minHeight: 12,
+                        backgroundColor: Colors.grey[300],
+                        color: const Color.fromARGB(255, 97, 251, 20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 120,
+                    height: 150,
+                    child: Image.asset('assets/bear.gif', fit: BoxFit.fill),
+                  ),
+
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      child: Stack(
+                        alignment:
+                            Alignment.center, // centers children in the stack
+                        children: [
+                          Image.asset(
+                            'assets/text.png',
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              const SizedBox(height: 25),
+
+              FileUploadWidget(
+                onTap: _pickPhoto,
+                file: pickedPhotoFile,
+                text: 'Profile ',
+                text1: 'JPG',
+                text2: 'PNG',
+                text3: '<1mb',
+              ),
+
+              if (pickedPhotoFile != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Photo selected: ${pickedPhotoFile!.path.split('/').last}',
+                  ),
+                ),
+
+              const SizedBox(height: 25),
+
+              FileUploadWidget(
+                onTap: _pickResume,
+                file: pickedResumeFile,
+                text: 'Resume',
+                text1: 'PDF',
+                text2: 'DOCX',
+                text3: '<3mb',
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () {
+            if (widget.userProject != null &&
+                pickedPhotoFile != null &&
+                pickedResumeFile != null) {
+              // Create a new UploadResume instance
+              final uploadResume = UploadResume(
+                profilePic: pickedPhotoFile!.path,
+                resumeFile: pickedResumeFile!.path,
+                projectName: widget.userProject!.projectName,
+                projectLink: widget.userProject!.projectLink,
+                projectDescription: widget.userProject!.projectDescription,
+                organisation: widget.userProject!.organisation,
+                position: widget.userProject!.position,
+                date: widget.userProject!.date,
+                description: widget.userProject!.description,
+                year: widget.userProject!.year,
+                name: widget.userProject!.name,
+                phone: widget.userProject?.phone,
+                email: widget.userProject!.email,
+                uid: widget.userProject!.uid,
+                role: widget.userProject!.role,
+                collegeName: widget.userProject!.collegeName,
+                university: widget.userProject!.university,
+                degree: widget.userProject!.degree,
+                collegeEmailId: widget.userProject!.collegeEmailId,
+                userSkills: widget.userProject!.userSkills,
+                preferences: widget.userProject!.preferences,
+              );
+
+              // ✅ Print everything
+              print('--- UploadResume Details ---');
+              print('Profile Pic: ${uploadResume.profilePic}');
+              print('Resume File: ${uploadResume.resumeFile}');
+              print('Project Name: ${uploadResume.projectName}');
+              print('Project Link: ${uploadResume.projectLink}');
+              print('Project Description: ${uploadResume.projectDescription}');
+              print('Organisation: ${uploadResume.organisation}');
+              print('Position: ${uploadResume.position}');
+              print('Date: ${uploadResume.date}');
+              print('Description: ${uploadResume.description}');
+              print('Year: ${uploadResume.year}');
+              print('Name: ${uploadResume.name}');
+              print('Name: ${uploadResume.phone}');
+              print('Email: ${uploadResume.email}');
+              print('UID: ${uploadResume.uid}');
+              print('Role: ${uploadResume.role}');
+              print('College Name: ${uploadResume.collegeName}');
+              print('University: ${uploadResume.university}');
+              print('Degree: ${uploadResume.degree}');
+              print('College Email ID: ${uploadResume.collegeEmailId}');
+              print('User Skills: ${uploadResume.userSkills}');
+              print('Preferences: ${uploadResume.preferences}');
+              print('---------------------------');
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return TagPage(
+                      profileImage: pickedPhotoFile,
+                      resumeFile: pickedResumeFile,
+                      uploadResume: uploadResume,
+                    );
+                  },
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please pick both profile photo and resume'),
+                ),
+              );
+            }
+          },
+
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFB6A5FE),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 20),
-          ],
+          ),
+          child: const Text(
+            'Next',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );
   }
 }
+
+// TagPage({File? profileImage, required userModel}) {}
 
 class FileUploadWidget extends StatelessWidget {
   final File? file;

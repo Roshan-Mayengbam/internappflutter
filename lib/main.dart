@@ -2,15 +2,34 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:internappflutter/auth/page2.dart';
+import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/firebase_options.dart';
-import 'package:internappflutter/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  try {
+    if (Platform.isAndroid) {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyARkzAMgD1HYK4z_qJJz-CbfTJObFT2Vz0",
+          appId: "1:494653563380:android:6b1dad9ff96c310745d9a1",
+          messagingSenderId: "494653563380",
+          projectId: "internapp-539eb",
+          storageBucket: "internapp-539eb.firebasestorage.app",
+        ),
+      );
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error initializing Firebase: $e');
+    }
+  }
+
   runApp(MyApp());
 }
 
@@ -24,10 +43,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: '/signup',
       routes: {
-        '/': (context) => const SignUpScreen(),
-        '/signup': (context) => const HomePage(),
+        '/homepage': (context) => const BottomnavbarAlternative(userData: null),
+        '/signup': (context) => const Page2(),
+        '/register': (context) => RegisterPage(userModel: null),
       },
     );
   }
@@ -88,3 +108,5 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
+// Dummy SignUpScreen for navigation
