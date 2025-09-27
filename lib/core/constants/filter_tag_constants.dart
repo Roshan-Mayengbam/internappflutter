@@ -2,35 +2,28 @@ import 'package:flutter/material.dart';
 
 class FilterTagConstants {
   // Shape
-  static const double borderRadius = 8;
+  static final BorderRadius borderRadius = BorderRadius.circular(8);
+  static final Border border = Border.all(color: Colors.black, width: 1.2);
   static const EdgeInsets padding = EdgeInsets.symmetric(
-    horizontal: 18,
+    horizontal: 14,
     vertical: 12,
   );
 
-  // Font
-  static const double fontSize = 16;
-  static const FontWeight fontWeight = FontWeight.w700;
-  static const String fontFamily = "Poppins";
+  // TextStyle
+  static const double fontSize = 14;
+  static const FontWeight fontWeight = FontWeight.w500;
+  static const String fontFamily = "Jost";
+  static const Color textColor = Colors.black;
+  static const TextStyle filterText = TextStyle(
+    fontWeight: fontWeight,
+    fontSize: fontSize,
+    fontFamily: fontFamily,
+    color: textColor,
+  );
 
   // Selected State
-  static const LinearGradient selectedGradient = LinearGradient(
-    colors: [Colors.blue, Colors.teal],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-  static const List<BoxShadow> selectedShadow = [
-    BoxShadow(color: Colors.blueAccent, blurRadius: 8, offset: Offset(0, 4)),
-  ];
+  static Color selectedBg = Color(0xFFE2FDAB);
 
   // Unselected State
-  static final Color unselectedBg = Colors.blue.shade50;
-  static final Color unselectedText = Colors.blue.shade800;
-  static final Border unselectedBorder = Border.all(
-    color: Colors.blueAccent.shade100,
-    width: 1.2,
-  );
-  static const List<BoxShadow> unselectedShadow = [
-    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-  ];
+  static final Color unselectedBg = Colors.white;
 }

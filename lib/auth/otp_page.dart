@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/home/home_page.dart';
 
+import '../screens/job_page.dart';
+
 class OtpPage extends StatelessWidget {
   const OtpPage({super.key});
 
@@ -48,7 +50,9 @@ class OtpPage extends StatelessWidget {
                           vertical: 10,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        MaterialPageRoute(builder: (context) => HomePage());
+                      },
                       child: Text(
                         "Sign up",
                         style: GoogleFonts.jost(color: Colors.white),

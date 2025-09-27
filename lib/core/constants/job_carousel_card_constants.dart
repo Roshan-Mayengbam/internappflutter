@@ -27,29 +27,40 @@ class JobCardConstants {
   );
 
   // Job title style
+  static const double jobFontSize =
+      18; // Reduced font size to help with overflow
+  static const FontWeight jobFontWeight = FontWeight.w700;
+  static const Color jobTextColor = Colors.black87;
+  static const jobFontFamily = "jost";
   static const TextStyle jobTitleStyle = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
-    color: Colors.black87,
+    fontSize: jobFontSize,
+    fontFamily: jobFontFamily,
+    fontWeight: jobFontWeight,
+    color: jobTextColor,
   );
 
   // Banner text style
   static const TextStyle bannerTextStyle = TextStyle(
-    fontSize: 24,
+    fontSize: 20, // Reduced font size to help with overflow
     fontWeight: FontWeight.w800,
     color: Colors.white,
     letterSpacing: 1.2,
   );
 
   // Company name style
+  static const double companyFontSize = 13;
+  static const FontWeight companyFontWeight = FontWeight.w500;
+  static Color companyTextColor = Colors.grey.shade700;
+  static const companyFontFamily = "jost";
   static final TextStyle companyNameStyle = TextStyle(
-    fontSize: 16,
-    color: Colors.grey.shade700,
-    fontFamily: "Nunito",
+    fontSize: companyFontSize,
+    fontWeight: companyFontWeight,
+    color: companyTextColor,
+    fontFamily: companyFontFamily,
   );
 
   // Tag styling (delegates to FilterTag constants ideally)
-  static const double tagFontSize = 13;
+  static const double tagFontSize = 11; // Reduced font size for tags
   static const FontWeight tagFontWeight = FontWeight.w600;
   static const double tagRadius = 20;
 

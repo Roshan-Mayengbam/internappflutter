@@ -22,33 +22,16 @@ class _FilterTagState extends State<FilterTag> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+      child: Container(
         padding: FilterTagConstants.padding,
         decoration: BoxDecoration(
-          gradient: widget.isSelected
-              ? FilterTagConstants.selectedGradient
-              : null,
-          color: widget.isSelected ? null : FilterTagConstants.unselectedBg,
-          borderRadius: BorderRadius.circular(FilterTagConstants.borderRadius),
-          boxShadow: widget.isSelected
-              ? FilterTagConstants.selectedShadow
-              : FilterTagConstants.unselectedShadow,
-          border: widget.isSelected
-              ? null
-              : FilterTagConstants.unselectedBorder,
+          color: widget.isSelected
+              ? FilterTagConstants.selectedBg
+              : FilterTagConstants.unselectedBg,
+          border: FilterTagConstants.border,
+          borderRadius: FilterTagConstants.borderRadius,
         ),
-        child: Text(
-          widget.label,
-          style: TextStyle(
-            fontSize: FilterTagConstants.fontSize,
-            fontWeight: FilterTagConstants.fontWeight,
-            fontFamily: FilterTagConstants.fontFamily,
-            color: widget.isSelected
-                ? Colors.white
-                : FilterTagConstants.unselectedText,
-          ),
-        ),
+        child: Text(widget.label, style: FilterTagConstants.filterText),
       ),
     );
   }

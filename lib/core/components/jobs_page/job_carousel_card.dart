@@ -19,6 +19,8 @@ class JobCarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // Added a fixed width to the card for consistent sizing in the list view
+      width: 320,
       margin: JobCardConstants.margin,
       padding: JobCardConstants.padding,
       decoration: BoxDecoration(
@@ -39,66 +41,83 @@ class JobCarouselCard extends StatelessWidget {
                 gradient: JobCardConstants.bannerGradient,
               ),
               alignment: Alignment.center,
-              child: Text(jobTitle, style: JobCardConstants.bannerTextStyle),
+              child: Text(
+                jobTitle,
+                style: JobCardConstants.bannerTextStyle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
           const SizedBox(height: 16),
 
           // Row with two columns
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left: Job Title + Company
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(jobTitle, style: JobCardConstants.jobTitleStyle),
-                  const SizedBox(height: 6),
-                  Row(
+          SizedBox(
+            // Wrapped the row in a sized box to constrain its width
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left: Job Title + Company
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        companyName,
-                        style: JobCardConstants.companyNameStyle,
+                        jobTitle,
+                        style: JobCardConstants.jobTitleStyle,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 6),
-                      const Text("✨", style: TextStyle(fontSize: 18)),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Text(
+                            companyName,
+                            style: JobCardConstants.companyNameStyle,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(width: 3),
+                          const Icon(Icons.verified, color: Colors.blue),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-
-              // Right: Experience + Location
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    buildTag(experienceLevel, Colors.tealAccent.shade100),
-                    const SizedBox(height: 6),
-                    buildTag(location, Colors.amber.shade100),
-                  ],
                 ),
-              ),
-            ],
+
+                // Right: Experience + Location
+                SizedBox(
+                  width: 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      buildTag(experienceLevel),
+                      const SizedBox(height: 6),
+                      buildTag(location),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget buildTag(String label, Color bgColor) {
+  Widget buildTag(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      height: 30,
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(JobCardConstants.tagRadius),
-        boxShadow: JobCardConstants.tagShadow,
-        border: Border.all(color: Colors.black.withOpacity(0.3), width: 1),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black, width: 1.5),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
       ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: JobCardConstants.tagFontSize,
-          fontWeight: JobCardConstants.tagFontWeight,
+      child: Center(
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

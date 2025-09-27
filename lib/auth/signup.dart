@@ -9,6 +9,8 @@ import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/usermodel.dart';
 import 'package:internappflutter/screens/job_page.dart';
 
+import '../bottomnavbar.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -65,7 +67,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onPressed: () {
                           //for now, navigating to home page on sign up button press
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => HomePage()),
+                            MaterialPageRoute(
+                              builder: (context) => BottomnavbarAlternative(),
+                            ),
                           );
                         },
                         child: Text(
