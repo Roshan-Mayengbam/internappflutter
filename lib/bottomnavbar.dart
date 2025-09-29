@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:internappflutter/home/SwipeJobCardsScreen.dart';
 import 'package:internappflutter/home/explore.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/usermodel.dart';
@@ -24,7 +25,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(userData: null),
     const JobSearchScreen(),
     const Center(child: Text("Calendar Page")),
-    const ProfilePage(),
+    const ProfilePage2(),
   ];
 
   @override
