@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
-
 import 'package:internappflutter/core/constants/job_carousel_card_constants.dart';
 
-class JobCarouselCard extends StatelessWidget {
-  final String jobTitle;
-  final String companyName;
-  final String location;
-  final String experienceLevel;
+class CarouselCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String tag1;
+  final String tag2;
+  final bool statusCard;
+  final bool isVerified;
 
-  const JobCarouselCard({
+  const CarouselCard({
     super.key,
-    required this.jobTitle,
-    required this.companyName,
-    required this.location,
-    required this.experienceLevel,
-  });
+    required this.title,
+    required this.subtitle,
+    required this.tag1,
+    this.tag2 = "",
+    this.statusCard = true,
+    this.isVerified = false,
+  }) : assert(
+         statusCard || tag2 != "",
+         "If statusCard is false, tag2 must not be empty",
+       );
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Added a fixed width to the card for consistent sizing in the list view
       width: 320,
       margin: JobCardConstants.margin,
       padding: JobCardConstants.padding,
@@ -42,7 +47,7 @@ class JobCarouselCard extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                jobTitle,
+                title,
                 style: JobCardConstants.bannerTextStyle,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -52,19 +57,18 @@ class JobCarouselCard extends StatelessWidget {
 
           // Row with two columns
           SizedBox(
-            // Wrapped the row in a sized box to constrain its width
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left: Job Title + Company
+                // Left: Title + Subtitle
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        jobTitle,
+                        title,
                         style: JobCardConstants.jobTitleStyle,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -72,29 +76,33 @@ class JobCarouselCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            companyName,
+                            subtitle,
                             style: JobCardConstants.companyNameStyle,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(width: 3),
-                          const Icon(Icons.verified, color: Colors.blue),
+                          if (isVerified) ...[
+                            const SizedBox(width: 3),
+                            const Icon(Icons.verified, color: Colors.blue),
+                          ],
                         ],
                       ),
                     ],
                   ),
                 ),
 
-                // Right: Experience + Location
+                // Right: Tags (1 or 2 depending on statusCard)
                 SizedBox(
                   width: 100,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      buildTag(experienceLevel),
-                      const SizedBox(height: 6),
-                      buildTag(location),
-                    ],
-                  ),
+                  child: statusCard
+                      ? buildTag(tag1)
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            buildTag(tag1),
+                            const SizedBox(height: 6),
+                            buildTag(tag2),
+                          ],
+                        ),
                 ),
               ],
             ),

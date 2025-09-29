@@ -37,6 +37,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'San Francisco',
       'tags': ['REMOTE', 'FULL-TIME', 'TECH'],
+      'applied': false,
     },
     {
       'jobTitle': 'Product Manager',
@@ -46,6 +47,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': false,
       'location': 'New York',
       'tags': ['PRODUCT', 'AGILE', 'FINTECH'],
+      'applied': false,
     },
     {
       'jobTitle': 'Data Scientist',
@@ -55,6 +57,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Boston',
       'tags': ['DATA', 'AI/ML', 'HEALTHCARE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Marketing Specialist',
@@ -64,6 +67,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Remote',
       'tags': ['MARKETING', 'REMOTE', 'DIGITAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'DevOps Engineer',
@@ -73,6 +77,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Seattle',
       'tags': ['DEVOPS', 'CLOUD', 'AWS'],
+      'applied': false,
     },
     {
       'jobTitle': 'UI/UX Designer',
@@ -82,6 +87,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': false,
       'location': 'Austin',
       'tags': ['DESIGN', 'UX/UI', 'STARTUP'],
+      'applied': false,
     },
     {
       'jobTitle': 'Mobile App Developer',
@@ -91,6 +97,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Toronto',
       'tags': ['MOBILE', 'FLUTTER', 'CROSS-PLATFORM'],
+      'applied': false,
     },
     {
       'jobTitle': 'Cybersecurity Analyst',
@@ -100,6 +107,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Washington D.C.',
       'tags': ['SECURITY', 'CYBER', 'GOVERNMENT'],
+      'applied': false,
     },
     {
       'jobTitle': 'Game Developer',
@@ -109,6 +117,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': false,
       'location': 'Los Angeles',
       'tags': ['GAMING', 'UNITY', 'CREATIVE'],
+      'applied': false,
     },
     {
       'jobTitle': 'HR Generalist',
@@ -118,6 +127,7 @@ class _JobPageState extends State<JobPage> {
       'isVerified': true,
       'location': 'Chicago',
       'tags': ['HR', 'CORPORATE', 'BUSINESS'],
+      'applied': false,
     },
   ];
 
@@ -141,6 +151,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Using AI to solve social and environmental problems.',
       'prizes': ['\$5,000 Cash', 'Mentorship', 'Job Interviews'],
       'tags': ['AI', 'SOCIAL GOOD', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Fintech Frontier Hack',
@@ -151,6 +162,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Innovations in financial technology and digital payments.',
       'prizes': ['\$10,000 Seed Funding', 'Incubator Spot'],
       'tags': ['FINTECH', 'IN-PERSON', 'LONDON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Health-Tech Innovation Sprint',
@@ -161,6 +173,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Developing solutions for modern healthcare challenges.',
       'prizes': ['\$7,500 Grant', 'Partnership with Hospitals'],
       'tags': ['HEALTHCARE', 'MEDTECH', 'BOSTON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Game Jam 2025',
@@ -171,6 +184,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Create a game from scratch in 48 hours.',
       'prizes': ['Publishing Deal', 'Console Dev Kits'],
       'tags': ['GAMING', 'DEVELOPMENT', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Cyber Defense Marathon',
@@ -181,6 +195,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Build tools to combat cyber threats and protect data.',
       'prizes': ['\$6,000 Cash', 'Internships with Government Agencies'],
       'tags': ['CYBERSECURITY', 'SECURITY', 'IN-PERSON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Sustainable Techathon',
@@ -191,6 +206,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Developing sustainable and eco-friendly technology.',
       'prizes': ['\$4,000 Cash', 'Featured on Tech Blog'],
       'tags': ['SUSTAINABILITY', 'ENVIRONMENT', 'REMOTE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Data Science & Machine Learning Challenge',
@@ -201,6 +217,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Solve complex real-world problems with data.',
       'prizes': ['Job Offer', 'Trip to Tech Conference'],
       'tags': ['DATA SCIENCE', 'ML', 'IN-PERSON'],
+      'applied': false,
     },
     {
       'jobTitle': 'UX/UI Design Sprint',
@@ -211,6 +228,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Designing intuitive user experiences and interfaces.',
       'prizes': ['Portfolio Review', 'Design Tool Subscriptions'],
       'tags': ['DESIGN', 'UX/UI', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Open Source Contribution Weekend',
@@ -221,6 +239,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Contribute to popular open-source projects.',
       'prizes': ['Special Mentions', 'Swag'],
       'tags': ['OPEN SOURCE', 'COMMUNITY', 'REMOTE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Robotics Rumble',
@@ -231,6 +250,7 @@ class _JobPageState extends State<JobPage> {
       'theme': 'Build and program a robot to complete a challenge.',
       'prizes': ['\$8,000 Cash', 'Robotics Kit'],
       'tags': ['ROBOTICS', 'ENGINEERING', 'IN-PERSON'],
+      'applied': false,
     },
   ];
 
@@ -241,6 +261,7 @@ class _JobPageState extends State<JobPage> {
     // We get the height of the screen to make the carousels responsive.
     return Scaffold(
       body: SingleChildScrollView(
+        padding: EdgeInsetsGeometry.only(bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -272,6 +293,10 @@ class _JobPageState extends State<JobPage> {
                   selectedJobFilter = filter;
                 });
               },
+              onViewMore: () {
+                print("Pressed View more in jobs display");
+              },
+              statusPage: true,
               items: jobs,
             ),
             const SizedBox(height: 30),
@@ -285,6 +310,9 @@ class _JobPageState extends State<JobPage> {
                 setState(() {
                   selectedHackathonFilter = filter;
                 });
+              },
+              onViewMore: () {
+                print("Pressed View more in jobs display");
               },
               items: hackathons,
             ),
