@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/core/components/custom_button.dart';
 import 'package:internappflutter/core/components/custom_search_field.dart';
 
+import '../core/components/custom_app_bar.dart';
 import '../core/components/jobs_page/custom_carousel_section.dart';
 import '../core/components/jobs_page/filter_tag.dart';
 import '../core/components/jobs_page/job_carousel_card.dart';
@@ -233,6 +234,8 @@ class _JobPageState extends State<JobPage> {
     },
   ];
 
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // We get the height of the screen to make the carousels responsive.
@@ -243,25 +246,18 @@ class _JobPageState extends State<JobPage> {
           children: [
             const SizedBox(height: 50),
             // Custom App Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(height: 50, child: CustomSearchField()),
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    buttonIcon: Icons.chat_bubble_outline,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    buttonIcon: Icons.notifications_none,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+            CustomAppBar(
+              searchController: _searchController,
+              onSearchSubmit: (query) {
+                print("Search submitted: $query");
+                // Your search logic
+              },
+              onChatPressed: () {
+                print("Chat button pressed");
+              },
+              onNotificationPressed: () {
+                print("Notification button pressed");
+              },
             ),
             const SizedBox(height: 30),
             // Top Job Picks Section
