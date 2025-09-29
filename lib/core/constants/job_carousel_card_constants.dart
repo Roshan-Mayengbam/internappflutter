@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 class JobCardConstants {
   // Card styling
   static const double borderRadius = 20;
-  static const EdgeInsets margin = EdgeInsets.all(16);
-  static const EdgeInsets padding = EdgeInsets.all(16);
+  static const EdgeInsets margin = EdgeInsets.symmetric(
+    horizontal: 4,
+    vertical: 12,
+  );
+  static const EdgeInsets padding = EdgeInsets.all(10);
 
   static final Border cardBorder = Border.all(
     color: Colors.grey.shade400,
