@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-
 import 'package:internappflutter/core/constants/search_field_constants.dart';
 
 class CustomSearchField extends StatelessWidget {
   const CustomSearchField({
     super.key,
-    this.foregroundColor = Colors.white, // A light purple
-    this.backgroundColor = Colors.black, // Now used for border and icon
+    this.foregroundColor = Colors.white,
+    this.backgroundColor = Colors.black,
     this.hintText = 'Search jobs',
     this.onTap,
+    this.controller,
+    this.onSubmitted,
   });
 
   final Color foregroundColor;
   final Color backgroundColor;
   final String hintText;
   final VoidCallback? onTap;
+  final TextEditingController? controller;
+  final void Function(String)? onSubmitted; // Keyboard submit
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +53,25 @@ class CustomSearchField extends StatelessWidget {
               size: SearchFieldConstants.iconSize,
             ),
             const SizedBox(width: 8),
-            Text(
-              hintText,
-              style: TextStyle(
-                color: backgroundColor,
-                fontSize: SearchFieldConstants.fontSize,
+            Expanded(
+              child: TextField(
+                controller: controller,
+                onSubmitted: onSubmitted,
+                style: TextStyle(
+                  fontFamily: 'jost',
+                  color: backgroundColor,
+                  fontSize: SearchFieldConstants.fontSize,
+                ),
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: TextStyle(
+                    color: backgroundColor.withOpacity(0.7),
+                    fontSize: SearchFieldConstants.fontSize,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
             ),
           ],
