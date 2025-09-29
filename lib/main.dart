@@ -2,34 +2,35 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/auth/collegedetails.dart';
-import 'package:internappflutter/auth/courserange.dart';
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/firebase_options.dart';
-import 'package:internappflutter/home/cardDetails.dart';
-import 'package:internappflutter/home/home_page.dart';
-import 'package:internappflutter/models/jobs.dart';
-import 'package:internappflutter/profile/profile.dart';
-import 'package:internappflutter/profile/profile2.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => JobProvider()), // example
-        // Add more providers here
-      ],
-      child: MyApp(),
-    ),
-  );
+  try {
+    if (Platform.isAndroid) {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyARkzAMgD1HYK4z_qJJz-CbfTJObFT2Vz0",
+          appId: "1:494653563380:android:6b1dad9ff96c310745d9a1",
+          messagingSenderId: "494653563380",
+          projectId: "internapp-539eb",
+          storageBucket: "internapp-539eb.firebasestorage.app",
+        ),
+      );
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error initializing Firebase: $e');
+    }
+  }
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -107,3 +108,5 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
+// Dummy SignUpScreen for navigation
