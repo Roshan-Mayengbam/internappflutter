@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/home/SwipeJobCardsScreen.dart';
 import 'package:internappflutter/home/explore.dart';
 
 import 'package:internappflutter/home/home_page.dart';
