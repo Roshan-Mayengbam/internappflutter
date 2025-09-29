@@ -51,7 +51,7 @@ dependencies:
   provider: ^6.1.5+1
   firebase_storage: ^13.0.2
 
-  
+
 
 dev_dependencies:
   flutter_test:
@@ -112,6 +112,18 @@ flutter:
     - assets/Union.png
     - assets/text.png
     - assets/degree.json
+    - assets/images/profile.png
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/jost/Jost-Black.ttf
+          weight: 900
+        - asset: assets/fonts/jost/Jost-Bold.ttf
+        - asset: assets/fonts/jost/Jost-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/jost/Jost-SemiBold.ttf
+          weight: 700
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
