@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/signup',
       routes: {
         '/homepage': (context) => const BottomnavbarAlternative(userData: null),
-        '/signup': (context) => JobPage(),
+        '/signup': (context) => Page2(),
         '/register': (context) => RegisterPage(userModel: null),
       },
     );
