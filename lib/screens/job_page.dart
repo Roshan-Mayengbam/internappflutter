@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/core/components/custom_button.dart';
 import 'package:internappflutter/core/components/custom_search_field.dart';
 
+import '../core/components/custom_app_bar.dart';
+import '../core/components/jobs_page/custom_carousel_section.dart';
 import '../core/components/jobs_page/filter_tag.dart';
 import '../core/components/jobs_page/job_carousel_card.dart';
 
-class JobPage extends StatelessWidget {
-  JobPage({super.key});
+class JobPage extends StatefulWidget {
+  const JobPage({super.key});
 
+  @override
+  State<JobPage> createState() => _JobPageState();
+}
+
+class _JobPageState extends State<JobPage> {
   final List<String> jobFilters = [
     'Featured',
     'Live',
@@ -17,7 +24,8 @@ class JobPage extends StatelessWidget {
     'Part-Time',
     'Internship',
   ];
-  final String selectedJobFilter = 'Featured';
+
+  String selectedJobFilter = 'Featured';
 
   final List<Map<String, dynamic>> jobs = const [
     {
@@ -29,6 +37,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'San Francisco',
       'tags': ['REMOTE', 'FULL-TIME', 'TECH'],
+      'applied': false,
     },
     {
       'jobTitle': 'Product Manager',
@@ -38,6 +47,7 @@ class JobPage extends StatelessWidget {
       'isVerified': false,
       'location': 'New York',
       'tags': ['PRODUCT', 'AGILE', 'FINTECH'],
+      'applied': false,
     },
     {
       'jobTitle': 'Data Scientist',
@@ -47,6 +57,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Boston',
       'tags': ['DATA', 'AI/ML', 'HEALTHCARE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Marketing Specialist',
@@ -56,6 +67,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Remote',
       'tags': ['MARKETING', 'REMOTE', 'DIGITAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'DevOps Engineer',
@@ -65,6 +77,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Seattle',
       'tags': ['DEVOPS', 'CLOUD', 'AWS'],
+      'applied': false,
     },
     {
       'jobTitle': 'UI/UX Designer',
@@ -74,6 +87,7 @@ class JobPage extends StatelessWidget {
       'isVerified': false,
       'location': 'Austin',
       'tags': ['DESIGN', 'UX/UI', 'STARTUP'],
+      'applied': false,
     },
     {
       'jobTitle': 'Mobile App Developer',
@@ -83,6 +97,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Toronto',
       'tags': ['MOBILE', 'FLUTTER', 'CROSS-PLATFORM'],
+      'applied': false,
     },
     {
       'jobTitle': 'Cybersecurity Analyst',
@@ -92,6 +107,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Washington D.C.',
       'tags': ['SECURITY', 'CYBER', 'GOVERNMENT'],
+      'applied': false,
     },
     {
       'jobTitle': 'Game Developer',
@@ -101,6 +117,7 @@ class JobPage extends StatelessWidget {
       'isVerified': false,
       'location': 'Los Angeles',
       'tags': ['GAMING', 'UNITY', 'CREATIVE'],
+      'applied': false,
     },
     {
       'jobTitle': 'HR Generalist',
@@ -110,6 +127,7 @@ class JobPage extends StatelessWidget {
       'isVerified': true,
       'location': 'Chicago',
       'tags': ['HR', 'CORPORATE', 'BUSINESS'],
+      'applied': false,
     },
   ];
 
@@ -120,7 +138,8 @@ class JobPage extends StatelessWidget {
     'Remote',
     'In-Person',
   ];
-  final String selectedHackathonFilter = 'Upcoming';
+
+  String selectedHackathonFilter = 'Upcoming';
 
   final List<Map<String, dynamic>> hackathons = const [
     {
@@ -132,6 +151,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Using AI to solve social and environmental problems.',
       'prizes': ['\$5,000 Cash', 'Mentorship', 'Job Interviews'],
       'tags': ['AI', 'SOCIAL GOOD', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Fintech Frontier Hack',
@@ -142,6 +162,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Innovations in financial technology and digital payments.',
       'prizes': ['\$10,000 Seed Funding', 'Incubator Spot'],
       'tags': ['FINTECH', 'IN-PERSON', 'LONDON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Health-Tech Innovation Sprint',
@@ -152,6 +173,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Developing solutions for modern healthcare challenges.',
       'prizes': ['\$7,500 Grant', 'Partnership with Hospitals'],
       'tags': ['HEALTHCARE', 'MEDTECH', 'BOSTON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Game Jam 2025',
@@ -162,6 +184,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Create a game from scratch in 48 hours.',
       'prizes': ['Publishing Deal', 'Console Dev Kits'],
       'tags': ['GAMING', 'DEVELOPMENT', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Cyber Defense Marathon',
@@ -172,6 +195,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Build tools to combat cyber threats and protect data.',
       'prizes': ['\$6,000 Cash', 'Internships with Government Agencies'],
       'tags': ['CYBERSECURITY', 'SECURITY', 'IN-PERSON'],
+      'applied': false,
     },
     {
       'jobTitle': 'Sustainable Techathon',
@@ -182,6 +206,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Developing sustainable and eco-friendly technology.',
       'prizes': ['\$4,000 Cash', 'Featured on Tech Blog'],
       'tags': ['SUSTAINABILITY', 'ENVIRONMENT', 'REMOTE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Data Science & Machine Learning Challenge',
@@ -192,6 +217,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Solve complex real-world problems with data.',
       'prizes': ['Job Offer', 'Trip to Tech Conference'],
       'tags': ['DATA SCIENCE', 'ML', 'IN-PERSON'],
+      'applied': false,
     },
     {
       'jobTitle': 'UX/UI Design Sprint',
@@ -202,6 +228,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Designing intuitive user experiences and interfaces.',
       'prizes': ['Portfolio Review', 'Design Tool Subscriptions'],
       'tags': ['DESIGN', 'UX/UI', 'VIRTUAL'],
+      'applied': false,
     },
     {
       'jobTitle': 'Open Source Contribution Weekend',
@@ -212,6 +239,7 @@ class JobPage extends StatelessWidget {
       'theme': 'Contribute to popular open-source projects.',
       'prizes': ['Special Mentions', 'Swag'],
       'tags': ['OPEN SOURCE', 'COMMUNITY', 'REMOTE'],
+      'applied': false,
     },
     {
       'jobTitle': 'Robotics Rumble',
@@ -222,156 +250,71 @@ class JobPage extends StatelessWidget {
       'theme': 'Build and program a robot to complete a challenge.',
       'prizes': ['\$8,000 Cash', 'Robotics Kit'],
       'tags': ['ROBOTICS', 'ENGINEERING', 'IN-PERSON'],
+      'applied': false,
     },
   ];
+
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // We get the height of the screen to make the carousels responsive.
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: SingleChildScrollView(
+        padding: EdgeInsetsGeometry.only(bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 50),
             // Custom App Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(height: 50, child: CustomSearchField()),
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    buttonIcon: Icons.chat_bubble_outline,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    buttonIcon: Icons.notifications_none,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+            CustomAppBar(
+              searchController: _searchController,
+              onSearchSubmit: (query) {
+                print("Search submitted: $query");
+                // Your search logic
+              },
+              onChatPressed: () {
+                print("Chat button pressed");
+              },
+              onNotificationPressed: () {
+                print("Notification button pressed");
+              },
             ),
             const SizedBox(height: 30),
             // Top Job Picks Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Top job picks for you',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'jost',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Based on your profile, preference and activity like applies, searches and saves',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[700],
-                      fontFamily: "jost",
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: jobFilters.map((filter) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterTag(
-                            label: filter,
-                            isSelected: selectedJobFilter == filter,
-                            onTap: () {},
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Job Carousel
-            SizedBox(
-              height: 300,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: jobs.length,
-                itemBuilder: (context, index) {
-                  return SizedBox(
-                    child: JobCarouselCard(
-                      jobTitle: jobs[index]["jobTitle"],
-                      companyName: jobs[index]["companyName"],
-                      location: jobs[index]["location"],
-                      experienceLevel: jobs[index]['experienceLevel'],
-                    ),
-                  );
-                },
-              ),
+            CustomCarouselSection(
+              title: 'Top job picks for you',
+              subtitle:
+                  'Based on your profile, preference and activity like applies, searches and saves',
+              filters: jobFilters,
+              selectedFilter: selectedJobFilter,
+              onFilterTap: (filter) {
+                setState(() {
+                  selectedJobFilter = filter;
+                });
+              },
+              onViewMore: () {
+                print("Pressed View more in jobs display");
+              },
+              statusPage: true,
+              items: jobs,
             ),
             const SizedBox(height: 30),
-            // Hackathon Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Hackathon',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Based on your profile, preference and activity like applies, searches and saves',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: hackathonFilters.map((filter) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterTag(
-                            label: filter,
-                            isSelected: selectedHackathonFilter == filter,
-                            onTap: () {},
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Hackathon Carousel
-            SizedBox(
-              height: 300,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: hackathons.length,
-                itemBuilder: (context, index) {
-                  return SizedBox(
-                    child: JobCarouselCard(
-                      jobTitle: hackathons[index]["jobTitle"],
-                      companyName: hackathons[index]["companyName"],
-                      location: hackathons[index]["location"],
-                      experienceLevel: hackathons[index]['experienceLevel'],
-                    ),
-                  );
-                },
-              ),
+            CustomCarouselSection(
+              title: 'Hackathon',
+              subtitle:
+                  'Based on your profile, preference and activity like applies, searches and saves',
+              filters: hackathonFilters,
+              selectedFilter: selectedHackathonFilter,
+              onFilterTap: (filter) {
+                setState(() {
+                  selectedHackathonFilter = filter;
+                });
+              },
+              onViewMore: () {
+                print("Pressed View more in jobs display");
+              },
+              items: hackathons,
             ),
           ],
         ),

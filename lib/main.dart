@@ -8,9 +8,13 @@ import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
+
+import 'package:internappflutter/screens/job_page.dart';
+
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:provider/provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +54,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/signup',
       routes: {
         '/homepage': (context) => const BottomnavbarAlternative(userData: null),
-        '/signup': (context) => const Page2(),
+        '/signup': (context) => Page2(),
         '/register': (context) => RegisterPage(userModel: null),
       },
     );
