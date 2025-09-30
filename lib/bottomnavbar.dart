@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:internappflutter/home/explore.dart';
+
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
