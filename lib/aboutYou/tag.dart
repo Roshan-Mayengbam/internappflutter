@@ -31,7 +31,7 @@ class _TagPageState extends State<TagPage> {
   String _uploadProgress = "Preparing upload...";
 
   // Replace with your actual backend URL
-  final String baseUrl = "http://10.35.166.157:3000/student";
+  final String baseUrl = "http://172.31.223.157:3000/student";
 
   /// Upload file to Firebase Storage and return download URL
   Future<String?> _uploadFileToStorage(

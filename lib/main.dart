@@ -8,30 +8,37 @@ import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
+
 import 'package:internappflutter/screens/job_page.dart';
+
+import 'package:internappflutter/firebase_options.dart';
+import 'package:internappflutter/models/jobs.dart';
+import 'package:provider/provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    if (Platform.isAndroid) {
-      await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: "AIzaSyARkzAMgD1HYK4z_qJJz-CbfTJObFT2Vz0",
-          appId: "1:494653563380:android:6b1dad9ff96c310745d9a1",
-          messagingSenderId: "494653563380",
-          projectId: "internapp-539eb",
-          storageBucket: "internapp-539eb.firebasestorage.app",
-        ),
-      );
-    }
+    // Initialize Firebase using default options for the current platform
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     if (kDebugMode) {
       print('Error initializing Firebase: $e');
     }
   }
 
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => JobProvider()),
+        // Add more providers here if needed
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
