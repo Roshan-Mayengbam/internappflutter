@@ -51,11 +51,11 @@ class Job {
     );
   }
 
-  get jobType => null;
+  // get jobType => null;
 
-  get applicationLink => null;
+  // get applicationLink => null;
 
-  get college => null;
+  // get college => null;
 
   Map<String, dynamic> toJson() {
     return {
