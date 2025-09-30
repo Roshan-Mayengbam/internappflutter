@@ -10,7 +10,7 @@ class GoogleAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // ✅ FIXED: Use /student prefix to match your backend setup
-  static const String baseUrl = "http://10.35.166.157:3000/student";
+  static const String baseUrl = "http://172.31.223.157:3000/student";
 
   Future<User?> signInWithGoogle() async {
     try {
