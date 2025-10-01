@@ -259,9 +259,10 @@ class JobProvider with ChangeNotifier {
     }
   }
 
-  Future<void> applyJob(String jobId) async {
+  Future<void> applyJob(String jobId, String jobType) async {
     print("🔄 Starting job application...");
     print("📋 Job ID: $jobId");
+    print("🏢 Job Type: $jobType");
 
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -278,7 +279,8 @@ class JobProvider with ChangeNotifier {
         return;
       }
 
-      final url = '$baseUrl/student/jobs/$jobId/apply';
+      // Updated URL to include jobType
+      final url = '$baseUrl/student/jobs/$jobId/$jobType/apply';
 
       print("🌐 API URL: $url");
 
