@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:provider/provider.dart'; // Added missing import
-
+import 'package:provider/provider.dart';
 import 'package:internappflutter/models/jobs.dart';
-import 'job_card.dart';
+import 'job_card.dart' hide Job, JobProvider;
 
 class HomePage extends StatefulWidget {
-  final dynamic userData; // Fixed parameter declaration
+  final dynamic userData;
   const HomePage({super.key, required this.userData});
 
   @override
@@ -14,6 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  bool _hasShownError = false;
+
   // Convert API Job to display format
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
     return jobs.asMap().entries.map((entry) {
@@ -21,19 +21,24 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Job job = entry.value;
       return {
         'jobTitle': job.title,
-        'companyName':
-            'Company', // You might want to extract this from recruiter field
-        'location': job.preferences.location,
-        'experienceLevel': '${job.preferences.minExperience}+ years',
+        'companyName': job.recruiter.isNotEmpty ? job.recruiter : 'Company',
+        'location': job.preferences.location.isNotEmpty
+            ? job.preferences.location
+            : 'Location not specified',
+        'experienceLevel': job.preferences.minExperience > 0
+            ? '${job.preferences.minExperience}+ years'
+            : 'Entry level',
         'requirements': job.preferences.skills.isNotEmpty
             ? job.preferences.skills
             : ['Skills not specified'],
-        'websiteUrl': 'www.company.com',
+        'websiteUrl': job.applicationLink ?? 'Apply via app',
         'initialColorIndex': index % 3,
         'description': job.description,
         'salaryRange':
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
-        'jobId': job.id, // Add jobId for applying
+        'jobId': job.id,
+        'jobType': job.jobType,
+        'college': job.college,
       };
     }).toList();
   }
@@ -41,17 +46,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // Notification data
   Map notifications = {
     'msg': [
-      'UI/UX Designer',
-      'UI/UX Designer',
-      'UI/UX Designer',
-      'UI/UX Designer',
-      'UI/UX Designer',
+      'New job matching your skills',
+      'Application status updated',
+      'On-campus opportunity available',
+      'Profile viewed by recruiter',
+      'Weekly job digest',
     ],
     'week': [
-      '1 week ago',
-      '1 week ago',
-      '1 week ago',
-      '1 week ago',
+      '2 hours ago',
+      '1 day ago',
+      '2 days ago',
+      '3 days ago',
       '1 week ago',
     ],
   };
@@ -59,10 +64,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late List<AnimationController> _controllers;
   late List<Animation<Offset>> _animations;
 
-  // Which card is currently on top
   int _topIndex = 0;
-
-  // Live drag progress to animate the stack (0.0 -> 1.0)
   double _dragProgress = 0.0;
   DismissDirection? _dragDirection;
 
@@ -73,7 +75,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.initState();
     _initAnimations();
 
-    // Load jobs when the widget initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<JobProvider>().fetchJobs();
     });
@@ -95,22 +96,12 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  void _slideAndRemove(int index) async {
-    await _controllers[index].forward();
-    setState(() {
-      notifications['msg'].removeAt(index);
-      notifications['week'].removeAt(index);
-      _controllers.removeAt(index);
-      _animations.removeAt(index);
-    });
-  }
-
   void _slideAllAndRemove() async {
     for (int i = 0; i < _controllers.length; i++) {
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       _controllers[i].forward();
     }
-    await Future.delayed(Duration(milliseconds: 400));
+    await Future.delayed(const Duration(milliseconds: 400));
     setState(() {
       notifications['msg'].clear();
       notifications['week'].clear();
@@ -121,42 +112,61 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _handleJobAction(String jobId, bool isLiked) async {
     if (isLiked) {
-      print("🚀 Attempting to apply for job: $jobId");
+      print("Attempting to apply for job: $jobId");
 
-      // ✅ NO NEED TO PASS STUDENT ID - IT COMES FROM TOKEN
+      context.read<JobProvider>().clearError();
+      _hasShownError = false;
+
       await context.read<JobProvider>().applyJob(jobId);
 
       final jobProvider = context.read<JobProvider>();
       if (jobProvider.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(jobProvider.errorMessage!),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(jobProvider.errorMessage!),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'Dismiss',
+                textColor: Colors.white,
+                onPressed: () => jobProvider.clearError(),
+              ),
+            ),
+          );
+        }
       } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Applied to job successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } else {
+      print("Job rejected: $jobId");
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Applied to job successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+          const SnackBar(
+            content: Text('Job rejected'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 1),
           ),
         );
       }
-    } else {
-      print("❌ Job rejected: $jobId");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Job rejected'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 1),
-        ),
-      );
     }
   }
 
-  // Fixed: Extract top bar building into a method
+  void _retryFetchJobs() {
+    final jobProvider = context.read<JobProvider>();
+    jobProvider.clearError();
+    _hasShownError = false;
+    jobProvider.fetchJobs();
+  }
+
   Widget _buildTopBar(JobProvider jobProvider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -181,23 +191,20 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  boxShadow: [
-                    // Bottom shadow
-                    const BoxShadow(
+                  boxShadow: const [
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(0, 6),
                       blurRadius: 0,
                       spreadRadius: -2,
                     ),
-                    // Right shadow
-                    const BoxShadow(
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(6, 0),
                       blurRadius: 0,
                       spreadRadius: -2,
                     ),
-                    // Bottom-right corner shadow (to make it symmetric)
-                    const BoxShadow(
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(6, 6),
                       blurRadius: 0,
@@ -208,7 +215,12 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: Colors.black, width: 1),
                 ),
-                child: const Icon(Icons.tune, color: Colors.black),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.bookmark,
+                  color: Colors.black,
+                  size: 28,
+                ),
               ),
             ],
           ),
@@ -216,23 +228,20 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  boxShadow: [
-                    // Bottom shadow
-                    const BoxShadow(
+                  boxShadow: const [
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(0, 6),
                       blurRadius: 0,
                       spreadRadius: -2,
                     ),
-                    // Right shadow
-                    const BoxShadow(
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(6, 0),
                       blurRadius: 0,
                       spreadRadius: -2,
                     ),
-                    // Bottom-right corner shadow (to make it symmetric)
-                    const BoxShadow(
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(6, 6),
                       blurRadius: 0,
@@ -245,19 +254,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     top: BorderSide(
                       color: Color.fromARGB(255, 6, 7, 8),
                       width: 1,
-                    ), // thin
+                    ),
                     left: BorderSide(
                       color: Color.fromARGB(255, 6, 7, 8),
                       width: 1,
-                    ), // thin
+                    ),
                     right: BorderSide(
                       color: Color.fromARGB(255, 6, 7, 8),
                       width: 2,
-                    ), // thick
+                    ),
                     bottom: BorderSide(
                       color: Color.fromARGB(255, 6, 7, 8),
                       width: 2,
-                    ), // thick
+                    ),
                   ),
                 ),
                 padding: const EdgeInsets.all(8),
@@ -272,23 +281,20 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   onTap: () => Scaffold.of(context).openEndDrawer(),
                   child: Container(
                     decoration: BoxDecoration(
-                      boxShadow: [
-                        // Bottom shadow
-                        const BoxShadow(
+                      boxShadow: const [
+                        BoxShadow(
                           color: Colors.black,
                           offset: Offset(0, 6),
                           blurRadius: 0,
                           spreadRadius: -2,
                         ),
-                        // Right shadow
-                        const BoxShadow(
+                        BoxShadow(
                           color: Colors.black,
                           offset: Offset(6, 0),
                           blurRadius: 0,
                           spreadRadius: -2,
                         ),
-                        // Bottom-right corner shadow (to make it symmetric)
-                        const BoxShadow(
+                        BoxShadow(
                           color: Colors.black,
                           offset: Offset(6, 6),
                           blurRadius: 0,
@@ -301,30 +307,116 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         top: BorderSide(
                           color: Color.fromARGB(255, 6, 7, 8),
                           width: 1,
-                        ), // thin
+                        ),
                         left: BorderSide(
                           color: Color.fromARGB(255, 6, 7, 8),
                           width: 1,
-                        ), // thin
+                        ),
                         right: BorderSide(
                           color: Color.fromARGB(255, 6, 7, 8),
                           width: 2,
-                        ), // thick
+                        ),
                         bottom: BorderSide(
                           color: Color.fromARGB(255, 6, 7, 8),
                           width: 2,
-                        ), // thick
+                        ),
                       ),
                     ),
                     padding: const EdgeInsets.all(8),
-                    child: const Icon(
-                      Icons.notifications_none,
-                      color: Colors.black,
+                    child: Stack(
+                      children: [
+                        const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                        ),
+                        if (notifications['msg'].isNotEmpty)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 16,
+                                minHeight: 16,
+                              ),
+                              child: Text(
+                                '${notifications['msg'].length}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchStrategyIndicator(JobProvider jobProvider) {
+    if (jobProvider.searchStrategy.isEmpty) return const SizedBox.shrink();
+
+    String strategyText;
+    Color strategyColor;
+    IconData strategyIcon;
+
+    switch (jobProvider.searchStrategy) {
+      case 'on-campus':
+        strategyText = 'On-Campus Jobs';
+        strategyColor = Colors.blue;
+        strategyIcon = Icons.school;
+        break;
+      case 'skills-based':
+        strategyText = 'Skills-Based Matching';
+        strategyColor = Colors.green;
+        strategyIcon = Icons.psychology;
+        break;
+      case 'mixed-priority':
+        strategyText = 'On-Campus + Skills Match';
+        strategyColor = Colors.purple;
+        strategyIcon = Icons.auto_awesome;
+        break;
+      case 'general':
+        strategyText = 'General Opportunities';
+        strategyColor = Colors.orange;
+        strategyIcon = Icons.work;
+        break;
+      default:
+        return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: strategyColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: strategyColor, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(strategyIcon, size: 16, color: strategyColor),
+          const SizedBox(width: 4),
+          Text(
+            strategyText,
+            style: TextStyle(
+              color: strategyColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -355,30 +447,39 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       builder: (context, jobProvider, child) {
         final displayJobs = jobsToDisplayFormat(jobProvider.jobs);
 
-        // Show error message if there's an error
-        if (jobProvider.errorMessage != null) {
+        // Error handling
+        if (jobProvider.errorMessage != null && !_hasShownError) {
+          _hasShownError = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(jobProvider.errorMessage!),
-                action: SnackBarAction(
-                  label: 'Retry',
-                  onPressed: () => jobProvider.fetchJobs(),
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(jobProvider.errorMessage!),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 5),
+                  action: SnackBarAction(
+                    label: 'Retry',
+                    textColor: Colors.white,
+                    onPressed: _retryFetchJobs,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           });
         }
 
+        if (jobProvider.errorMessage == null && _hasShownError) {
+          _hasShownError = false;
+        }
+
+        // Empty state
         if (displayJobs.isEmpty && !jobProvider.isLoading) {
           return Scaffold(
             backgroundColor: Colors.white,
             body: SafeArea(
               child: Column(
                 children: [
-                  // Top bar
                   _buildTopBar(jobProvider),
-
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     child: Align(
@@ -393,8 +494,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-
-                  // Empty state
                   Expanded(
                     child: Center(
                       child: Column(
@@ -406,13 +505,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             color: Colors.grey,
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'No jobs available',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          Text(
+                            jobProvider.errorMessage ?? 'No jobs available',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () => jobProvider.fetchJobs(),
+                            onPressed: _retryFetchJobs,
                             child: const Text('Retry'),
                           ),
                         ],
@@ -448,7 +551,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text(
+                            'Finding the best jobs for you...',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -456,14 +571,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           );
         }
 
-        // Back-card animation based on drag progress
+        // Main content with jobs
         final nextScale = 0.95 + (0.03 * _dragProgress);
         final nextTranslateY = 24 - (8 * _dragProgress);
-
         final thirdScale = 0.90 + (0.03 * _dragProgress * 0.5);
         final thirdTranslateY = 48 - (8 * _dragProgress * 0.5);
-
-        // Top-card rotation based on drag direction
         final topAngle =
             (_dragDirection == DismissDirection.startToEnd
                 ? 1
@@ -477,50 +589,106 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           endDrawer: Drawer(
             child: Stack(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 72.0),
-                  child: ListView.builder(
-                    itemCount: notifications['msg'].length,
-                    itemBuilder: (context, index) {
-                      return SlideTransition(
-                        position: _animations[index],
-                        child: Dismissible(
-                          key: Key(
-                            notifications['msg'][index] + index.toString(),
+                Column(
+                  children: [
+                    const DrawerHeader(
+                      decoration: BoxDecoration(color: Colors.blue),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                            size: 30,
                           ),
-                          direction: DismissDirection.startToEnd,
-                          onDismissed: (direction) {
-                            //_slideAndRemove(index);
-                          },
-                          movementDuration: const Duration(milliseconds: 400),
-                          child: Card(
-                            child: ListTile(
-                              title: Text(notifications['msg'][index]),
-                              subtitle: Text(notifications['week'][index]),
+                          SizedBox(width: 10),
+                          Text(
+                            'Notifications',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: notifications['msg'].isEmpty
+                          ? const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.notifications_off,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    'No notifications',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: notifications['msg'].length,
+                              itemBuilder: (context, index) {
+                                return SlideTransition(
+                                  position: _animations[index],
+                                  child: Dismissible(
+                                    key: Key(
+                                      notifications['msg'][index] +
+                                          index.toString(),
+                                    ),
+                                    direction: DismissDirection.startToEnd,
+                                    onDismissed: (direction) {
+                                      setState(() {
+                                        notifications['msg'].removeAt(index);
+                                        notifications['week'].removeAt(index);
+                                      });
+                                    },
+                                    child: Card(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      child: ListTile(
+                                        leading: const Icon(Icons.work),
+                                        title: Text(
+                                          notifications['msg'][index],
+                                        ),
+                                        subtitle: Text(
+                                          notifications['week'][index],
+                                        ),
+                                        trailing: const Icon(
+                                          Icons.arrow_forward_ios,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  bottom: 16,
-                  right: 16,
-                  child: FloatingActionButton(
-                    onPressed: _slideAllAndRemove,
-                    child: Icon(Icons.clear_all),
+                if (notifications['msg'].isNotEmpty)
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: FloatingActionButton(
+                      onPressed: _slideAllAndRemove,
+                      child: const Icon(Icons.clear_all),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
           body: SafeArea(
             child: Column(
               children: [
-                // Top bar
-                _buildTopBar(jobProvider), // Fixed: Use the extracted method
-
+                _buildTopBar(jobProvider),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Align(
@@ -535,6 +703,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
+                _buildSearchStrategyIndicator(jobProvider),
                 const SizedBox(height: 10),
 
                 // Card stack
@@ -543,217 +712,220 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: SizedBox(
                       width: cardWidth,
                       height: cardHeight,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          // 3rd card (bottom)
-                          Transform.scale(
-                            scale: thirdScale,
-                            alignment: Alignment.bottomRight,
-                            child: Transform.translate(
-                              offset: Offset(0, thirdTranslateY),
-                              child: Transform.rotate(
-                                angle: 0.20, // slight playful tilt
-                                alignment: Alignment.bottomRight,
-                                child: JobCard(
-                                  jobTitle:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['jobTitle'],
-                                  companyName:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['companyName'],
-                                  location:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['location'],
-                                  experienceLevel:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['experienceLevel'],
-                                  requirements: List<String>.from(
-                                    displayJobs[_idx(
-                                      2,
-                                      displayJobs.length,
-                                    )]['requirements'],
+                      child: displayJobs.length >= 3
+                          ? Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // 3rd card
+                                Transform.scale(
+                                  scale: thirdScale,
+                                  alignment: Alignment.bottomRight,
+                                  child: Transform.translate(
+                                    offset: Offset(0, thirdTranslateY),
+                                    child: Transform.rotate(
+                                      angle: 0.20,
+                                      alignment: Alignment.bottomRight,
+                                      child: JobCard(
+                                        jobTitle:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['jobTitle'],
+                                        companyName:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['companyName'],
+                                        location:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['location'],
+                                        experienceLevel:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['experienceLevel'],
+                                        requirements: List<String>.from(
+                                          displayJobs[_idx(
+                                            2,
+                                            displayJobs.length,
+                                          )]['requirements'],
+                                        ),
+                                        websiteUrl:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['websiteUrl'],
+                                        initialColorIndex:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['initialColorIndex'],
+                                      ),
+                                    ),
                                   ),
-                                  websiteUrl:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['websiteUrl'],
-                                  initialColorIndex:
-                                      displayJobs[_idx(
-                                        2,
-                                        displayJobs.length,
-                                      )]['initialColorIndex'],
                                 ),
-                              ),
-                            ),
-                          ),
 
-                          // 2nd card (middle)
-                          Transform.scale(
-                            scale: nextScale,
-                            alignment: Alignment.bottomRight,
-                            child: Transform.translate(
-                              offset: Offset(0, nextTranslateY),
-                              child: Transform.rotate(
-                                angle: 0.10,
-                                alignment: Alignment.bottomRight,
-                                child: JobCard(
-                                  jobTitle:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['jobTitle'],
-                                  companyName:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['companyName'],
-                                  location:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['location'],
-                                  experienceLevel:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['experienceLevel'],
-                                  requirements: List<String>.from(
-                                    displayJobs[_idx(
-                                      1,
-                                      displayJobs.length,
-                                    )]['requirements'],
+                                // 2nd card
+                                Transform.scale(
+                                  scale: nextScale,
+                                  alignment: Alignment.bottomRight,
+                                  child: Transform.translate(
+                                    offset: Offset(0, nextTranslateY),
+                                    child: Transform.rotate(
+                                      angle: 0.10,
+                                      alignment: Alignment.bottomRight,
+                                      child: JobCard(
+                                        jobTitle:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['jobTitle'],
+                                        companyName:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['companyName'],
+                                        location:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['location'],
+                                        experienceLevel:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['experienceLevel'],
+                                        requirements: List<String>.from(
+                                          displayJobs[_idx(
+                                            1,
+                                            displayJobs.length,
+                                          )]['requirements'],
+                                        ),
+                                        websiteUrl:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['websiteUrl'],
+                                        initialColorIndex:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['initialColorIndex'],
+                                      ),
+                                    ),
                                   ),
-                                  websiteUrl:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['websiteUrl'],
-                                  initialColorIndex:
-                                      displayJobs[_idx(
-                                        1,
-                                        displayJobs.length,
-                                      )]['initialColorIndex'],
                                 ),
-                              ),
-                            ),
-                          ),
 
-                          // Top card (swipe with Dismissible)
-                          Transform.rotate(
-                            angle: topAngle,
-                            child: Dismissible(
-                              key: ValueKey(
-                                'job_${_idx(0, displayJobs.length)}_$_topIndex',
-                              ),
-                              direction: DismissDirection.horizontal,
-                              dismissThresholds: const {
-                                DismissDirection.startToEnd: 0.35,
-                                DismissDirection.endToStart: 0.35,
-                              },
-                              onUpdate: (details) {
-                                setState(() {
-                                  _dragProgress = details.progress.clamp(
-                                    0.0,
-                                    1.0,
-                                  );
-                                  _dragDirection = details.direction;
-                                });
-                              },
-                              onDismissed: (direction) {
-                                // Handle job action based on swipe direction
-                                bool isLiked =
-                                    direction == DismissDirection.startToEnd;
-                                String jobId =
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['jobId'];
-                                _handleJobAction(jobId, isLiked);
+                                // Top card
+                                Transform.rotate(
+                                  angle: topAngle,
+                                  child: Dismissible(
+                                    key: ValueKey(
+                                      'job_${_idx(0, displayJobs.length)}_$_topIndex',
+                                    ),
+                                    direction: DismissDirection.horizontal,
+                                    dismissThresholds: const {
+                                      DismissDirection.startToEnd: 0.35,
+                                      DismissDirection.endToStart: 0.35,
+                                    },
+                                    onUpdate: (details) {
+                                      setState(() {
+                                        _dragProgress = details.progress.clamp(
+                                          0.0,
+                                          1.0,
+                                        );
+                                        _dragDirection = details.direction;
+                                      });
+                                    },
+                                    onDismissed: (direction) {
+                                      bool isLiked =
+                                          direction ==
+                                          DismissDirection.startToEnd;
+                                      String jobId =
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['jobId'];
+                                      _handleJobAction(jobId, isLiked);
 
-                                setState(() {
-                                  _dragProgress = 0.0;
-                                  _dragDirection = null;
-                                  _topIndex =
-                                      (_topIndex + 1) % displayJobs.length;
-                                });
-                              },
-                              confirmDismiss: (direction) async {
-                                // allow both left/right swipes
-                                return true;
-                              },
-                              child: JobCard(
-                                jobTitle:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['jobTitle'],
-                                companyName:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['companyName'],
-                                location:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['location'],
-                                experienceLevel:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['experienceLevel'],
-                                requirements: List<String>.from(
-                                  displayJobs[_idx(
-                                    0,
-                                    displayJobs.length,
-                                  )]['requirements'],
+                                      setState(() {
+                                        _dragProgress = 0.0;
+                                        _dragDirection = null;
+                                        _topIndex =
+                                            (_topIndex + 1) %
+                                            displayJobs.length;
+                                      });
+                                    },
+                                    confirmDismiss: (direction) async => true,
+                                    child: JobCard(
+                                      jobTitle:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['jobTitle'],
+                                      companyName:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['companyName'],
+                                      location:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['location'],
+                                      experienceLevel:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['experienceLevel'],
+                                      requirements: List<String>.from(
+                                        displayJobs[_idx(
+                                          0,
+                                          displayJobs.length,
+                                        )]['requirements'],
+                                      ),
+                                      websiteUrl:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['websiteUrl'],
+                                      initialColorIndex:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['initialColorIndex'],
+                                    ),
+                                  ),
                                 ),
-                                websiteUrl:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['websiteUrl'],
-                                initialColorIndex:
-                                    displayJobs[_idx(
-                                      0,
-                                      displayJobs.length,
-                                    )]['initialColorIndex'],
+                              ],
+                            )
+                          : displayJobs.isNotEmpty
+                          ? JobCard(
+                              jobTitle: displayJobs[0]['jobTitle'],
+                              companyName: displayJobs[0]['companyName'],
+                              location: displayJobs[0]['location'],
+                              experienceLevel:
+                                  displayJobs[0]['experienceLevel'],
+                              requirements: List<String>.from(
+                                displayJobs[0]['requirements'],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                              websiteUrl: displayJobs[0]['websiteUrl'],
+                              initialColorIndex:
+                                  displayJobs[0]['initialColorIndex'],
+                            )
+                          : const SizedBox.shrink(),
                     ),
                   ),
                 ),
 
-                // Bottom nav space (you can add navigation here if needed)
                 const SizedBox(height: 20),
               ],
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class ChatListScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Chat List')),
-      body: Center(child: Text('Chat List Screen')),
     );
   }
 }
