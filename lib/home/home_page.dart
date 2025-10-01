@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/home/saved.dart';
 import 'package:provider/provider.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'job_card.dart' hide Job, JobProvider;
@@ -110,14 +111,15 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  void _handleJobAction(String jobId, bool isLiked) async {
+  void _handleJobAction(String jobId, String jobType, bool isLiked) async {
     if (isLiked) {
-      print("Attempting to apply for job: $jobId");
+      print("Attempting to apply for job: $jobId (Type: $jobType)");
 
       context.read<JobProvider>().clearError();
       _hasShownError = false;
 
-      await context.read<JobProvider>().applyJob(jobId);
+      // Pass jobType to applyJob
+      await context.read<JobProvider>().applyJob(jobId, jobType);
 
       final jobProvider = context.read<JobProvider>();
       if (jobProvider.errorMessage != null) {
@@ -137,11 +139,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         }
       } else {
         if (mounted) {
+          // Different messages based on jobType
+          String successMessage = jobType == 'on-campus'
+              ? 'job saved!'
+              : 'Applied to company job successfully!';
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Applied to job successfully!'),
+            SnackBar(
+              content: Text(successMessage),
               backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -187,39 +194,47 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(0, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 0),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                  ],
-                  color: const Color(0xFFD9FFCB),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black, width: 1),
-                ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.bookmark,
-                  color: Colors.black,
-                  size: 28,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Saved()),
+                  );
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(0, 6),
+                        blurRadius: 0,
+                        spreadRadius: -2,
+                      ),
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(6, 0),
+                        blurRadius: 0,
+                        spreadRadius: -2,
+                      ),
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(6, 6),
+                        blurRadius: 0,
+                        spreadRadius: -2,
+                      ),
+                    ],
+                    color: const Color(0xFFD9FFCB),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.black, width: 1),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.bookmark,
+                    color: Colors.black,
+                    size: 28,
+                  ),
                 ),
               ),
             ],
@@ -843,12 +858,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       bool isLiked =
                                           direction ==
                                           DismissDirection.startToEnd;
+                                      int currentIndex = _idx(
+                                        0,
+                                        displayJobs.length,
+                                      );
                                       String jobId =
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['jobId'];
-                                      _handleJobAction(jobId, isLiked);
+                                          displayJobs[currentIndex]['jobId'];
+                                      String jobType =
+                                          displayJobs[currentIndex]['jobType'] ??
+                                          'company';
+
+                                      // Pass jobId, jobType, and isLiked to the handler
+                                      _handleJobAction(jobId, jobType, isLiked);
 
                                       setState(() {
                                         _dragProgress = 0.0;
