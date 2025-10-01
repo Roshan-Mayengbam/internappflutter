@@ -5,7 +5,7 @@ import 'package:internappflutter/core/components/custom_search_field.dart';
 import '../core/components/custom_app_bar.dart';
 import '../core/components/jobs_page/custom_carousel_section.dart';
 import '../core/components/jobs_page/filter_tag.dart';
-import '../core/components/jobs_page/job_carousel_card.dart';
+import '../core/components/jobs_page/carousel_card.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});

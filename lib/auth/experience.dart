@@ -407,7 +407,7 @@ class _ExperiencePageState extends State<ExperiencePage> {
                             ],
                           ),
                           child: ElevatedButton(
-                            onPressed: isFormComplete ? _addExperience : null,
+                            onPressed: isFormComplete ? _addExperience : () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
 

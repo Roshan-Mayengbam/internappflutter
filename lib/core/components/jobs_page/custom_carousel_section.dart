@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'filter_tag.dart';
-import 'job_carousel_card.dart';
+import 'carousel_card.dart';
 
 // Reusable Custom Carousel Section
 class CustomCarouselSection extends StatelessWidget {

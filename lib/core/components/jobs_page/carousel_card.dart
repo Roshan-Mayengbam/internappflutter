@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/constants/job_carousel_card_constants.dart';
+import 'package:internappflutter/core/constants/carousel_card_constants.dart';
 
 class CarouselCard extends StatelessWidget {
   final String title;
@@ -26,13 +26,13 @@ class CarouselCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 320,
-      margin: JobCardConstants.margin,
-      padding: JobCardConstants.padding,
+      margin: CarouselCardConstants.margin,
+      padding: CarouselCardConstants.padding,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: JobCardConstants.cardBorder,
-        borderRadius: BorderRadius.circular(JobCardConstants.borderRadius),
-        boxShadow: JobCardConstants.cardShadow,
+        border: CarouselCardConstants.cardBorder,
+        borderRadius: BorderRadius.circular(CarouselCardConstants.borderRadius),
+        boxShadow: CarouselCardConstants.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,12 +43,12 @@ class CarouselCard extends StatelessWidget {
             child: Container(
               height: 140,
               decoration: const BoxDecoration(
-                gradient: JobCardConstants.bannerGradient,
+                gradient: CarouselCardConstants.bannerGradient,
               ),
               alignment: Alignment.center,
               child: Text(
                 title,
-                style: JobCardConstants.bannerTextStyle,
+                style: CarouselCardConstants.bannerTextStyle,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -69,7 +69,7 @@ class CarouselCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: JobCardConstants.jobTitleStyle,
+                        style: CarouselCardConstants.jobTitleStyle,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
@@ -77,7 +77,7 @@ class CarouselCard extends StatelessWidget {
                         children: [
                           Text(
                             subtitle,
-                            style: JobCardConstants.companyNameStyle,
+                            style: CarouselCardConstants.companyNameStyle,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (isVerified) ...[
