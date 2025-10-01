@@ -50,6 +50,8 @@ dependencies:
   swipe_cards: ^2.0.0+1
   provider: ^6.1.5+1
   firebase_storage: ^13.0.2
+  equatable: ^2.0.7
+  dartz: ^0.10.1
 
 
 

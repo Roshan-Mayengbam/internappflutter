@@ -4,13 +4,14 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internappflutter/auth/courserange.dart';
+import 'package:internappflutter/core/constants/app_constants.dart';
 
 class GoogleAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // ✅ FIXED: Use /student prefix to match your backend setup
-  static String baseUrl = "http://10.118.233.233:3000/student";
+  static String baseUrl = AppConstants.studentBaseUrl;
 
   Future<User?> signInWithGoogle() async {
     try {

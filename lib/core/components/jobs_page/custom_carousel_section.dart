@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/domain/entities/job_response.dart';
 
 import 'filter_tag.dart';
 import 'carousel_card.dart';
@@ -11,7 +12,7 @@ class CustomCarouselSection extends StatelessWidget {
   final String selectedFilter;
   final Function(String) onFilterTap;
   final bool statusPage;
-  final List<Map<String, dynamic>> items;
+  final List<Job> items; // This remains the same
   final VoidCallback? onViewMore;
 
   const CustomCarouselSection({
@@ -92,8 +93,7 @@ class CustomCarouselSection extends StatelessWidget {
                 )
               : Container(),
 
-          const SizedBox(height: 16),
-
+          const SizedBox(height: 20),
           // Carousel
           SizedBox(
             height: 300,
@@ -101,23 +101,18 @@ class CustomCarouselSection extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: items.length,
               itemBuilder: (context, index) {
-                final item = items[index];
+                // --- PARSING LOGIC IS IMPLEMENTED HERE ---
+                final job = items[index];
                 return Padding(
                   padding: const EdgeInsets.only(right: 12.0),
-                  child: (statusPage)
-                      ? CarouselCard(
-                          title: item["jobTitle"],
-                          subtitle: item["companyName"],
-                          tag1: item["applied"] ? "Applied" : "Not Applied",
-                          statusCard: statusPage,
-                        )
-                      : CarouselCard(
-                          title: item["jobTitle"],
-                          subtitle: item["companyName"],
-                          tag1: item["location"],
-                          tag2: item['experienceLevel'],
-                          statusCard: statusPage,
-                        ),
+                  child: CarouselCard(
+                    title: job.title,
+                    subtitle: job.recruiter.company.name,
+                    tag1: job.location ?? 'N/A',
+                    tag2: job.recruiter.company.companyType ?? 'Startup',
+                    isVerified: job.recruiter.isVerified,
+                    statusCard: statusPage,
+                  ),
                 );
               },
             ),

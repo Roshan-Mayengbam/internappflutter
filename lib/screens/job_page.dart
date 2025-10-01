@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
-import 'package:internappflutter/core/components/custom_search_field.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
-import '../core/components/custom_app_bar.dart';
-import '../core/components/jobs_page/custom_carousel_section.dart';
-import '../core/components/jobs_page/filter_tag.dart';
-import '../core/components/jobs_page/carousel_card.dart';
+import 'package:internappflutter/core/components/custom_app_bar.dart';
+import 'package:internappflutter/core/components/jobs_page/custom_carousel_section.dart';
+import 'package:internappflutter/features/data/datasources/job_response_remote_datasource.dart';
+import 'package:internappflutter/features/domain/entities/job_response.dart';
+import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
+
+import '../features/core/errors/failiure.dart';
+import '../features/data/repositories/job_repository_impl.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
@@ -15,6 +19,11 @@ class JobPage extends StatefulWidget {
 }
 
 class _JobPageState extends State<JobPage> {
+  // State variables to manage UI
+  bool _isLoading = true;
+  List<Job> _jobs = [];
+  String? _errorMessage;
+
   final List<String> jobFilters = [
     'Featured',
     'Live',
@@ -24,244 +33,62 @@ class _JobPageState extends State<JobPage> {
     'Part-Time',
     'Internship',
   ];
-
   String selectedJobFilter = 'Featured';
-
-  final List<Map<String, dynamic>> jobs = const [
-    {
-      'jobTitle': 'Senior Full-Stack Developer',
-      'companyName': 'Innovate Solutions Inc.',
-      'experienceLevel': '5+ years',
-      'description':
-          'Develop and maintain web applications using the MERN stack.',
-      'isVerified': true,
-      'location': 'San Francisco',
-      'tags': ['REMOTE', 'FULL-TIME', 'TECH'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Product Manager',
-      'companyName': 'Apex Innovations',
-      'experienceLevel': '3-5 years',
-      'description': 'Lead product development from ideation to launch.',
-      'isVerified': false,
-      'location': 'New York',
-      'tags': ['PRODUCT', 'AGILE', 'FINTECH'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Data Scientist',
-      'companyName': 'DataCraft Analytics',
-      'experienceLevel': '2-4 years',
-      'description': 'Analyze large datasets to provide actionable insights.',
-      'isVerified': true,
-      'location': 'Boston',
-      'tags': ['DATA', 'AI/ML', 'HEALTHCARE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Marketing Specialist',
-      'companyName': 'Growth Hub Agency',
-      'experienceLevel': '1-3 years',
-      'description': 'Develop and execute digital marketing campaigns.',
-      'isVerified': true,
-      'location': 'Remote',
-      'tags': ['MARKETING', 'REMOTE', 'DIGITAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'DevOps Engineer',
-      'companyName': 'CloudSphere Tech',
-      'experienceLevel': '4-6 years',
-      'description': 'Manage and optimize cloud infrastructure on AWS.',
-      'isVerified': true,
-      'location': 'Seattle',
-      'tags': ['DEVOPS', 'CLOUD', 'AWS'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'UI/UX Designer',
-      'companyName': 'Creative Minds Studio',
-      'experienceLevel': '0-2 years',
-      'description': 'Create intuitive and beautiful user interfaces.',
-      'isVerified': false,
-      'location': 'Austin',
-      'tags': ['DESIGN', 'UX/UI', 'STARTUP'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Mobile App Developer',
-      'companyName': 'Appify Solutions',
-      'experienceLevel': '2-3 years',
-      'description': 'Build cross-platform mobile applications with Flutter.',
-      'isVerified': true,
-      'location': 'Toronto',
-      'tags': ['MOBILE', 'FLUTTER', 'CROSS-PLATFORM'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Cybersecurity Analyst',
-      'companyName': 'SecureNet Systems',
-      'experienceLevel': '3-5 years',
-      'description': 'Protect company data and systems from threats.',
-      'isVerified': true,
-      'location': 'Washington D.C.',
-      'tags': ['SECURITY', 'CYBER', 'GOVERNMENT'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Game Developer',
-      'companyName': 'Pixel Playground',
-      'experienceLevel': '1-4 years',
-      'description': 'Design and develop engaging video games.',
-      'isVerified': false,
-      'location': 'Los Angeles',
-      'tags': ['GAMING', 'UNITY', 'CREATIVE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'HR Generalist',
-      'companyName': 'People First Corp.',
-      'experienceLevel': '2-5 years',
-      'description': 'Handle all aspects of human resources operations.',
-      'isVerified': true,
-      'location': 'Chicago',
-      'tags': ['HR', 'CORPORATE', 'BUSINESS'],
-      'applied': false,
-    },
-  ];
-
-  final List<String> hackathonFilters = [
-    'Featured',
-    'Upcoming',
-    'Live',
-    'Remote',
-    'In-Person',
-  ];
-
-  String selectedHackathonFilter = 'Upcoming';
-
-  final List<Map<String, dynamic>> hackathons = const [
-    {
-      'jobTitle': 'AI for Good Challenge',
-      'companyName': 'Tech for Humanity',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'October 25-27, 2025',
-      'theme': 'Using AI to solve social and environmental problems.',
-      'prizes': ['\$5,000 Cash', 'Mentorship', 'Job Interviews'],
-      'tags': ['AI', 'SOCIAL GOOD', 'VIRTUAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Fintech Frontier Hack',
-      'companyName': 'Finnovate Labs',
-      'location': 'London',
-      'date': 'November 1-3, 2025',
-      'experienceLevel': 'Undergraduates',
-      'theme': 'Innovations in financial technology and digital payments.',
-      'prizes': ['\$10,000 Seed Funding', 'Incubator Spot'],
-      'tags': ['FINTECH', 'IN-PERSON', 'LONDON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Health-Tech Innovation Sprint',
-      'companyName': 'Global Health Institute',
-      'location': 'Boston',
-      'date': 'November 8-10, 2025',
-      'experienceLevel': 'Working Professionals',
-      'theme': 'Developing solutions for modern healthcare challenges.',
-      'prizes': ['\$7,500 Grant', 'Partnership with Hospitals'],
-      'tags': ['HEALTHCARE', 'MEDTECH', 'BOSTON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Game Jam 2025',
-      'companyName': 'Indie Game Collective',
-      'location': 'Online',
-      'experienceLevel': 'High School',
-      'date': 'December 6-8, 2025',
-      'theme': 'Create a game from scratch in 48 hours.',
-      'prizes': ['Publishing Deal', 'Console Dev Kits'],
-      'tags': ['GAMING', 'DEVELOPMENT', 'VIRTUAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Cyber Defense Marathon',
-      'companyName': 'Secure Future Foundation',
-      'experienceLevel': 'Undergraduates',
-      'location': 'Washington D.C.',
-      'date': 'December 13-15, 2025',
-      'theme': 'Build tools to combat cyber threats and protect data.',
-      'prizes': ['\$6,000 Cash', 'Internships with Government Agencies'],
-      'tags': ['CYBERSECURITY', 'SECURITY', 'IN-PERSON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Sustainable Techathon',
-      'companyName': 'Green Earth Alliance',
-      'experienceLevel': 'Undergraduates',
-      'location': 'Remote',
-      'date': 'January 10-12, 2026',
-      'theme': 'Developing sustainable and eco-friendly technology.',
-      'prizes': ['\$4,000 Cash', 'Featured on Tech Blog'],
-      'tags': ['SUSTAINABILITY', 'ENVIRONMENT', 'REMOTE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Data Science & Machine Learning Challenge',
-      'companyName': 'Data Guild',
-      'location': 'Seattle',
-      'experienceLevel': 'Undergraduates',
-      'date': 'January 24-26, 2026',
-      'theme': 'Solve complex real-world problems with data.',
-      'prizes': ['Job Offer', 'Trip to Tech Conference'],
-      'tags': ['DATA SCIENCE', 'ML', 'IN-PERSON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'UX/UI Design Sprint',
-      'companyName': 'Design Masters',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'February 7-9, 2026',
-      'theme': 'Designing intuitive user experiences and interfaces.',
-      'prizes': ['Portfolio Review', 'Design Tool Subscriptions'],
-      'tags': ['DESIGN', 'UX/UI', 'VIRTUAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Open Source Contribution Weekend',
-      'companyName': 'Community Coders',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'February 21-23, 2026',
-      'theme': 'Contribute to popular open-source projects.',
-      'prizes': ['Special Mentions', 'Swag'],
-      'tags': ['OPEN SOURCE', 'COMMUNITY', 'REMOTE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Robotics Rumble',
-      'companyName': 'RoboTech Labs',
-      'location': 'Silicon Valley',
-      'experienceLevel': 'Tech Enthusiasts',
-      'date': 'March 7-9, 2026',
-      'theme': 'Build and program a robot to complete a challenge.',
-      'prizes': ['\$8,000 Cash', 'Robotics Kit'],
-      'tags': ['ROBOTICS', 'ENGINEERING', 'IN-PERSON'],
-      'applied': false,
-    },
-  ];
-
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _fetchJobs();
+  }
+
+  /// Fetches job data directly without using Provider.
+  Future<void> _fetchJobs() async {
+    // 1. Manually create the dependency chain
+    final client = http.Client();
+    final auth = FirebaseAuth.instance;
+    final remoteDataSource = JobRemoteDataSourceImpl(
+      client: client,
+      auth: auth,
+    );
+    final repository = JobRepositoryImpl(remoteDataSource: remoteDataSource);
+    final getJobsUseCase = GetJobs(repository);
+
+    // 2. Execute the use case
+    final result = await getJobsUseCase(const GetJobsParams(page: 1));
+
+    // 3. Update the state based on the result
+    if (mounted) {
+      result.fold(
+        (failure) {
+          // Cast the failure to get the specific message
+          String message = 'An unknown error occurred.';
+          if (failure is ServerFailure) {
+            message = failure.message;
+          } else if (failure is NetworkFailure) {
+            message = failure.message;
+          }
+          setState(() {
+            _errorMessage =
+                'Failed to load jobs: $message'; // Display a more detailed message
+            _isLoading = false;
+          });
+        },
+        (jobResponse) {
+          setState(() {
+            _jobs = jobResponse.jobs;
+            _isLoading = false;
+          });
+        },
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // We get the height of the screen to make the carousels responsive.
     return Scaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsetsGeometry.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -271,7 +98,6 @@ class _JobPageState extends State<JobPage> {
               searchController: _searchController,
               onSearchSubmit: (query) {
                 print("Search submitted: $query");
-                // Your search logic
               },
               onChatPressed: () {
                 print("Chat button pressed");
@@ -281,44 +107,39 @@ class _JobPageState extends State<JobPage> {
               },
             ),
             const SizedBox(height: 30),
-            // Top Job Picks Section
-            CustomCarouselSection(
-              title: 'Top job picks for you',
-              subtitle:
-                  'Based on your profile, preference and activity like applies, searches and saves',
-              filters: jobFilters,
-              selectedFilter: selectedJobFilter,
-              onFilterTap: (filter) {
-                setState(() {
-                  selectedJobFilter = filter;
-                });
-              },
-              onViewMore: () {
-                print("Pressed View more in jobs display");
-              },
-              statusPage: true,
-              items: jobs,
-            ),
+            // Top Job Picks Section - Build UI based on local state
+            _buildJobSection(),
             const SizedBox(height: 30),
-            CustomCarouselSection(
-              title: 'Hackathon',
-              subtitle:
-                  'Based on your profile, preference and activity like applies, searches and saves',
-              filters: hackathonFilters,
-              selectedFilter: selectedHackathonFilter,
-              onFilterTap: (filter) {
-                setState(() {
-                  selectedHackathonFilter = filter;
-                });
-              },
-              onViewMore: () {
-                print("Pressed View more in jobs display");
-              },
-              items: hackathons,
-            ),
+            // You can add other sections here
           ],
         ),
       ),
+    );
+  }
+
+  /// Builds the job carousel section based on the current state.
+  Widget _buildJobSection() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_errorMessage != null) {
+      return Center(child: Text('Error: $_errorMessage'));
+    }
+    return CustomCarouselSection(
+      title: 'Top job picks for you',
+      subtitle:
+          'Based on your profile, preference and activity like applies, searches and saves',
+      filters: jobFilters,
+      selectedFilter: selectedJobFilter,
+      onFilterTap: (filter) {
+        setState(() {
+          selectedJobFilter = filter;
+        });
+      },
+      onViewMore: () {
+        print("Pressed View more in jobs display");
+      },
+      items: _jobs, // Use jobs from the local state
     );
   }
 }
