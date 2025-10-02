@@ -5,10 +5,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:internappflutter/aboutYou/tag.dart';
 import 'package:internappflutter/auth/courserange.dart';
+import 'package:internappflutter/models/usermodel.dart';
 
 class UploadScreen extends StatefulWidget {
-  final FinalUserModel userModel; // ✅ Add proper field declaration
-  const UploadScreen({super.key, required this.userModel});
+  final UserProject? userProject; // ✅ Add proper field declaration
+  const UploadScreen({super.key, required this.userProject});
 
   @override
   State<UploadScreen> createState() => _UploadScreenState();
@@ -135,41 +136,99 @@ class _UploadScreenState extends State<UploadScreen> {
                 text2: 'DOCX',
                 text3: '<3mb',
               ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () {
+            if (widget.userProject != null &&
+                pickedPhotoFile != null &&
+                pickedResumeFile != null) {
+              // Create a new UploadResume instance
+              final uploadResume = UploadResume(
+                profilePic: pickedPhotoFile!.path,
+                resumeFile: pickedResumeFile!.path,
+                projectName: widget.userProject!.projectName,
+                projectLink: widget.userProject!.projectLink,
+                projectDescription: widget.userProject!.projectDescription,
+                organisation: widget.userProject!.organisation,
+                position: widget.userProject!.position,
+                date: widget.userProject!.date,
+                description: widget.userProject!.description,
+                year: widget.userProject!.year,
+                name: widget.userProject!.name,
+                phone: widget.userProject?.phone,
+                email: widget.userProject!.email,
+                uid: widget.userProject!.uid,
+                role: widget.userProject!.role,
+                collegeName: widget.userProject!.collegeName,
+                university: widget.userProject!.university,
+                degree: widget.userProject!.degree,
+                collegeEmailId: widget.userProject!.collegeEmailId,
+                userSkills: widget.userProject!.userSkills,
+                preferences: widget.userProject!.preferences,
+              );
 
-              const SizedBox(height: 40),
+              // ✅ Print everything
+              print('--- UploadResume Details ---');
+              print('Profile Pic: ${uploadResume.profilePic}');
+              print('Resume File: ${uploadResume.resumeFile}');
+              print('Project Name: ${uploadResume.projectName}');
+              print('Project Link: ${uploadResume.projectLink}');
+              print('Project Description: ${uploadResume.projectDescription}');
+              print('Organisation: ${uploadResume.organisation}');
+              print('Position: ${uploadResume.position}');
+              print('Date: ${uploadResume.date}');
+              print('Description: ${uploadResume.description}');
+              print('Year: ${uploadResume.year}');
+              print('Name: ${uploadResume.name}');
+              print('Name: ${uploadResume.phone}');
+              print('Email: ${uploadResume.email}');
+              print('UID: ${uploadResume.uid}');
+              print('Role: ${uploadResume.role}');
+              print('College Name: ${uploadResume.collegeName}');
+              print('University: ${uploadResume.university}');
+              print('Degree: ${uploadResume.degree}');
+              print('College Email ID: ${uploadResume.collegeEmailId}');
+              print('User Skills: ${uploadResume.userSkills}');
+              print('Preferences: ${uploadResume.preferences}');
+              print('---------------------------');
 
-              Container(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return TagPage(
-                            profileImage: pickedPhotoFile,
-                            userModel: widget.userModel,
-                          );
-                        },
-                      ),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return TagPage(
+                      profileImage: pickedPhotoFile,
+                      resumeFile: pickedResumeFile,
+                      uploadResume: uploadResume,
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Next',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please pick both profile photo and resume'),
+                ),
+              );
+            }
+          },
+
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFB6A5FE),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            'Next',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
       ),
@@ -177,7 +236,7 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 }
 
-TagPage({File? profileImage, required userModel}) {}
+// TagPage({File? profileImage, required userModel}) {}
 
 class FileUploadWidget extends StatelessWidget {
   final File? file;

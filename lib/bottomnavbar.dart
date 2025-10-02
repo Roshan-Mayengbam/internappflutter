@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:internappflutter/home/explore.dart';
+
 import 'package:internappflutter/home/home_page.dart';
-import 'package:internappflutter/models/usermodel.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
 import 'package:internappflutter/screens/profile_screen.dart';
