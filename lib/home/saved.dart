@@ -15,6 +15,7 @@ class Saved extends StatefulWidget {
 }
 
 class _SavedState extends State<Saved> {
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
   List<dynamic> savedJobs = [];
   List<dynamic> appliedJobs = [];
   bool isLoading = true;
@@ -51,7 +52,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching saved jobs...");
 
       final response = await http.get(
-        Uri.parse('http://172.31.223.157:3000/student/saves'),
+        Uri.parse('$baseUrl/student/saves'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -99,7 +100,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching applied jobs...");
 
       final response = await http.get(
-        Uri.parse('http://172.31.223.157:3000/student/fetchappliedjobs'),
+        Uri.parse('$baseUrl/student/fetchappliedjobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',

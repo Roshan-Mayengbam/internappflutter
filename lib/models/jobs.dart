@@ -125,7 +125,8 @@ class Preferences {
 }
 
 class JobProvider with ChangeNotifier {
-  static const String baseUrl = 'http://172.31.223.157:3000';
+  static const String baseUrl =
+      'https://hyrup-730899264601.asia-south1.run.app';
 
   List<Job> _jobs = [];
   bool _isLoading = false;
