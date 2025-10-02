@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/jobs_page/job_carousel_card.dart';
+import 'package:internappflutter/core/components/jobs_page/carousel_card.dart';
 
+import '../core/components/jobs_page/carousel_card.dart';
 import 'filter_tag.dart';
 
 // Reusable Custom Carousel Section

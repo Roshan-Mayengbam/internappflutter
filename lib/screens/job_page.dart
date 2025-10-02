@@ -55,32 +55,45 @@ class _JobPageState extends State<JobPage> {
     final getJobsUseCase = GetJobs(repository);
 
     // 2. Execute the use case
-    final result = await getJobsUseCase(const GetJobsParams(page: 1));
+    try {
+      final result = await getJobsUseCase(const GetJobsParams(page: 1));
 
-    // 3. Update the state based on the result
-    if (mounted) {
-      result.fold(
-        (failure) {
-          // Cast the failure to get the specific message
-          String message = 'An unknown error occurred.';
-          if (failure is ServerFailure) {
-            message = failure.message;
-          } else if (failure is NetworkFailure) {
-            message = failure.message;
-          }
-          setState(() {
-            _errorMessage =
-                'Failed to load jobs: $message'; // Display a more detailed message
-            _isLoading = false;
-          });
-        },
-        (jobResponse) {
-          setState(() {
-            _jobs = jobResponse.jobs;
-            _isLoading = false;
-          });
-        },
-      );
+      if (mounted) {
+        result.fold(
+          (failure) {
+            // More detailed error logging
+            print("❌ Data fetching failed: $failure");
+            if (failure is ServerFailure) {
+              print("❌ Server Failure Message: ${failure.message}");
+              setState(() {
+                _errorMessage = "Server Error: ${failure.message}";
+                _isLoading = false;
+              });
+            } else {
+              setState(() {
+                _errorMessage = "An error occurred: $failure";
+                _isLoading = false;
+              });
+            }
+          },
+          (jobResponse) {
+            setState(() {
+              _jobs = jobResponse.jobs;
+              _isLoading = false;
+            });
+          },
+        );
+      }
+    } catch (e, stacktrace) {
+      // Catch any unexpected parsing exceptions
+      print("❌ Exception in _fetchJobs: $e");
+      print("❌ Stacktrace: $stacktrace");
+      if (mounted) {
+        setState(() {
+          _errorMessage = "An unexpected error occurred while parsing data.";
+          _isLoading = false;
+        });
+      }
     }
   }
 

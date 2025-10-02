@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:internappflutter/core/constants/app_constants.dart';
 import 'package:internappflutter/features/core/errors/failiure.dart';
 import 'package:internappflutter/features/data/models/job_response_model.dart';
 
@@ -18,7 +19,7 @@ abstract class JobRemoteDataSource {
 class JobRemoteDataSourceImpl implements JobRemoteDataSource {
   final http.Client client;
   final FirebaseAuth auth;
-  final String _baseUrl = "http://10.118.233.233:3000/student";
+  final String _baseUrl = AppConstants.studentBaseUrl;
 
   JobRemoteDataSourceImpl({required this.client, required this.auth});
 
@@ -44,7 +45,9 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
       if (skills != null && skills.isNotEmpty) 'skills': skills,
     };
 
-    final uri = Uri.parse("$_baseUrl/jobs").replace(queryParameters: queryParameters);
+    final uri = Uri.parse(
+      "$_baseUrl/jobs",
+    ).replace(queryParameters: queryParameters);
 
     try {
       final response = await client.get(

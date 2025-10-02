@@ -1,20 +1,25 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-
-import 'package:internappflutter/screens/job_page.dart';
-
 import 'package:internappflutter/firebase_options.dart';
-import 'package:internappflutter/models/jobs.dart';
-import 'package:provider/provider.dart';
 
+// Import for the OLD provider
+import 'package:internappflutter/models/jobs.dart';
+
+// Imports for the NEW provider (JProvider)
+import 'package:internappflutter/features/data/datasources/job_response_remote_datasource.dart';
+import 'package:internappflutter/features/data/repositories/job_repository_impl.dart';
+import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
+import 'package:internappflutter/features/presentation/providers/job_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +38,21 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // New provider from the features directory
+        ChangeNotifierProvider(
+          create: (_) => JProvider(
+            getJobs: GetJobs(
+              JobRepositoryImpl(
+                remoteDataSource: JobRemoteDataSourceImpl(
+                  client: http.Client(),
+                  auth: FirebaseAuth.instance,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
-        // Add more providers here if needed
       ],
       child: MyApp(),
     ),
@@ -118,3 +136,14 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 // Dummy SignUpScreen for navigation
+class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Sign Up")),
+      body: const Center(child: Text("Sign Up Screen")),
+    );
+  }
+}

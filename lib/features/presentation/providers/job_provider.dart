@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/features/domain/entities/job_response.dart';
 import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
+import 'package:internappflutter/features/domain/entities/job_response.dart';
 
 enum JobState { initial, loading, loaded, error }
 
-class JobProvider with ChangeNotifier {
+class JProvider with ChangeNotifier {
   final GetJobs getJobs;
-  JobProvider({required this.getJobs});
+  JProvider({required this.getJobs});
 
   JobState _state = JobState.initial;
   JobState get state => _state;

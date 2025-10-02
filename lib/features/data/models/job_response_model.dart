@@ -32,9 +32,9 @@ class JobModel extends Job {
     required String id,
     required String title,
     required String description,
-    required RecruiterModel recruiter,
+    required Recruiter recruiter,
     required String jobType,
-    required SalaryRangeModel salaryRange,
+    required SalaryRange salaryRange,
     String? location,
   }) : super(
          id: id,
@@ -46,15 +46,33 @@ class JobModel extends Job {
          location: location,
        );
 
-  factory JobModel.fromJson(Map<String, dynamic> json) => JobModel(
-    id: json["_id"],
-    title: json["title"],
-    description: json["description"],
-    recruiter: RecruiterModel.fromJson(json["recruiter"]),
-    jobType: json["jobType"],
-    salaryRange: SalaryRangeModel.fromJson(json["salaryRange"]),
-    location: json["preferences"]["location"],
-  );
+  factory JobModel.fromJson(Map<String, dynamic> json) {
+    return JobModel(
+      id: json["_id"] ?? '',
+      title: json["title"] ?? 'No Title',
+      description: json["description"] ?? '',
+      // Safely parse nested recruiter object
+      recruiter: json["recruiter"] != null
+          ? RecruiterModel.fromJson(json["recruiter"])
+          : const RecruiterModel(
+              id: '',
+              name: 'N/A',
+              isVerified: false,
+              company: CompanyModel(id: '', name: 'N/A'),
+            ),
+      jobType: json["jobType"] ?? 'N/A',
+      // Safely parse nested salaryRange object
+      salaryRange: json["salaryRange"] != null
+          ? SalaryRangeModel.fromJson(json["salaryRange"])
+          : const SalaryRangeModel(min: 0, max: 0),
+      // Safely parse nested preferences object for location
+      location:
+          (json["preferences"] != null &&
+              json["preferences"]["location"] != null)
+          ? json["preferences"]["location"]
+          : 'N/A',
+    );
+  }
 }
 
 class RecruiterModel extends Recruiter {
@@ -66,10 +84,13 @@ class RecruiterModel extends Recruiter {
   }) : super(id: id, name: name, company: company, isVerified: isVerified);
 
   factory RecruiterModel.fromJson(Map<String, dynamic> json) => RecruiterModel(
-    id: json["_id"],
-    name: json["name"],
-    company: CompanyModel.fromJson(json["companyId"]),
-    isVerified: json["isVerified"] ?? false, // Parse new field
+    id: json["_id"] ?? '',
+    name: json["name"] ?? 'N/A',
+    // Safely parse nested companyId object
+    company: json["companyId"] != null
+        ? CompanyModel.fromJson(json["companyId"])
+        : const CompanyModel(id: '', name: 'N/A'),
+    isVerified: json["isVerified"] ?? false,
   );
 }
 
@@ -82,10 +103,10 @@ class CompanyModel extends Company {
   }) : super(id: id, name: name, logo: logo, companyType: companyType);
 
   factory CompanyModel.fromJson(Map<String, dynamic> json) => CompanyModel(
-    id: json["_id"],
-    name: json["name"],
+    id: json["_id"] ?? '',
+    name: json["name"] ?? 'N/A',
     logo: json["logo"],
-    companyType: json["companyType"], // Parse new field
+    companyType: json["companyType"],
   );
 }
 
@@ -94,5 +115,5 @@ class SalaryRangeModel extends SalaryRange {
     : super(min: min, max: max);
 
   factory SalaryRangeModel.fromJson(Map<String, dynamic> json) =>
-      SalaryRangeModel(min: json["min"], max: json["max"]);
+      SalaryRangeModel(min: json["min"] ?? 0, max: json["max"] ?? 0);
 }
