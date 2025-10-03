@@ -6,6 +6,7 @@ import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/profile/profile.dart';
 import 'package:internappflutter/profile/profile2.dart';
 import 'package:internappflutter/screens/job_page.dart';
+import 'package:internappflutter/screens/profile_screen.dart';
 import 'package:internappflutter/search/job_search.dart';
 
 class BottomnavbarAlternative extends StatefulWidget {
@@ -23,7 +24,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(userData: null),
     const JobSearchScreen(),
     const JobPage(),
-    const ProfilePage2(),
+    const ProfileScreen(),
   ];
 
   @override

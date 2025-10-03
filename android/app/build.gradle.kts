@@ -8,8 +8,6 @@ plugins {
 android {
     namespace = "com.myapp.hyrup"
     compileSdk = 36
-
-    
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -23,13 +21,13 @@ android {
 
     defaultConfig {
         applicationId = "com.myapp.hyrup"
-        minSdk = 25
+        // ✅ Kotlin DSL requires `minSdk` instead of `minSdkVersion`
+        minSdk = flutter.minSdkVersion
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
     }
-
 
     buildTypes {
         release {

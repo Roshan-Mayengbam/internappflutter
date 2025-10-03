@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "730899264601-h921636gd80s8mnq6jhin8af33t40l7r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myapp.hyrup",
+            "certificate_hash": "7f45135dcd76f4afc2fa5a151c0608884dcff15d"
+          }
+        },
+        {
           "client_id": "730899264601-a2t1c4p9njffva1g025acq3va394h039.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -37,6 +45,13 @@
             {
               "client_id": "730899264601-a2t1c4p9njffva1g025acq3va394h039.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "730899264601-kk4a6dd23aoltu8mg6g71d9a7mll24fb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.internappflutter"
+              }
             }
           ]
         }
