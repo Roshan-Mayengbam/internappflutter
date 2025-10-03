@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internappflutter/auth/google_signin.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/models/usermodel.dart';
+// Add these imports for the navigation targets
+// import 'package:internappflutter/pages/bottomnavbar_alternative.dart';
+// import 'package:internappflutter/pages/register_page.dart';
+// import 'package:internappflutter/models/user_model.dart';
 
 class Page2 extends StatefulWidget {
+  // Changed to StatefulWidget
   const Page2({super.key});
 
   @override
@@ -15,19 +21,6 @@ class Page2 extends StatefulWidget {
 class _Page2State extends State<Page2> {
   final GoogleAuthService _authService = GoogleAuthService();
   bool _isLoading = false;
-
-  /// 🔎 Debug helper for image assets
-  Widget debugAsset(String path, {double? width, double? height}) {
-    return Image.asset(
-      path,
-      width: width,
-      height: height,
-      errorBuilder: (context, error, stackTrace) {
-        print("❌ Failed to load image: $path");
-        return Icon(Icons.error, color: Colors.red, size: 40);
-      },
-    );
-  }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() {
@@ -42,6 +35,7 @@ class _Page2State extends State<Page2> {
 
         // Check if user exists in database
         final checkResult = await _authService.checkIfUserExists();
+
         print("🔍 CHECK RESULT: $checkResult");
 
         if (checkResult != null) {
@@ -50,6 +44,8 @@ class _Page2State extends State<Page2> {
 
           if (exists == true) {
             // User exists in database - go to home page
+            print("✅ Navigating to HomePage");
+
             if (mounted) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
@@ -57,6 +53,7 @@ class _Page2State extends State<Page2> {
                       BottomnavbarAlternative(userData: checkResult['user']),
                 ),
               );
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Welcome back!"),
@@ -67,10 +64,13 @@ class _Page2State extends State<Page2> {
             }
           } else if (exists == false) {
             // User doesn't exist in database - go to registration
+            print("👤 Navigating to RegisterPage");
+
             final userModel = UserModel(
               name: user.displayName ?? 'Unknown User',
               email: user.email ?? 'No Email',
               phone: '',
+
               uid: user.uid,
               role: 'Student',
             );
@@ -81,6 +81,7 @@ class _Page2State extends State<Page2> {
                   builder: (context) => RegisterPage(userModel: userModel),
                 ),
               );
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Please complete your registration"),
@@ -96,6 +97,7 @@ class _Page2State extends State<Page2> {
             _showErrorSnackBar("Authentication error. Please try again.");
           }
         } else {
+          // Server error or network issue
           print("❌ Failed to check user status");
           await _authService.signOut();
           _showErrorSnackBar("Unable to verify account. Please try again.");
@@ -132,71 +134,74 @@ class _Page2State extends State<Page2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(250, 226, 253, 223),
+      backgroundColor: Color.fromARGB(250, 226, 253, 223),
       body: Stack(
         children: [
           Positioned(
             right: 0,
             top: 44,
-            child: debugAsset('assets/images/2image1.png'),
+            child: Image.asset('assets/images/2image1.png'),
           ),
           Positioned(
             top: 79,
             left: 0,
-            child: debugAsset('assets/images/girl.png'),
+            child: Image.asset('assets/images/girl.png'),
           ),
           Positioned(
             top: 100,
             right: 20,
-            child: debugAsset('assets/images/2text2.png'),
+            child: Image.asset('assets/images/2text2.png'),
           ),
           Positioned(
             top: 412,
             left: 16,
-            child: debugAsset('assets/images/JUMP.png'),
+            child: Image.asset('assets/images/JUMP.png'),
           ),
           Positioned(
             top: 496,
             left: 73,
-            child: debugAsset('assets/images/IN.png'),
+            child: Image.asset('assets/images/IN.png'),
           ),
           Positioned(
             top: 562,
             left: 16,
-            child: debugAsset('assets/images/YOUR.png'),
+            child: Image.asset('assets/images/YOUR.png'),
           ),
           Positioned(
             top: 627,
             left: 16,
-            child: debugAsset('assets/images/DREAMS.png'),
+            child: Image.asset('assets/images/DREAMS.png'),
           ),
           Positioned(
             top: 490,
             left: 150,
-            child: debugAsset('assets/images/Star2.png'),
+            child: Image.asset('assets/images/Star2.png'),
           ),
           Positioned(
             top: 487,
             left: 236,
-            child: debugAsset('assets/images/TO.png'),
+            child: Image.asset('assets/images/TO.png'),
           ),
           Positioned(
             top: 737,
             left: 16,
-            child: debugAsset('assets/images/2image1.png'),
+            child: Image.asset('assets/images/2image1.png'),
           ),
 
-          // Google Sign-In button
+          // Updated union1 button with Google Sign-In functionality
           Positioned(
             top: 795,
             left: 16,
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: _isLoading ? null : _handleGoogleSignIn,
+                onTap: _isLoading
+                    ? null
+                    : _handleGoogleSignIn, // Updated onTap handler
                 child: Stack(
                   children: [
-                    debugAsset('assets/images/union1.png'),
+                    Image.asset('assets/images/union1.png'),
+                    // Show loading indicator if signing in
                     if (_isLoading)
                       Positioned.fill(
                         child: Container(
@@ -204,7 +209,7 @@ class _Page2State extends State<Page2> {
                             color: Colors.black.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
@@ -221,14 +226,16 @@ class _Page2State extends State<Page2> {
           Positioned(
             top: 813,
             left: 135,
-            child: debugAsset('assets/images/cwg.png'),
+            child: Image.asset('assets/images/cwg.png'),
           ),
           Positioned(
             top: 813,
             left: 35,
             child: InkWell(
-              onTap: _isLoading ? null : _handleGoogleSignIn,
-              child: debugAsset('assets/images/google.png'),
+              onTap: _isLoading
+                  ? null
+                  : _handleGoogleSignIn, // Also add Google Sign-In here if this is another sign-in button
+              child: Image.asset('assets/images/google.png'),
             ),
           ),
 
@@ -238,9 +245,10 @@ class _Page2State extends State<Page2> {
             child: IconButton(
               iconSize: 100,
               onPressed: () {
-                print("➡️ Arrow pressed!");
+                print("Arrow pressed!");
+                // You can add navigation logic here if needed
               },
-              icon: debugAsset("assets/images/arrow_outward.png"),
+              icon: Image.asset("assets/images/arrow_outward.png"),
             ),
           ),
         ],

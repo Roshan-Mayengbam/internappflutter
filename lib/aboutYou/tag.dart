@@ -31,7 +31,8 @@ class _TagPageState extends State<TagPage> {
   String _uploadProgress = "Preparing upload...";
 
   // Replace with your actual backend URL
-  final String baseUrl = "http://192.168.8.161:3000/student";
+  final String baseUrl =
+      "https://hyrup-730899264601.asia-south1.run.app/student";
 
   /// Upload file to Firebase Storage and return download URL
   Future<String?> _uploadFileToStorage(
@@ -334,12 +335,13 @@ class _TagPageState extends State<TagPage> {
   }
 
   Map<String, dynamic> _mapSkillsToBackendFormat(List<String> skills) {
-    // Convert List<String> to Map<String, {level: String}>
     final Map<String, dynamic> skillsMap = {};
 
     for (String skill in skills) {
-      skillsMap[skill] = {
-        "level": "mid", // Default level, you can modify this logic
+      // Replace dots with underscores for backend compatibility
+      final sanitizedSkill = skill.replaceAll('.', '_');
+      skillsMap[sanitizedSkill] = {
+        "level": "mid", // default level
       };
     }
 
