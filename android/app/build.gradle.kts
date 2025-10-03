@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.myapp.hyrup"
         // ✅ Kotlin DSL requires `minSdk` instead of `minSdkVersion`
-        minSdk = flutter.minSdkVersion
+        minSdk = 25
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

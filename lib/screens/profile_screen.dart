@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       print("🔄 Fetching user details...");
 
-      final response = await http.get(
+      final response = await http.post(
         Uri.parse('$baseUrl/student/StudentDetails'),
         headers: {
           'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ dependencies:
   firebase_core: ^4.0.0
   firebase_auth: ^6.0.0
   google_sign_in: ^6.2.1
-  http: ^1.5.0
+  http: ^1.5.0 
   firebase_analytics: ^12.0.0
   cloud_firestore: ^6.0.0
   flutter_svg: ^2.0.10+1 
@@ -105,10 +105,25 @@ flutter:
     - assets/YOUR.png
     - assets/DREAMS.png
     - assets/TO.png
-    - assets/Union1.png
+    - assets/union1.png
     - assets/cwg.png
     - assets/arrow_outward.png
     - assets/google.png
+    - assets/images/2image1.png
+    - assets/images/girl.png
+    - assets/images/2text2.png
+    - assets/images/JUMP.png
+    - assets/images/IN.png
+    - assets/images/YOUR.png
+    - assets/images/DREAMS.png
+    - assets/images/Star2.png
+    - assets/images/union1.png
+    - assets/images/2image1.png
+    - assets/images/union1.png
+    - assets/images/cwg.png
+    - assets/images/google.png
+    - assets/images/arrow_outward.png
+    - assets/images/TO.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
