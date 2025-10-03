@@ -43,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       String? idToken = await user.getIdToken();
+      print("🔑 ID Token: $idToken");
       if (idToken == null) {
         setState(() {
           errorMessage = "Could not get authentication token";
