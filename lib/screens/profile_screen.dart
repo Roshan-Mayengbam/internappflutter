@@ -16,8 +16,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userData;
+  final User? user = FirebaseAuth.instance.currentUser;
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
   bool isLoading = true;
-  final User? _auth = FirebaseAuth.instance.currentUser;
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -25,33 +27,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     fetchStudentDetails();
   }
 
-  Future<Map<String, dynamic>?> fetchStudentDetails() async {
-    final idToken = await _auth?.getIdToken();
-    print("🔑 Firebase ID Token: $idToken");
+  Future<void> fetchStudentDetails() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          errorMessage = "User not logged in";
+          isLoading = false;
+        });
+        return;
+      }
+
+      String? idToken = await user.getIdToken();
+      if (idToken == null) {
+        setState(() {
+          errorMessage = "Could not get authentication token";
+          isLoading = false;
+        });
+        return;
+      }
+
+      print("🔄 Fetching user details...");
+
       final response = await http.get(
-        Uri.parse(
-          'https://hyrup-730899264601.asia-south1.run.app/student/StudentDetails',
-        ),
+        Uri.parse('$baseUrl/student/StudentDetails'),
         headers: {
           'Content-Type': 'application/json',
-          // Add Firebase token if your backend requires auth
           'Authorization': 'Bearer $idToken',
         },
       );
-      print("✅ Response body: ${response.statusCode}");
+
       if (response.statusCode == 200) {
-        print("✅ Response body: ${response.body}");
-        final data = jsonDecode(response.body);
-        print("✅ User fetched: $data");
-        return data['user']; // backend returns { message: ..., user: {...} }
+        isLoading = false;
+        final data = json.decode(response.body);
+        print("🔄 Fetched user details...$data");
+        // setState(() {
+        //   print("✅ user details: $data");
+        //   // Extract job details from applications
+        // });
       } else {
-        print("❌ Error fetching user: ${response.statusCode}");
-        return null;
+        setState(() {
+          errorMessage =
+              'Failed to load Student details: ${response.statusCode}';
+          isLoading = false;
+        });
+        print("❌ Failed to load Student details: ${response.statusCode}");
       }
     } catch (e) {
-      print("❌ Exception fetching user: $e");
-      return null;
+      setState(() {
+        errorMessage = 'Error: ${e.toString()}';
+        isLoading = false;
+      });
+      print("❌ Error fetching Student details: ${e.toString()}");
     }
   }
 

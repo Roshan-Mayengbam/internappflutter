@@ -335,13 +335,12 @@ class _TagPageState extends State<TagPage> {
   }
 
   Map<String, dynamic> _mapSkillsToBackendFormat(List<String> skills) {
+    // Convert List<String> to Map<String, {level: String}>
     final Map<String, dynamic> skillsMap = {};
 
     for (String skill in skills) {
-      // Replace dots with underscores for backend compatibility
-      final sanitizedSkill = skill.replaceAll('.', '_');
-      skillsMap[sanitizedSkill] = {
-        "level": "mid", // default level
+      skillsMap[skill] = {
+        "level": "mid", // Default level, you can modify this logic
       };
     }
 

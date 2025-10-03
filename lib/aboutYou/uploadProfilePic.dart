@@ -272,7 +272,7 @@ class FileUploadWidget extends StatelessWidget {
           children: [
             Text(
               '$text',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
@@ -297,6 +297,7 @@ class FileUploadWidget extends StatelessWidget {
                   ),
                 ],
               ),
+
               child: _buildUploadPrompt(
                 primaryPurple,
                 lightGreyText,
