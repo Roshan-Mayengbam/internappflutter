@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/core/constants/app_constants.dart';
 import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
@@ -32,7 +31,8 @@ class _TagPageState extends State<TagPage> {
   String _uploadProgress = "Preparing upload...";
 
   // Replace with your actual backend URL
-  final String baseUrl = AppConstants.studentBaseUrl;
+  final String baseUrl =
+      "https://hyrup-730899264601.asia-south1.run.app/student";
 
   /// Upload file to Firebase Storage and return download URL
   Future<String?> _uploadFileToStorage(

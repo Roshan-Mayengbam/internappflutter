@@ -33,7 +33,7 @@ dependencies:
   firebase_core: ^4.0.0
   firebase_auth: ^6.0.0
   google_sign_in: ^6.2.1
-  http: ^1.5.0
+  http: ^1.5.0 
   firebase_analytics: ^12.0.0
   cloud_firestore: ^6.0.0
   flutter_svg: ^2.0.10+1 
@@ -96,35 +96,36 @@ flutter:
     - assets/Button.png
     - assets/images/UI.png
     - assets/images/Lumel_Logo.png
-    - assets/images/puzzle.png
+    - assets/puzzle.png
+    - assets/girl.png
+    - assets/2image1.png
+    - assets/2text2.png
+    - assets/2text1.png
+    - assets/JUMP.png
+    - assets/IN.png
+    - assets/Star2.png
+    - assets/YOUR.png
+    - assets/DREAMS.png
+    - assets/TO.png
+    - assets/union1.png
+    - assets/cwg.png
+    - assets/arrow_outward.png
+    - assets/google.png
+    - assets/images/2image1.png
     - assets/images/girl.png
-    - assets/images/2image1.png
     - assets/images/2text2.png
-    - assets/images/2image1.png
     - assets/images/JUMP.png
     - assets/images/IN.png
-    - assets/images/Star2.png
     - assets/images/YOUR.png
     - assets/images/DREAMS.png
-    - assets/images/TO.png
+    - assets/images/Star2.png
+    - assets/images/union1.png
+    - assets/images/2image1.png
     - assets/images/union1.png
     - assets/images/cwg.png
-    - assets/images/arrow_outward.png
     - assets/images/google.png
-    - assets/Union.png
-    - assets/text.png
-    - assets/degree.json
-    - assets/images/profile.png
-  fonts:
-    - family: Jost
-      fonts:
-        - asset: assets/fonts/jost/Jost-Black.ttf
-          weight: 900
-        - asset: assets/fonts/jost/Jost-Bold.ttf
-        - asset: assets/fonts/jost/Jost-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/jost/Jost-SemiBold.ttf
-          weight: 700
+    - assets/images/arrow_outward.png
+    - assets/images/TO.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

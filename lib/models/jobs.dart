@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:internappflutter/core/constants/app_constants.dart';
 
 // Job model to match your backend schema
 class Job {
@@ -126,7 +125,8 @@ class Preferences {
 }
 
 class JobProvider with ChangeNotifier {
-  static const String baseUrl = AppConstants.studentBaseUrl;
+  static const String baseUrl =
+      'https://hyrup-730899264601.asia-south1.run.app';
 
   List<Job> _jobs = [];
   bool _isLoading = false;

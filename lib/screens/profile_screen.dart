@@ -1,12 +1,91 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? userData;
+  final User? user = FirebaseAuth.instance.currentUser;
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStudentDetails();
+  }
+
+  Future<void> fetchStudentDetails() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          errorMessage = "User not logged in";
+          isLoading = false;
+        });
+        return;
+      }
+
+      String? idToken = await user.getIdToken();
+      if (idToken == null) {
+        setState(() {
+          errorMessage = "Could not get authentication token";
+          isLoading = false;
+        });
+        return;
+      }
+
+      print("🔄 Fetching user details...");
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/student/StudentDetails'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        isLoading = false;
+        final data = json.decode(response.body);
+        print("🔄 Fetched user details...$data");
+        // setState(() {
+        //   print("✅ user details: $data");
+        //   // Extract job details from applications
+        // });
+      } else {
+        setState(() {
+          errorMessage =
+              'Failed to load Student details: ${response.statusCode}';
+          isLoading = false;
+        });
+        print("❌ Failed to load Student details: ${response.statusCode}");
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: ${e.toString()}';
+        isLoading = false;
+      });
+      print("❌ Error fetching Student details: ${e.toString()}");
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4F5),

@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/core/components/custom_app_bar.dart';
 import 'package:internappflutter/core/components/custom_button.dart';
 import 'package:internappflutter/core/components/jobs_page/custom_carousel_section.dart';
-import 'package:internappflutter/core/constants/app_constants.dart';
-import 'package:internappflutter/features/data/models/job_response_model.dart';
-import 'package:internappflutter/features/domain/entities/job_response.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../features/data/models/job_response_model.dart';
 
 class Saved extends StatefulWidget {
   const Saved({super.key});
@@ -18,8 +17,9 @@ class Saved extends StatefulWidget {
 }
 
 class _SavedState extends State<Saved> {
-  List<Job> savedJobs = [];
-  List<Job> appliedJobs = [];
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+  List<JobModel> savedJobs = [];
+  List<JobModel> appliedJobs = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -54,7 +54,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching saved jobs...");
 
       final response = await http.get(
-        Uri.parse(AppConstants.baseUrl + "saves"),
+        Uri.parse('$baseUrl/student/saves'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -63,10 +63,11 @@ class _SavedState extends State<Saved> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> jobList = data['saves'] ?? [];
         setState(() {
           print("✅ Saved jobs: $data");
-          savedJobs = parseJobs(jobList);
+          savedJobs = (data['saves'] as List? ?? [])
+              .map((job) => JobModel.fromJson(job as Map<String, dynamic>))
+              .toList();
         });
       } else {
         print("❌ Failed to load saved jobs: ${response.statusCode}");
@@ -103,7 +104,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching applied jobs...");
 
       final response = await http.get(
-        Uri.parse('http://172.31.223.157:3000/student/fetchappliedjobs'),
+        Uri.parse('$baseUrl/student/fetchappliedjobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -115,11 +116,11 @@ class _SavedState extends State<Saved> {
         setState(() {
           print("✅ Applied jobs: $data");
           // Extract job details from applications
-          final List<dynamic> jobList = (data['applications'] as List)
+          appliedJobs = (data['applications'] as List)
               .map((app) => app['job'])
               .where((job) => job != null)
+              .map((job) => JobModel.fromJson(job as Map<String, dynamic>))
               .toList();
-          appliedJobs = parseJobs(jobList);
           isLoading = false;
         });
       } else {
@@ -138,29 +139,69 @@ class _SavedState extends State<Saved> {
     }
   }
 
-  /// Parses a list of raw job JSON objects into a list of Job entities.
-  List<Job> parseJobs(List<dynamic> jobs) {
-    return jobs.where((jobJson) => jobJson != null).map((jobJson) {
+  List<Map<String, String>> convertJobsToItems(List<dynamic> jobs) {
+    return jobs.where((job) => job != null).map((job) {
       try {
-        // Use the existing JobModel to safely parse the data
-        return JobModel.fromJson(jobJson);
+        // Safe getter helper
+        String safeGet(dynamic value, [String defaultValue = 'N/A']) {
+          if (value == null) return defaultValue;
+          return value.toString();
+        }
+
+        // Handle company name - could be object or string
+        String companyName = 'N/A';
+        if (job['company'] != null) {
+          if (job['company'] is Map) {
+            companyName = safeGet(job['company']['name']);
+          } else if (job['company'] is String) {
+            companyName = 'Company'; // ObjectId not populated
+          }
+        } else if (job['college'] != null) {
+          companyName = safeGet(job['college']);
+        }
+
+        // Handle preferences safely
+        String location = 'N/A';
+        String experienceLevel = 'N/A';
+        if (job['preferences'] != null && job['preferences'] is Map) {
+          location = safeGet(job['preferences']['location']);
+          if (job['preferences']['minExperience'] != null) {
+            experienceLevel = '${job['preferences']['minExperience']}+ years';
+          }
+        }
+
+        // Handle salary range safely
+        String salaryRange = 'N/A';
+        if (job['salaryRange'] != null && job['salaryRange'] is Map) {
+          var min = job['salaryRange']['min'];
+          var max = job['salaryRange']['max'];
+          if (min != null && max != null) {
+            salaryRange = '${min.toString()} - ${max.toString()}';
+          }
+        }
+
+        return {
+          "jobId": safeGet(job['_id'], ''),
+          "jobTitle": safeGet(job['title']),
+          "companyName": companyName,
+          "location": location,
+          "experienceLevel": experienceLevel,
+          "salaryRange": salaryRange,
+          "jobType": safeGet(job['jobType']),
+        };
       } catch (e) {
-        print("❌ Error parsing job: $e");
-        print("❌ Job data: $jobJson");
-        // Return a placeholder Job object on failure
-        return const Job(
-          id: '',
-          title: 'Error: Could not load job',
-          description: '',
-          recruiter: Recruiter(
-            id: '',
-            name: 'N/A',
-            isVerified: false,
-            company: Company(id: '', name: 'N/A'),
-          ),
-          jobType: 'N/A',
-          salaryRange: SalaryRange(min: 0, max: 0),
-        );
+        print("❌ Error converting job: $e");
+        print("❌ Job data: $job");
+        // Return a placeholder if conversion fails
+        return {
+          "jobId": '',
+          "jobTitle": 'Error loading job',
+          "companyName": 'N/A',
+          "location": 'N/A',
+          "experienceLevel": 'N/A',
+          "salaryRange": 'N/A',
+          "jobType": 'N/A',
+        };
       }
     }).toList();
   }
@@ -224,9 +265,7 @@ class _SavedState extends State<Saved> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
-                              // The ViewMores widget might need to be updated
-                              // to accept List<Job> as well.
-                              items: [], // Placeholder
+                              items: convertJobsToItems(savedJobs),
                               statusPage: true,
                             ),
                           ),
@@ -246,7 +285,7 @@ class _SavedState extends State<Saved> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
-                              items: [], // Placeholder
+                              items: convertJobsToItems(appliedJobs),
                               statusPage: true,
                             ),
                           ),
