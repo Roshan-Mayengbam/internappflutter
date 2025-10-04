@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,7 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userData;
   final User? user = FirebaseAuth.instance.currentUser;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  bool isLoading = true;
+  bool isLoading = false;
   String errorMessage = '';
 
   @override
@@ -29,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> fetchStudentDetails() async {
     setState(() {
-      isLoading = true;
+      isLoading = false;
     });
 
     try {
@@ -42,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
+      String uid = user.uid;
       String? idToken = await user.getIdToken();
       print("🔑 ID Token: $idToken");
       if (idToken == null) {
@@ -60,12 +62,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
         },
+        body: json.encode({'studentId': uid}),
       );
 
       if (response.statusCode == 200) {
         isLoading = false;
         final data = json.decode(response.body);
-        print("🔄 Fetched user details...$data");
+        userData = data['user'];
+        print("🔄 Fetched user details...$userData");
         // setState(() {
         //   print("✅ user details: $data");
         //   // Extract job details from applications
@@ -88,6 +92,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (userData == null) {
+      return Center(
+        child: Text(errorMessage.isNotEmpty ? errorMessage : 'No user data'),
+      );
+    }
+
+    final profile = userData!['profile'] ?? {};
+    final fullName = profile['FullName'] ?? 'No Name';
+    final profilePic = profile['profilePicture'] ?? '';
+    final bio = profile['bio'] ?? '';
+    final phone = userData!['phone'] ?? 'N/A';
+
+    final email = user?.email ?? 'N/A';
+    final education = userData!['education'] ?? {};
+    final userSkills = userData!['user_skills'] as Map<String, dynamic>? ?? {};
+
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4F5),
       body: Stack(
@@ -97,12 +121,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 450,
             width: double.infinity,
             color: Colors.black,
-            child: Image.asset(
-              "assets/images/profile.png",
-
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            child: profilePic.isNotEmpty
+                ? Image.network(
+                    profilePic,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : const Icon(Icons.person, size: 100, color: Colors.white),
           ),
 
           // Profile avatar
@@ -148,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'John Raj',
+                            fullName,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -180,14 +205,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Contact info
                       Text(
-                        '9005687235  tom@gmail.com',
+                        phone,
                         style: TextStyle(
                           color: Colors.black,
                           fontFamily: GoogleFonts.jost().fontFamily,
                           fontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 5),
+                      Text(
+                        email,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: GoogleFonts.jost().fontFamily,
+                          fontSize: 20,
+                        ),
+                      ),
 
                       // Bio section
                       Text(
@@ -201,30 +234,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Manage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide',
+                        bio,
                         style: TextStyle(
                           color: Colors.black54,
                           fontFamily: GoogleFonts.jost().fontFamily,
                         ),
                       ),
-                      const SizedBox(height: 15),
-                      Text(
-                        'About',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'Manage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your search',
-                        style: TextStyle(
-                          color: Color(0xFF100739),
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                        ),
-                      ),
+                      // const SizedBox(height: 15),
+                      // Text(
+                      //   'About',
+                      //   style: TextStyle(
+                      //     fontSize: 25,
+                      //     fontWeight: FontWeight.bold,
+                      //     fontFamily: GoogleFonts.jost().fontFamily,
+                      //     color: Colors.black,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 5),
+                      // Text(
+                      //   'Manage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your search',
+                      //   style: TextStyle(
+                      //     color: Color(0xFF100739),
+                      //     fontFamily: GoogleFonts.jost().fontFamily,
+                      //   ),
+                      // ),
                       const SizedBox(height: 20),
 
                       Text(
@@ -239,20 +272,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 5),
 
                       // Education section
-                      _buildInputField('College Name', 'Sastra College'),
+                      _buildInputField(
+                        'College Name',
+                        education['college'] ?? '',
+                      ),
                       const SizedBox(height: 15),
-                      _buildInputField('University', 'Deemed University'),
+                      _buildInputField(
+                        'University',
+                        education['universityType'] ?? '',
+                      ),
                       const SizedBox(height: 15),
-                      _buildInputField('Degree', 'Bachelor of Engineering'),
+                      _buildInputField('Degree', education['degree'] ?? ''),
                       const SizedBox(height: 15),
                       _buildInputField(
                         'College Email ID',
-                        '127157023@sastra.ac.in',
+                        education['collegeEmail'] ?? '',
                       ),
+                      const SizedBox(height: 15),
+                      _buildInputField(
+                        'Year of Graduation',
+                        education['yearOfPassing']?.toString() ?? '',
+                      ),
+
                       const SizedBox(height: 20),
 
                       // Skills section
-                      _buildSkillsSection(),
+                      Wrap(
+                        spacing: 10.0,
+                        runSpacing: 10.0,
+                        children: userSkills.keys
+                            .map<Widget>(
+                              (skillName) =>
+                                  _buildSkillChip(skillName, Colors.white),
+                            )
+                            .toList(),
+                      ),
                       const SizedBox(height: 20),
 
                       // Job Preference section
@@ -306,13 +360,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: IconButton(
                 icon: const Icon(Icons.edit, color: Colors.black, size: 30),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const EditProfileScreen(),
                     ),
                   );
+
+                  // Refresh data if profile was updated
+                  if (result == true) {
+                    fetchStudentDetails();
+                  }
                 },
               ),
             ),
@@ -525,13 +584,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       padding: const EdgeInsets.symmetric(
-        horizontal: 8,
+        horizontal: 20,
         vertical: 4,
       ), // optional spacing
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 20,
           fontFamily: GoogleFonts.jost().fontFamily,
           color: const Color(0xFF1FA7E3),
           fontWeight: FontWeight.bold,
@@ -541,6 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildJobPreferenceSection() {
+    final jobPreferences = userData?['job_preference'] as List<dynamic>? ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -553,15 +613,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 10),
+        const SizedBox(height: 10),
         Wrap(
           spacing: 25.0,
           runSpacing: 30.0,
-          children: [
-            _buildJobChipWithShadow('App Development'),
-            _buildJobChipWithShadow('Full Stack Development'),
-            _buildJobChipWithShadow('UI/UX'),
-            _buildJobChipWithShadow('AI/ML'),
-          ],
+          children: jobPreferences
+              .map<Widget>((job) => _buildJobChipWithShadow(job.toString()))
+              .toList(),
         ),
       ],
     );
@@ -609,6 +667,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildExperienceSection() {
+    final experiences = userData?['experience'] as List<dynamic>? ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -622,17 +681,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        _buildExperienceCard(
-          'MaxWells Coperations',
-          'AI Intern',
-          'Jan 2025 - Feb 2025',
-          'Manage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your search',
-        ),
+        ...experiences.map((exp) {
+          final org = exp['nameOfOrg'] ?? '';
+          final position = exp['position'] ?? '';
+          final timeline = exp['timeline'] ?? '';
+          final description = exp['description'] ?? '';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: _buildExperienceCard(org, position, timeline, description),
+          );
+        }).toList(),
       ],
     );
   }
 
   Widget _buildProjectsSection() {
+    final projects = userData?['projects'] as List<dynamic>? ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -646,24 +710,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        _buildProjectCard(
-          name: 'MaxWells',
-          description:
-              'A Flutter app to showcase projects, skills, and job preferences.',
-        ),
-        const SizedBox(height: 10),
-        _buildProjectCard(
-          name: 'MaxWells',
-          description:
-              'A Flutter app to showcase projects, skills, and job preferences.',
-        ),
-        const SizedBox(height: 10),
-
-        _buildProjectCard(
-          name: 'MaxWells',
-          description:
-              'A Flutter app to showcase projects, skills, and job preferences.',
-        ),
+        ...projects.map((proj) {
+          final name = proj['projectName'] ?? '';
+          final description = proj['description'] ?? '';
+          final link = proj['link'] ?? '';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: _buildProjectCard(
+              name: name,
+              description: description,
+              link: link,
+            ),
+          );
+        }).toList(),
       ],
     );
   }
@@ -689,9 +748,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // Widget _buildProjectCard({
+  //   required String name,
+  //   required String description,
+  //    required link,
+  // }) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(15),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             Expanded(
+  //               child: Text(
+  //                 'Name of Project: $name',
+  //                 style: const TextStyle(fontWeight: FontWeight.bold),
+  //               ),
+  //             ),
+  //             Container(
+  //               decoration: BoxDecoration(
+  //                 color: const Color(0xFFD3EBFD),
+  //                 borderRadius: BorderRadius.circular(10),
+  //                 boxShadow: const [
+  //                   BoxShadow(
+  //                     color: Colors.black,
+  //                     offset: Offset(0, 6),
+  //                     blurRadius: 0,
+  //                     spreadRadius: -2,
+  //                   ),
+  //                   BoxShadow(
+  //                     color: Colors.black,
+  //                     offset: Offset(6, 0),
+  //                     blurRadius: 0,
+  //                     spreadRadius: -2,
+  //                   ),
+  //                   BoxShadow(
+  //                     color: Colors.black,
+  //                     offset: Offset(6, 6),
+  //                     blurRadius: 0,
+  //                     spreadRadius: -2,
+  //                   ),
+  //                 ],
+  //               ),
+  //                 if (link != null && link.isNotEmpty)
+  //              ElevatedButton(
+  //               onPressed: () async {
+  //                 final uri = Uri.parse(link);
+  //                 if (await canLaunchUrl(uri)) {
+  //                   await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //                 } else {
+  //                   print('Could not launch $link');
+  //                 }
+  //               },
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Colors.white, // shows container color
+  //                   padding: const EdgeInsets.symmetric(
+  //                     horizontal: 25,
+  //                     vertical: 15,
+  //                   ),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 child: const Text(
+  //                   'LINK',
+  //                   style: TextStyle(color: Color(0xFF1FA7E3)),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 5),
+  //         Text(
+  //           'Description: $description',
+  //           style: const TextStyle(color: Colors.black54),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildProjectCard({
     required String name,
     required String description,
+    String? link, // make it nullable
   }) {
     return Container(
       padding: const EdgeInsets.all(15),
@@ -707,35 +848,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD3EBFD),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(0, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 0),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {},
+              if (link != null && link.isNotEmpty)
+                ElevatedButton(
+                  onPressed: () async {
+                    final uri = Uri.parse(link);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      print('Could not launch $link');
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // shows container color
+                    backgroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 25,
                       vertical: 15,
@@ -749,7 +876,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(color: Color(0xFF1FA7E3)),
                   ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 5),
