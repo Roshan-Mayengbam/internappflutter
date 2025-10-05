@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/features/domain/entities/job_response.dart';
 
-import 'filter_tag.dart';
+import '../filter_tag.dart';
 import 'carousel_card.dart';
 
 // Reusable Custom Carousel Section

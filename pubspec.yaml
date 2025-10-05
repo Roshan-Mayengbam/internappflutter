@@ -127,6 +127,12 @@ flutter:
     - assets/images/arrow_outward.png
     - assets/images/TO.png
 
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/Jost-Light.ttf
+          weight: 100
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

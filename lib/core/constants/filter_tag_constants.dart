@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 
 class FilterTagConstants {
+  // Dashed tag
+  static const dashedBg = Color(0xFFF9F3C6);
+  static const dashedBorderColor = Colors.black;
+  static const dashedBorderWidth = 1.0;
+  static const dashPattern = [5.0, 3.0];
+  static final dashedBorderRadius = Radius.circular(50);
+  static const dashedText = TextStyle(
+    fontFamily: 'Jost',
+    fontWeight: FontWeight.w100,
+    fontSize: 14,
+    color: Colors.black,
+  );
+
   // Shape
   static final BorderRadius borderRadius = BorderRadius.circular(8);
   static final Border border = Border.all(color: Colors.black, width: 1.2);
