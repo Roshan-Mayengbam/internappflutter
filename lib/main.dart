@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,8 @@ import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
+
+import 'package:internappflutter/screens/job_page.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
@@ -48,11 +50,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',
+      initialRoute: '/signup',
       routes: {
         '/homepage': (context) => const BottomnavbarAlternative(userData: null),
         '/signup': (context) => Page2(),
-        '/': (context) => SplashScreen(),
         '/register': (context) => RegisterPage(userModel: null),
       },
     );
@@ -67,56 +68,47 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
-    _checkuser();
-  }
-
-  void _checkuser() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        Timer(const Duration(seconds: 2), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const SignUpScreen()),
-          );
-          setState(() {
-            _errorMessage = "User not logged in";
-          });
-        });
-      } else {
-        Timer(const Duration(seconds: 2), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const BottomnavbarAlternative(userData: null),
-            ),
-          );
-          setState(() {
-            _errorMessage = "User not logged in";
-          });
-        });
-      }
+    // Auto navigate after 2 seconds
+    Timer(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SignUpScreen()),
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEBE8E1), // Light beige background
-      body: Center(
-        child: Text(
-          'hyrup',
-          style: GoogleFonts.pacifico(
-            // or "GreatVibes", "DancingScript", etc.
-            fontSize: 78,
-            color: Colors.black,
-            letterSpacing: 1.0,
+      body: InkWell(
+        onTap: () {
+          // Navigate on tap
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const SignUpScreen()),
+          );
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue, Colors.purple],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: const Center(
+            child: Text(
+              "Swipe. Match. Get Hired.",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),

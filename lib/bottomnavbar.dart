@@ -22,7 +22,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
     const HomePage(userData: null),
     const JobSearchScreen(),
     const JobPage(),
-    const ProfilePage2(),
+    const ProfileScreen(),
   ];
 
   @override
