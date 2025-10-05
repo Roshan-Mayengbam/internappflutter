@@ -125,50 +125,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       // Pass jobType to applyJob
       await context.read<JobProvider>().applyJob(jobId, jobType);
-
-      final jobProvider = context.read<JobProvider>();
-      if (jobProvider.errorMessage != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(jobProvider.errorMessage!),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-              action: SnackBarAction(
-                label: 'Dismiss',
-                textColor: Colors.white,
-                onPressed: () => jobProvider.clearError(),
-              ),
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          // Different messages based on jobType
-          String successMessage = jobType == 'on-campus'
-              ? 'job saved!'
-              : 'Applied to company job successfully!';
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(successMessage),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } else {
-      print("Job rejected: $jobId");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Job rejected'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 1),
-          ),
-        );
-      }
     }
   }
 
