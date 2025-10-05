@@ -40,6 +40,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'jobId': job.id,
         'jobType': job.jobType,
         'college': job.college,
+        // Add tag label and color based on job type
+        'tagLabel': job.jobType == 'on-campus' ? 'On Campus' : 'In House',
+        'tagColor': job.jobType == 'on-campus'
+            ? const Color(0xFF6C63FF)
+            : const Color(0xFFFFB347),
       };
     }).toList();
   }
@@ -380,64 +385,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSearchStrategyIndicator(JobProvider jobProvider) {
-    if (jobProvider.searchStrategy.isEmpty) return const SizedBox.shrink();
-
-    String strategyText;
-    Color strategyColor;
-    IconData strategyIcon;
-
-    switch (jobProvider.searchStrategy) {
-      case 'on-campus':
-        strategyText = 'On-Campus Jobs';
-        strategyColor = Colors.blue;
-        strategyIcon = Icons.school;
-        break;
-      case 'skills-based':
-        strategyText = 'Skills-Based Matching';
-        strategyColor = Colors.green;
-        strategyIcon = Icons.psychology;
-        break;
-      case 'mixed-priority':
-        strategyText = 'On-Campus + Skills Match';
-        strategyColor = Colors.purple;
-        strategyIcon = Icons.auto_awesome;
-        break;
-      case 'general':
-        strategyText = 'General Opportunities';
-        strategyColor = Colors.orange;
-        strategyIcon = Icons.work;
-        break;
-      default:
-        return const SizedBox.shrink();
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: strategyColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: strategyColor, width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(strategyIcon, size: 16, color: strategyColor),
-          const SizedBox(width: 4),
-          Text(
-            strategyText,
-            style: TextStyle(
-              color: strategyColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void didUpdateWidget(covariant HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -718,8 +665,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                _buildSearchStrategyIndicator(jobProvider),
-                const SizedBox(height: 10),
 
                 // Card stack
                 Expanded(
@@ -777,6 +722,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               2,
                                               displayJobs.length,
                                             )]['initialColorIndex'],
+                                        tagLabel:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['tagLabel'],
+                                        tagColor:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['tagColor'],
                                       ),
                                     ),
                                   ),
@@ -828,6 +783,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               1,
                                               displayJobs.length,
                                             )]['initialColorIndex'],
+                                        tagLabel:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['tagLabel'],
+                                        tagColor:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['tagColor'],
                                       ),
                                     ),
                                   ),
@@ -917,6 +882,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             0,
                                             displayJobs.length,
                                           )]['initialColorIndex'],
+                                      tagLabel:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['tagLabel'],
+                                      tagColor:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['tagColor'],
                                     ),
                                   ),
                                 ),
@@ -935,6 +910,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               websiteUrl: displayJobs[0]['websiteUrl'],
                               initialColorIndex:
                                   displayJobs[0]['initialColorIndex'],
+                              tagLabel: displayJobs[0]['tagLabel'],
+                              tagColor: displayJobs[0]['tagColor'],
                             )
                           : const SizedBox.shrink(),
                     ),

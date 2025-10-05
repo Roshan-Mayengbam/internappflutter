@@ -9,6 +9,8 @@ class JobCard extends StatefulWidget {
   final List<String> requirements;
   final String websiteUrl;
   final int initialColorIndex;
+  final String? tagLabel;
+  final Color? tagColor;
 
   const JobCard({
     super.key,
@@ -19,6 +21,8 @@ class JobCard extends StatefulWidget {
     required this.requirements,
     required this.websiteUrl,
     required this.initialColorIndex,
+    this.tagLabel,
+    this.tagColor,
   });
 
   @override
@@ -100,8 +104,36 @@ class _JobCardState extends State<JobCard> {
                 ),
               ),
             ),
+            // Tag positioned on top of the card
+            if (widget.tagLabel != null) _buildTag(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTag() {
+    // Determine which image to show based on tagLabel
+    String imagePath;
+    if (widget.tagLabel == 'On Campus') {
+      print(widget.tagLabel!);
+      imagePath = 'assets/campus.png';
+    } else if (widget.tagLabel == 'In House') {
+      print(widget.tagLabel!);
+      imagePath = 'assets/inhouse.png';
+    } else {
+      print(widget.tagLabel!);
+      imagePath = 'assets/outreach.png'; // for external or any other type
+    }
+
+    return Positioned(
+      top: 12,
+      right: 12,
+      child: Image.asset(
+        imagePath,
+        height: 50,
+        width: 140,
+        fit: BoxFit.contain,
       ),
     );
   }
@@ -281,8 +313,8 @@ class _JobCardState extends State<JobCard> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  boxShadow: [
-                    const BoxShadow(
+                  boxShadow: const [
+                    BoxShadow(
                       color: Colors.black,
                       offset: Offset(0, 5),
                       blurRadius: 0,
@@ -316,12 +348,6 @@ class _JobCardState extends State<JobCard> {
           children: [
             const Icon(Icons.location_on, color: Colors.grey, size: 20),
             const SizedBox(width: 4),
-            const SizedBox(height: 14),
-            const Divider(
-              color: Color.fromARGB(255, 19, 16, 16),
-              thickness: 6,
-              height: 30,
-            ),
             Expanded(
               child: Text(
                 widget.location,
@@ -346,4 +372,26 @@ class _JobCardState extends State<JobCard> {
       ],
     );
   }
+}
+
+// Custom clipper for the arrow-shaped tag
+class TagClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    const arrowHeight = 10.0;
+    const arrowWidth = 15.0;
+
+    path.moveTo(0, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(arrowWidth, size.height);
+    path.lineTo(0, size.height - arrowHeight);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
