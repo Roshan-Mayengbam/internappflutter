@@ -15,7 +15,6 @@ import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:provider/provider.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -116,5 +115,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-
-// Dummy SignUpScreen for navigation

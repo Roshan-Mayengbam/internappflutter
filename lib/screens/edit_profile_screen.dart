@@ -14,7 +14,8 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+  final String baseUrl = "http://192.168.8.161:3000";
+  late final String profilePicUrl;
 
   // controllers
   final TextEditingController fullNameCtrl = TextEditingController();
@@ -89,9 +90,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // Combine firstName and lastName into full name for display
     String firstName = profile['firstName'] ?? '';
     String lastName = profile['lastName'] ?? '';
-    fullNameCtrl.text = '$firstName $lastName'.trim();
+    fullNameCtrl.text = profile['FullName'] ?? '';
 
     bioCtrl.text = profile['bio'] ?? 'Write about your bio';
+    profilePicUrl = profile['profilePicture'];
     aboutCtrl.text = 'Write about yourself'; // Default value
     phoneCtrl.text = _userData!['phone'] ?? '+91 72645-05924';
     emailCtrl.text =
@@ -123,25 +125,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? idToken = await user.getIdToken();
       if (idToken == null) return;
 
-      // Split full name into firstName and lastName
-      List<String> nameParts = fullNameCtrl.text.trim().split(" ");
-      String firstName = nameParts.isNotEmpty ? nameParts[0] : '';
-      String lastName = nameParts.length > 1
-          ? nameParts.sublist(1).join(" ")
-          : '';
+      // ✅ Profile data
 
-      // Prepare update data according to backend allowed keys
+      final profileData = {
+        "FullName": fullNameCtrl.text.trim(),
+        "bio": bioCtrl.text.trim(),
+        "profilePicture": profilePicUrl
+            .trim(), // assume you set this after upload
+        "about": aboutCtrl.text.trim(),
+      };
+
+      // ✅ Education data
+      final educationData = {
+        "college": collegeCtrl.text.trim(),
+        // "universityType": universityTypeCtrl.text
+        //     .trim(), // public/private/deemed
+        "degree": degreeCtrl.text.trim(),
+        // "collegeEmail": collegeEmailCtrl.text.trim(),
+        // "yearOfPassing": int.tryParse(yearOfPassingCtrl.text.trim()) ?? 0,
+      };
+
+      // ✅ Skills → Map
+      final Map<String, dynamic> formattedSkills = {};
+      for (var skill in skills) {
+        formattedSkills[skill] = {
+          "level": "mid",
+        }; // you can change "mid" dynamically
+      }
+
+      // ✅ Experience (List of Maps)
+      final List<Map<String, dynamic>> formattedExperience = experiences.map((
+        exp,
+      ) {
+        return {
+          "nameOfOrg": exp["nameOfOrg"],
+          "position": exp["position"],
+          "timeline": exp["timeline"],
+          "description": exp["description"],
+        };
+      }).toList();
+
+      // ✅ Projects (List of Maps)
+      final List<Map<String, dynamic>> formattedProjects = projects.map((proj) {
+        return {
+          "projectName": proj["projectName"],
+          "link": proj["link"],
+          "description": proj["description"],
+        };
+      }).toList();
+
+      // ✅ Final update body
       final updateData = {
-        'studentId': uid,
-        'profile': {
-          'firstName': firstName,
-          'lastName': lastName,
-          'bio': bioCtrl.text,
-        },
-        'phone': phoneCtrl.text,
-        'email': emailCtrl.text,
-        'education': {'college': collegeCtrl.text, 'degree': degreeCtrl.text},
-        'user_skills': skills, // must be List<String>
+        "FullName": fullNameCtrl.text.trim(),
+        "firebaseId": uid, // this ties student to Firebase
+        "email": emailCtrl.text.trim(),
+        "phone": phoneCtrl.text.trim(),
+        "profile": profileData,
+        "education": educationData,
+        "user_skills": formattedSkills,
+        "job_preference": jobPreferences, // must be List<String>
+        "experience": formattedExperience,
+        "projects": formattedProjects,
       };
 
       print("Sending update data: ${json.encode(updateData)}");
@@ -149,8 +193,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final response = await http.put(
         Uri.parse('$baseUrl/student/profile'),
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $idToken',
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $idToken",
         },
         body: json.encode(updateData),
       );
@@ -168,7 +212,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to update profile: ${errorData['message'] ?? response.statusCode}',
+              'Failed: ${errorData['message'] ?? response.statusCode}',
             ),
           ),
         );
@@ -210,45 +254,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   //   }
   // }
 
-  // Future<void> _addSkill(String skillName) async {
-  //   try {
-  //     User? user = _auth.currentUser;
-  //     if (user == null) return;
+  Future<void> _addSkill(String skillName) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return;
 
-  //     String uid = user.uid;
-  //     String? idToken = await user.getIdToken();
-  //     if (idToken == null) return;
+      String uid = user.uid;
+      String? idToken = await user.getIdToken();
+      if (idToken == null) return;
 
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/student/addSkill'),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': 'Bearer $idToken',
-  //       },
-  //       body: json.encode({
-  //         'studentId': uid,
-  //         'skillName': skillName
-  //       }),
-  //     );
+      final response = await http.post(
+        Uri.parse('$baseUrl/student/addSkill'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: json.encode({'studentId': uid, 'skillName': skillName}),
+      );
 
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         skills.add(skillName);
-  //       });
-  //     } else {
-  //       final errorData = json.decode(response.body);
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Failed to add skill: ${errorData['message']}'),
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error adding skill: ${e.toString()}')),
-  //     );
-  //   }
-  // }
+      if (response.statusCode == 200) {
+        setState(() {
+          skills.add(skillName);
+        });
+      } else {
+        final errorData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add skill: ${errorData['message']}'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding skill: ${e.toString()}')),
+      );
+    }
+  }
 
   void _removeSkill(int index) {
     final skillToRemove = skills[index];
@@ -363,10 +404,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       backgroundColor: Colors.black,
                       radius: 60,
-                      backgroundImage: AssetImage('assets/images/profile.png'),
+                      backgroundImage: NetworkImage(profilePicUrl),
                     ),
                     Positioned(
                       bottom: 0,
