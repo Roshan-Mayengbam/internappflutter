@@ -15,7 +15,7 @@ class Saved extends StatefulWidget {
 }
 
 class _SavedState extends State<Saved> {
-  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+  final String baseUrl = "http://172.31.223.157:3000";
   List<dynamic> savedJobs = [];
   List<dynamic> appliedJobs = [];
   bool isLoading = true;
