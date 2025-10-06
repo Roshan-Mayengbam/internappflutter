@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import Message from "./models/message.js";
+import studentRoutes from "./routes/student.js";
 
 dotenv.config(); // Load .env
 
@@ -56,6 +57,9 @@ io.on("connection", (socket) => {
     console.log("🔴 Disconnected:", socket.data.username || socket.id);
   });
 });
+
+// Routes
+app.use('/student', studentRoutes);
 
 // Start server
 server.listen(process.env.PORT, () => console.log(`🚀 Server running on port ${process.env.PORT}`));

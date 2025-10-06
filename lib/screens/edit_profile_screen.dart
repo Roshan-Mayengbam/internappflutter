@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/screens/add_experience.dart';
 import 'package:internappflutter/screens/add_project_screen.dart';
@@ -10,39 +13,379 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+  late final String profilePicUrl;
+
   // controllers
-  final TextEditingController fullNameCtrl = TextEditingController(
-    text: 'Johnraj',
-  );
-  final TextEditingController phoneCtrl = TextEditingController(
-    text: '+91 72645-05924',
-  );
-  final TextEditingController emailCtrl = TextEditingController(
-    text: 'john@gmail.com',
-  );
-  final TextEditingController bio = TextEditingController(
-    text: 'Write about your bio',
-  );
-  final TextEditingController about = TextEditingController(
-    text: 'Write about yourself',
-  );
-  final TextEditingController collegeCtrl = TextEditingController(
-    text: 'Sastra College',
-  );
-  final TextEditingController degreeCtrl = TextEditingController(
-    text: 'Bachelor of Engineering',
-  );
-  final TextEditingController collegeEmailCtrl = TextEditingController(
-    text: '127157023@sastra.ac.in',
-  );
+  final TextEditingController fullNameCtrl = TextEditingController();
+  final TextEditingController phoneCtrl = TextEditingController();
+  final TextEditingController emailCtrl = TextEditingController();
+  final TextEditingController bioCtrl = TextEditingController();
+  final TextEditingController aboutCtrl = TextEditingController();
+  final TextEditingController collegeCtrl = TextEditingController();
+  final TextEditingController degreeCtrl = TextEditingController();
+  // final TextEditingController collegeEmailCtrl = TextEditingController();
   final TextEditingController skillController = TextEditingController();
   final TextEditingController jobController = TextEditingController();
 
   List<String> skills = [];
   List<String> jobPreferences = [];
+  List<Map<String, dynamic>> experiences = [];
+  List<Map<String, dynamic>> projects = [];
+
+  bool _isLoading = true;
+  bool _isSaving = false;
+  Map<String, dynamic>? _userData;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return;
+
+      String uid = user.uid;
+      String? idToken = await user.getIdToken();
+      if (idToken == null) return;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/student/StudentDetails'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: json.encode({'studentId': uid}),
+      );
+
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _userData = data['user'];
+          print(_userData);
+          _populateFormData();
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _populateFormData() {
+    if (_userData == null) return;
+
+    final profile = _userData!['profile'] ?? {};
+    final education = _userData!['education'] ?? {};
+
+    // Combine firstName and lastName into full name for display
+    String firstName = profile['firstName'] ?? '';
+    String lastName = profile['lastName'] ?? '';
+    fullNameCtrl.text = profile['FullName'] ?? '';
+
+    bioCtrl.text = profile['bio'] ?? 'Write about your bio';
+    profilePicUrl = profile['profilePicture'];
+    aboutCtrl.text = 'Write about yourself'; // Default value
+    phoneCtrl.text = _userData!['phone'] ?? '+91 72645-05924';
+    emailCtrl.text =
+        _userData!['email'] ?? _auth.currentUser?.email ?? 'john@gmail.com';
+
+    // Education data
+    collegeCtrl.text = education['college'] ?? 'Sastra College';
+    degreeCtrl.text = education['degree'] ?? 'Bachelor of Engineering';
+
+    // Lists data
+    skills = List<String>.from(
+      (_userData!['user_skills'] as Map<String, dynamic>? ?? {}).keys,
+    );
+    jobPreferences = List<String>.from(_userData!['job_preference'] ?? []);
+    experiences = List<Map<String, dynamic>>.from(
+      _userData!['experience'] ?? [],
+    );
+    projects = List<Map<String, dynamic>>.from(_userData!['projects'] ?? []);
+  }
+
+  Future<void> _saveProfile() async {
+    setState(() => _isSaving = true);
+
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return;
+      String uid = user.uid;
+
+      String? idToken = await user.getIdToken();
+      if (idToken == null) return;
+
+      // ✅ Profile data
+
+      final profileData = {
+        "FullName": fullNameCtrl.text.trim(),
+        "bio": bioCtrl.text.trim(),
+        "profilePicture": profilePicUrl
+            .trim(), // assume you set this after upload
+        "about": aboutCtrl.text.trim(),
+      };
+
+      // ✅ Education data
+      final educationData = {
+        "college": collegeCtrl.text.trim(),
+        // "universityType": universityTypeCtrl.text
+        //     .trim(), // public/private/deemed
+        "degree": degreeCtrl.text.trim(),
+        // "collegeEmail": collegeEmailCtrl.text.trim(),
+        // "yearOfPassing": int.tryParse(yearOfPassingCtrl.text.trim()) ?? 0,
+      };
+
+      // ✅ Skills → Map
+      final Map<String, dynamic> formattedSkills = {};
+      for (var skill in skills) {
+        formattedSkills[skill] = {
+          "level": "mid",
+        }; // you can change "mid" dynamically
+      }
+
+      // ✅ Experience (List of Maps)
+      final List<Map<String, dynamic>> formattedExperience = experiences.map((
+        exp,
+      ) {
+        return {
+          "nameOfOrg": exp["nameOfOrg"],
+          "position": exp["position"],
+          "timeline": exp["timeline"],
+          "description": exp["description"],
+        };
+      }).toList();
+
+      // ✅ Projects (List of Maps)
+      final List<Map<String, dynamic>> formattedProjects = projects.map((proj) {
+        return {
+          "projectName": proj["projectName"],
+          "link": proj["link"],
+          "description": proj["description"],
+        };
+      }).toList();
+
+      // ✅ Final update body
+      final updateData = {
+        "FullName": fullNameCtrl.text.trim(),
+        "firebaseId": uid, // this ties student to Firebase
+        "email": emailCtrl.text.trim(),
+        "phone": phoneCtrl.text.trim(),
+        "profile": profileData,
+        "education": educationData,
+        "user_skills": formattedSkills,
+        "job_preference": jobPreferences, // must be List<String>
+        "experience": formattedExperience,
+        "projects": formattedProjects,
+      };
+
+      print("Sending update data: ${json.encode(updateData)}");
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/student/profile'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $idToken",
+        },
+        body: json.encode(updateData),
+      );
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+        Navigator.pop(context, true);
+      } else {
+        final errorData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed: ${errorData['message'] ?? response.statusCode}',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating profile: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isSaving = false);
+    }
+  }
+
+  // Future<void> _saveSkills() async {
+  //   try {
+  //     User? user = _auth.currentUser;
+  //     if (user == null) return;
+
+  //     String? idToken = await user.getIdToken();
+  //     if (idToken == null) return;
+
+  //     // Add each new skill using the addSkill endpoint
+  //     for (final skill in skills) {
+  //       final response = await http.post(
+  //         Uri.parse('$baseUrl/student/addSkill'),
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': 'Bearer $idToken',
+  //         },
+  //         body: json.encode({'skillName': skill}),
+  //       );
+
+  //       if (response.statusCode != 200) {
+  //         print('Failed to add skill: $skill');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print('Error saving skills: $e');
+  //   }
+  // }
+
+  Future<void> _addSkill(String skillName) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return;
+
+      String uid = user.uid;
+      String? idToken = await user.getIdToken();
+      if (idToken == null) return;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/student/addSkill'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: json.encode({'studentId': uid, 'skillName': skillName}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          skills.add(skillName);
+        });
+      } else {
+        final errorData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add skill: ${errorData['message']}'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding skill: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _removeSkill(int index) {
+    final skillToRemove = skills[index];
+    setState(() {
+      skills.removeAt(index);
+    });
+    // Note: You might want to implement a removeSkill endpoint in your backend
+  }
+
+  void _addExperience() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddExperienceScreen()),
+    ).then((value) {
+      if (value != null && value is Map<String, dynamic>) {
+        setState(() {
+          experiences.add(value);
+        });
+        // Note: You might need to save experiences to backend separately
+      }
+    });
+  }
+
+  void _editExperience(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AddExperienceScreen(experience: experiences[index]),
+      ),
+    ).then((value) {
+      if (value != null && value is Map<String, dynamic>) {
+        setState(() {
+          experiences[index] = value;
+        });
+      }
+    });
+  }
+
+  void _deleteExperience(int index) {
+    setState(() {
+      experiences.removeAt(index);
+    });
+  }
+
+  void _addProject() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddProjectScreen()),
+    ).then((value) {
+      if (value != null && value is Map<String, dynamic>) {
+        setState(() {
+          projects.add(value);
+        });
+        // Note: You might need to save projects to backend separately
+      }
+    });
+  }
+
+  void _editProject(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddProjectScreen(project: projects[index]),
+      ),
+    ).then((value) {
+      if (value != null && value is Map<String, dynamic>) {
+        setState(() {
+          projects[index] = value;
+        });
+      }
+    });
+  }
+
+  void _deleteProject(int index) {
+    setState(() {
+      projects.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          title: const Text('Edit Profile'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -61,10 +404,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       backgroundColor: Colors.black,
                       radius: 60,
-                      backgroundImage: AssetImage('assets/images/profile.png'),
+                      backgroundImage: NetworkImage(profilePicUrl),
                     ),
                     Positioned(
                       bottom: 0,
@@ -146,16 +489,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 15),
                       _buildTextField('Email', emailCtrl),
                       const SizedBox(height: 15),
-                      _buildTextField('Bio', bio),
+                      _buildTextField('Bio', bioCtrl),
                       const SizedBox(height: 15),
-                      _buildTextField('About', about),
+                      _buildTextField('About', aboutCtrl),
                       const SizedBox(height: 15),
                       _buildTextField('College Name', collegeCtrl),
                       const SizedBox(height: 15),
                       _buildTextField('Degree', degreeCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('College Email ID', collegeEmailCtrl),
 
+                      // const SizedBox(height: 15),
+                      // _buildTextField('College Email ID', collegeEmailCtrl),
                       const Divider(height: 40),
 
                       // Skills Section
@@ -169,10 +512,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       const SizedBox(height: 10),
 
-                      const SizedBox(height: 10),
-
                       // big input box for skill
-                      // Skill input
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -212,10 +552,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           onSubmitted: (value) {
                             if (value.trim().isNotEmpty) {
-                              setState(() {
-                                skills.add(value.trim());
-                                skillController.clear();
-                              });
+                              _addSkill(value.trim());
+                              skillController.clear();
                             }
                           },
                         ),
@@ -227,15 +565,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         spacing: 10,
                         runSpacing: 10,
                         children: skills
+                            .asMap()
+                            .entries
                             .map(
-                              (skill) => _buildChip(
-                                skill,
-                                onDelete: () {
-                                  setState(() {
-                                    skills.remove(skill);
-                                  });
-                                },
-                                deleteColor: Colors.red, // new property
+                              (entry) => _buildChip(
+                                entry.value,
+                                onDelete: () => _removeSkill(entry.key),
+                                deleteColor: Colors.red,
                               ),
                             )
                             .toList(),
@@ -297,15 +633,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         spacing: 15,
                         runSpacing: 10,
                         children: jobPreferences
+                            .asMap()
+                            .entries
                             .map(
-                              (job) => _buildChip(
-                                job,
+                              (entry) => _buildChip(
+                                entry.value,
                                 onDelete: () {
                                   setState(() {
-                                    jobPreferences.remove(job);
+                                    jobPreferences.removeAt(entry.key);
                                   });
                                 },
-                                deleteColor: Colors.red, // new property
+                                deleteColor: Colors.red,
                               ),
                             )
                             .toList(),
@@ -324,21 +662,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               fontFamily: 'Jost',
                             ),
                           ),
-
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddExperienceScreen(),
-                                ),
-                              );
-                            },
+                            onPressed: _addExperience,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFFF5B967,
-                              ), // light blue background
+                              backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
@@ -351,7 +678,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               'Add',
                               style: TextStyle(
                                 fontFamily: 'Jost',
-                                color: Colors.black, // text color
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -359,35 +686,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      _buildExperienceCard(
-                        organization: 'MaxWells Coperations',
-                        position: 'AI Intern',
-                        timeline: 'Jan 2025 - Feb 2025',
-                        description:
-                            'Manage the qualifications or preference used to hide jobs from your search…',
-                        onEdit: () {
-                          // edit logic here
-                        },
-                        onDelete: () {
-                          // delete logic here
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      _buildExperienceCard(
-                        organization: 'MaxWells Coperations',
-                        position: 'AI Intern',
-                        timeline: 'Jan 2025 - Feb 2025',
-                        description:
-                            'Manage the qualifications or preference used to hide jobs from your search. '
-                            'Manage the qualifications or preference used to hide jobs from your search. '
-                            'Manage the qualifications or preference used to hide jobs from your search.',
-                        onEdit: () {
-                          // Edit logic
-                        },
-                        onDelete: () {
-                          // Delete logic
-                        },
-                      ),
+
+                      // Dynamic Experience Cards
+                      ...experiences.asMap().entries.map((entry) {
+                        final experience = entry.value;
+                        return _buildExperienceCard(
+                          organization:
+                              experience['nameOfOrg'] ?? 'Organization',
+                          position: experience['position'] ?? 'Position',
+                          timeline: experience['timeline'] ?? 'Timeline',
+                          description:
+                              experience['description'] ?? 'Description',
+                          onEdit: () => _editExperience(entry.key),
+                          onDelete: () => _deleteExperience(entry.key),
+                        );
+                      }).toList(),
 
                       const SizedBox(height: 20),
 
@@ -402,21 +715,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               fontFamily: 'Jost',
                             ),
                           ),
-
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddProjectScreen(),
-                                ),
-                              );
-                            },
+                            onPressed: _addProject,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFFF5B967,
-                              ), // light blue background
+                              backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
@@ -429,7 +731,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               'Add',
                               style: TextStyle(
                                 fontFamily: 'Jost',
-                                color: Colors.black, // text color
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -437,35 +739,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      _buildProjectCard(
-                        projectName: 'MaxWells Coperations',
-                        link: 'https://amxa.com/pro1',
-                        description:
-                            'Manage the qualifications or preference used to hide jobs from your search. '
-                            'Manage the qualifications or preference used to hide jobs from your search.',
-                        onEdit: () {
-                          // Edit logic here
-                        },
-                        onDelete: () {
-                          // Delete logic here
-                        },
-                      ),
+
+                      // Dynamic Project Cards
+                      ...projects.asMap().entries.map((entry) {
+                        final project = entry.value;
+                        return _buildProjectCard(
+                          projectName: project['projectName'] ?? 'Project Name',
+                          link: project['link'] ?? 'Link',
+                          description: project['description'] ?? 'Description',
+                          onEdit: () => _editProject(entry.key),
+                          onDelete: () => _deleteProject(entry.key),
+                        );
+                      }).toList(),
+
                       const SizedBox(height: 5),
-                      _buildProjectCard(
-                        projectName: 'MaxWells Coperations',
-                        link: 'https://amxa.com/pro1',
-                        description:
-                            'Manage the qualifications or preference used to hide jobs from your search. '
-                            'Manage the qualifications or preference used to hide jobs from your search. '
-                            'Manage the qualifications or preference used to hide jobs from your search.',
-                        onEdit: () {
-                          // Your edit logic here, e.g., open a dialog to edit project
-                        },
-                        onDelete: () {
-                          // Your delete logic here, e.g., remove project from list
-                        },
-                      ),
-                      SizedBox(height: 5),
                       SizedBox(
                         width: double.infinity,
                         child: Container(
@@ -475,7 +762,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             border: Border.all(
                               color: Colors.grey.shade400,
                               width: 1,
-                            ), // light border
+                            ),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black,
@@ -498,29 +785,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ],
                           ),
                           child: ElevatedButton(
-                            onPressed: () {
-                              // save changes
-                            },
+                            onPressed: _isSaving ? null : _saveProfile,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFF090909,
-                              ), // same as container
+                              backgroundColor: const Color(0xFF090909),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              shadowColor:
-                                  Colors.transparent, // remove default shadow
+                              shadowColor: Colors.transparent,
                             ),
-                            child: const Text(
-                              'Update',
-                              style: TextStyle(
-                                fontFamily: 'Jost',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
+                            child: _isSaving
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const Text(
+                                    'Update',
+                                    style: TextStyle(
+                                      fontFamily: 'Jost',
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -646,11 +939,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(width: 5),
           GestureDetector(
             onTap: onDelete,
-            child: Icon(
-              Icons.close_rounded,
-              size: 25,
-              color: deleteColor, // red delete button
-            ),
+            child: Icon(Icons.close_rounded, size: 25, color: deleteColor),
           ),
         ],
       ),
@@ -671,10 +960,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.black, // subtle light border
-          width: 1,
-        ),
+        border: Border.all(color: Colors.black, width: 1),
         boxShadow: const [
           BoxShadow(
             color: Colors.black,
@@ -699,7 +985,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: Organization + buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -757,10 +1042,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.black, // subtle light border
-          width: 1,
-        ),
+        border: Border.all(color: Colors.black, width: 1),
         boxShadow: const [
           BoxShadow(
             color: Colors.black,
@@ -785,7 +1067,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: Project Name + buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

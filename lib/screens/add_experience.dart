@@ -1,10 +1,80 @@
 import 'package:flutter/material.dart';
 
-class AddExperienceScreen extends StatelessWidget {
-  const AddExperienceScreen({super.key});
+class AddExperienceScreen extends StatefulWidget {
+  final Map<String, dynamic>? experience;
+
+  const AddExperienceScreen({super.key, this.experience});
+
+  @override
+  State<AddExperienceScreen> createState() => _AddExperienceScreenState();
+}
+
+class _AddExperienceScreenState extends State<AddExperienceScreen> {
+  final TextEditingController _organizationController = TextEditingController();
+  final TextEditingController _positionController = TextEditingController();
+  final TextEditingController _timelineController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Check if we're editing an existing experience
+    if (widget.experience != null && widget.experience!.isNotEmpty) {
+      _isEditing = true;
+      print('Editing experience: ${widget.experience}');
+      _organizationController.text = widget.experience!['nameOfOrg'] ?? '';
+      _positionController.text = widget.experience!['position'] ?? '';
+      _timelineController.text = widget.experience!['timeline'] ?? '';
+      _descriptionController.text = widget.experience!['description'] ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _organizationController.dispose();
+    _positionController.dispose();
+    _timelineController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _saveExperience() {
+    final organization = _organizationController.text.trim();
+    final position = _positionController.text.trim();
+    final timeline = _timelineController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (organization.isEmpty ||
+        position.isEmpty ||
+        timeline.isEmpty ||
+        description.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    final experienceData = {
+      'nameOfOrg': organization,
+      'position': position,
+      'timeline': timeline,
+      'description': description,
+    };
+
+    // Return the experience data to the previous screen
+    Navigator.pop(context, experienceData);
+  }
+
+  void _markAsDone() {
+    _saveExperience();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('Editing: $_isEditing');
     return Scaffold(
       backgroundColor: const Color(0xFFF8F4ED),
       appBar: AppBar(
@@ -14,8 +84,8 @@ class AddExperienceScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Add Experience',
+        title: Text(
+          _isEditing ? 'Edit Experience' : 'Add Experience',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -38,25 +108,46 @@ class AddExperienceScreen extends StatelessWidget {
             _inputField(
               'Name of organization',
               'Write the name of the organisation',
+              _organizationController,
             ),
-            _inputField('Position', 'Which position did you work on'),
-            _inputField('Timeline', 'Date'),
+            _inputField(
+              'Position',
+              'Which position did you work on',
+              _positionController,
+            ),
+            _inputField('Timeline', 'Date', _timelineController),
             _inputField(
               'Description',
               'Write about the experience you had',
+              _descriptionController,
               maxLines: 4,
             ),
             const SizedBox(height: 20),
-            _button('Add', Color(0xFFF5B967), Colors.white),
+            _button(
+              _isEditing ? 'Update' : 'Add',
+              Color(0xFFF5B967),
+              Colors.white,
+              onPressed: _saveExperience,
+            ),
             const SizedBox(height: 12),
-            _button('Done', Color(0xFFB6A5FE), Colors.white),
+            _button(
+              'Done',
+              Color(0xFFB6A5FE),
+              Colors.white,
+              onPressed: _markAsDone,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _inputField(String label, String hint, {int maxLines = 1}) {
+  Widget _inputField(
+    String label,
+    String hint,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -91,6 +182,7 @@ class AddExperienceScreen extends StatelessWidget {
               ],
             ),
             child: TextFormField(
+              controller: controller,
               maxLines: maxLines,
               decoration: InputDecoration(
                 hintText: hint,
@@ -113,7 +205,12 @@ class AddExperienceScreen extends StatelessWidget {
     );
   }
 
-  Widget _button(String text, Color bg, Color txtColor) {
+  Widget _button(
+    String text,
+    Color bg,
+    Color txtColor, {
+    VoidCallback? onPressed,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: Container(
@@ -142,7 +239,7 @@ class AddExperienceScreen extends StatelessWidget {
           ],
         ),
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: bg,
             shape: RoundedRectangleBorder(

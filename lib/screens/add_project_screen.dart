@@ -1,7 +1,67 @@
 import 'package:flutter/material.dart';
 
-class AddProjectScreen extends StatelessWidget {
-  const AddProjectScreen({super.key});
+class AddProjectScreen extends StatefulWidget {
+  final Map<String, dynamic>? project;
+
+  const AddProjectScreen({super.key, this.project});
+
+  @override
+  State<AddProjectScreen> createState() => _AddProjectScreenState();
+}
+
+class _AddProjectScreenState extends State<AddProjectScreen> {
+  final TextEditingController _projectNameController = TextEditingController();
+  final TextEditingController _linkController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Check if we're editing an existing project
+    if (widget.project != null && widget.project!.isNotEmpty) {
+      _isEditing = true;
+      _projectNameController.text = widget.project!['projectName'] ?? '';
+      _linkController.text = widget.project!['link'] ?? '';
+      _descriptionController.text = widget.project!['description'] ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _projectNameController.dispose();
+    _linkController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _saveProject() {
+    final projectName = _projectNameController.text.trim();
+    final link = _linkController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (projectName.isEmpty || description.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill Project Name and Description')),
+      );
+      return;
+    }
+
+    final projectData = {
+      'projectName': projectName,
+      'link': link,
+      'description': description,
+    };
+
+    // Return the project data to the previous screen
+    Navigator.pop(context, projectData);
+  }
+
+  void _markAsDone() {
+    _saveProject();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +74,8 @@ class AddProjectScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Add Projects',
+        title: Text(
+          _isEditing ? 'Edit Project' : 'Add Projects',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -35,20 +95,48 @@ class AddProjectScreen extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 20),
-            _inputField('Project Name', 'Write the name of the Project'),
-            _inputField('Link', 'Paste the link of your project'),
-            _inputField('Description', 'Describe the project', maxLines: 4),
+            _inputField(
+              'Project Name',
+              'Write the name of the Project',
+              _projectNameController,
+            ),
+            _inputField(
+              'Link',
+              'Paste the link of your project',
+              _linkController,
+            ),
+            _inputField(
+              'Description',
+              'Describe the project',
+              _descriptionController,
+              maxLines: 4,
+            ),
             const SizedBox(height: 20),
-            _button('Add', Color(0xFFF5B967), Colors.white),
+            _button(
+              _isEditing ? 'Update' : 'Add',
+              Color(0xFFF5B967),
+              Colors.white,
+              onPressed: _saveProject,
+            ),
             const SizedBox(height: 12),
-            _button('Done', Color(0xFFB6A5FE), Colors.white),
+            _button(
+              'Done',
+              Color(0xFFB6A5FE),
+              Colors.white,
+              onPressed: _markAsDone,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _inputField(String label, String hint, {int maxLines = 1}) {
+  Widget _inputField(
+    String label,
+    String hint,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -83,6 +171,7 @@ class AddProjectScreen extends StatelessWidget {
               ],
             ),
             child: TextFormField(
+              controller: controller,
               maxLines: maxLines,
               decoration: InputDecoration(
                 hintText: hint,
@@ -105,7 +194,12 @@ class AddProjectScreen extends StatelessWidget {
     );
   }
 
-  Widget _button(String text, Color bg, Color txtColor) {
+  Widget _button(
+    String text,
+    Color bg,
+    Color txtColor, {
+    VoidCallback? onPressed,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: Container(
@@ -134,7 +228,7 @@ class AddProjectScreen extends StatelessWidget {
           ],
         ),
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: bg,
             shape: RoundedRectangleBorder(
