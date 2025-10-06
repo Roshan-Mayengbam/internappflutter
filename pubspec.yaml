@@ -130,8 +130,10 @@ flutter:
   fonts:
     - family: Jost
       fonts:
-        - asset: assets/fonts/Jost-Light.ttf
+        - asset: assets/fonts/jost/Jost-Light.ttf
           weight: 100
+        - asset: assets/fonts/jost/Jost-Regular.ttf
+          weight: 500
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

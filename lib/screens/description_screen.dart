@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/filter_tag.dart';
+import '../core/components/details_page/resuable_tag.dart';
+import '../core/constants/details_page/reusable_tag_constants.dart';
 
 class DescriptionScreen extends StatelessWidget {
   const DescriptionScreen({super.key});
@@ -7,7 +8,16 @@ class DescriptionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FilterTag(label: "On-site", onTap: null, isDashed: true),
+      child: Row(
+        children: [
+          ReusableTag(
+            label: 'On-Site',
+            style: TagStyle.statusPill,
+            isDottedBorder: true,
+          ),
+          ReusableTag(label: 'Adobe', style: TagStyle.actionChip),
+        ],
+      ),
     );
   }
 }
