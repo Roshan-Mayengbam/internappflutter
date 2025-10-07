@@ -266,6 +266,7 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
+                      onCarouselTap: (String p1) {},
                     ),
                     SizedBox(height: 20),
                     CustomCarouselSection(
@@ -286,6 +287,7 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
+                      onCarouselTap: (String p1) {},
                     ),
                   ],
                 ),

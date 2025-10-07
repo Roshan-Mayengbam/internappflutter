@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'filter_tag.dart';
 import 'job_carousel_card.dart';
 
@@ -10,6 +9,7 @@ class CustomCarouselSection extends StatelessWidget {
   final List<String> filters;
   final String selectedFilter;
   final Function(String) onFilterTap;
+  final Function(String) onCarouselTap;
   final bool statusPage;
   final List<Map<String, dynamic>> items;
   final VoidCallback? onViewMore;
@@ -21,6 +21,7 @@ class CustomCarouselSection extends StatelessWidget {
     required this.filters,
     required this.selectedFilter,
     required this.onFilterTap,
+    required this.onCarouselTap,
     required this.items,
     this.statusPage = false,
     this.onViewMore,
@@ -62,10 +63,10 @@ class CustomCarouselSection extends StatelessWidget {
                 child: const Text(
                   "View More",
                   style: TextStyle(
-                    fontSize: 14, // slightly larger
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black, // black text
-                    decoration: TextDecoration.underline, // underline
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -102,22 +103,25 @@ class CustomCarouselSection extends StatelessWidget {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: (statusPage)
-                      ? CarouselCard(
-                          title: item["jobTitle"],
-                          subtitle: item["companyName"],
-                          tag1: item["applied"] ? "Applied" : "Not Applied",
-                          statusCard: statusPage,
-                        )
-                      : CarouselCard(
-                          title: item["jobTitle"],
-                          subtitle: item["companyName"],
-                          tag1: item["location"],
-                          tag2: item['experienceLevel'],
-                          statusCard: statusPage,
-                        ),
+                return GestureDetector(
+                  onTap: () => onCarouselTap(item["jobTitle"]),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: (statusPage)
+                        ? CarouselCard(
+                            title: item["jobTitle"],
+                            subtitle: item["companyName"],
+                            tag1: item["applied"] ? "Applied" : "Not Applied",
+                            statusCard: statusPage,
+                          )
+                        : CarouselCard(
+                            title: item["jobTitle"],
+                            subtitle: item["companyName"],
+                            tag1: item["location"],
+                            tag2: item['experienceLevel'],
+                            statusCard: statusPage,
+                          ),
+                  ),
                 );
               },
             ),

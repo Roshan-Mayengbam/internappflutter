@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/core/components/custom_button.dart';
 import 'package:internappflutter/core/components/custom_search_field.dart';
+import 'package:internappflutter/screens/hackathon_details.dart';
+import 'package:internappflutter/screens/job_details_screen.dart';
 
 import '../core/components/custom_app_bar.dart';
 import '../core/components/jobs_page/custom_carousel_section.dart';
@@ -293,11 +295,17 @@ class _JobPageState extends State<JobPage> {
                   selectedJobFilter = filter;
                 });
               },
-              onViewMore: () {
-                print("Pressed View more in jobs display");
-              },
+              onViewMore: () {},
               statusPage: true,
               items: jobs,
+              onCarouselTap: (String p1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const JobDetailsScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 30),
             CustomCarouselSection(
@@ -311,10 +319,16 @@ class _JobPageState extends State<JobPage> {
                   selectedHackathonFilter = filter;
                 });
               },
-              onViewMore: () {
-                print("Pressed View more in jobs display");
-              },
+              onViewMore: () {},
               items: hackathons,
+              onCarouselTap: (String p1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HackathonDetailsScreen(),
+                  ),
+                );
+              },
             ),
           ],
         ),
