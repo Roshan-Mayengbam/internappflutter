@@ -56,6 +56,7 @@ dependencies:
   intl: ^0.20.2
   mockito: ^5.5.1
   build_runner: ^2.9.0
+  webview_flutter: ^4.13.0
 
 
 

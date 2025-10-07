@@ -31,10 +31,13 @@ class Article {
     return htmlString.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '');
   }
 
+  // lib/domain/entities/article.dart (FIXED)
+
   /// Factory constructor to map JSON data from the Data Layer to the Domain Entity.
   factory Article.fromJson(Map<String, dynamic> json) {
-    // Safely extract nested fields from 'fields' object (where body, thumbnail, etc., reside)
-    final fields = json['fields'] ?? {};
+    // Safely extract nested fields from 'fields' object
+    // Use an empty map as fallback if 'fields' is missing
+    final fields = json['fields'] as Map<String, dynamic>? ?? {};
 
     final dateString =
         json['webPublicationDate'] ?? DateTime.now().toIso8601String();
@@ -48,13 +51,20 @@ class Article {
       apiUrl: json['apiUrl'] as String,
 
       // --- Fields extracted from the nested 'fields' object ---
-      // Provide fallback values for required UI elements if the API is inconsistent
-      thumbnailUrl: fields['thumbnail'] ?? '',
-      byline: (fields['byline'] ?? 'The Guardian Staff') as String,
-      bodyHtml: (fields['body'] ?? 'No article content available.') as String,
-      // Clean the trailText (snippet) for clean display in the Explore list view
+
+      // 1. Safe access: Use 'as String?' and null-coalescing.
+      thumbnailUrl: fields['thumbnail'] as String? ?? '',
+
+      // 2. FIXED: byline must be explicitly checked/cast, and the fallback doesn't need 'as String'.
+      // If fields['byline'] is unexpectedly a Map, this safely defaults to the fallback string.
+      byline: fields['byline'] as String? ?? 'The Guardian Staff',
+
+      // 3. FIXED: Same for bodyHtml.
+      bodyHtml: fields['body'] as String? ?? 'No article content available.',
+
+      // 4. Clean trailText after safely casting it to a String.
       trailText: _cleanHtml(
-        (fields['trailText'] ?? 'Click to read full article.') as String,
+        fields['trailText'] as String? ?? 'Click to read full article.',
       ),
     );
   }

@@ -5,5 +5,5 @@ import '../entities/article.dart';
 /// The Data Layer is responsible for implementing this interface.
 abstract class NewsRepository {
   /// Fetches a list of articles for a given page number.
-  Future<List<Article>> fetchArticles(int page);
+  Future<List<Article>> fetchArticles(int page, String tags);
 }

@@ -21,6 +21,11 @@ import 'package:internappflutter/features/data/repositories/job_repository_impl.
 import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
 import 'package:internappflutter/features/presentation/providers/job_provider.dart';
 
+import 'features/data/datasources/guardian_api_remote_datasource.dart';
+import 'features/data/repositories/news_repository_impl.dart';
+import 'features/domain/usecases/get_tech_news.dart';
+import 'features/presentation/providers/news_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -53,7 +58,13 @@ void main() async {
         ),
         // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
-        // Add more providers here if needed
+        ChangeNotifierProvider(
+          create: (_) => ExploreViewModel(
+            getNewsUseCase: GetTechNewsUseCase(
+              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
+            ),
+          ),
+        ),
       ],
       child: MyApp(),
     ),

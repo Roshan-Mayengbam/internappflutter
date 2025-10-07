@@ -45,3 +45,4 @@ app.*.map.json
 /android/app/release
 
 /lib/core/constants/app_constants.dart
+/lib/temp

@@ -13,28 +13,28 @@ class NewsRepositoryImpl implements NewsRepository {
   NewsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<Article>> fetchArticles(int page) async {
-    try {
-      // 1. Fetch raw JSON data using the Data Source
-      // We assume remoteDataSource.fetchRawArticles is implemented to return the raw JSON Map
-      final jsonResponse = await remoteDataSource.fetchRawArticles(page);
+  Future<List<Article>> fetchArticles(int page, String tags) async {
+    final jsonResponse = await remoteDataSource.fetchRawArticles(page, tags);
 
-      // 2. Extract the list of results from the API structure
-      // Safely navigate the nested JSON structure: response -> results
-      final List<dynamic> results = jsonResponse['response']['results'] ?? [];
+    // --- FIX: Safely access nested JSON keys using '?[]' ---
+    // We safely access 'response' and then 'results'.
+    // If either is null, 'resultsList' will be null.
+    final resultsList = jsonResponse['response']?['results'] as List<dynamic>?;
 
-      // 3. Map the raw JSON objects to ArticleModel (DTOs)
-      final List<ArticleModel> articleModels = results
-          .map((json) => ArticleModel.fromJson(json))
-          .toList();
+    // If the list is null, return an empty list immediately.
+    final List<dynamic> results = resultsList ?? [];
 
-      // 4. Convert the ArticleModels (DTOs) to clean Domain Article Entities using toEntity()
-      return articleModels.map((model) => model.toEntity()).toList();
-    } on Exception catch (e) {
-      // Re-throw a generic exception suitable for the Usecase/Presentation layers
-      throw Exception(
-        'Could not fetch articles due to a network or API issue.',
-      );
+    if (results.isEmpty) {
+      // Return an empty list if no results were found, preventing further crashes.
+      return [];
     }
+    // --------------------------------------------------------
+
+    // Assuming ArticleModel.fromJson and toEntity are robust (which they look to be)
+    final List<ArticleModel> articleModels = results
+        .map((json) => ArticleModel.fromJson(json))
+        .toList();
+
+    return articleModels.map((model) => model.toEntity()).toList();
   }
 }
