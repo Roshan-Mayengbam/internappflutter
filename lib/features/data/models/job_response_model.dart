@@ -111,8 +111,7 @@ class CompanyModel extends Company {
 }
 
 class SalaryRangeModel extends SalaryRange {
-  const SalaryRangeModel({required int min, required int max})
-    : super(min: min, max: max);
+  const SalaryRangeModel({required super.min, required super.max});
 
   factory SalaryRangeModel.fromJson(Map<String, dynamic> json) =>
       SalaryRangeModel(min: json["min"] ?? 0, max: json["max"] ?? 0);

@@ -53,6 +53,9 @@ dependencies:
   url_launcher: ^6.3.2
   equatable: ^2.0.7
   dartz: ^0.10.1
+  intl: ^0.20.2
+  mockito: ^5.5.1
+  build_runner: ^2.9.0
 
 
 
