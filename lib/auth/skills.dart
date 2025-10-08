@@ -500,7 +500,7 @@ class _SkillsState extends State<Skills> {
                     print("Jobs (inherited): ${userWithSkills.jobs}");
 
                     // Navigate to ExperiencePage
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>

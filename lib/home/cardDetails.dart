@@ -1042,28 +1042,21 @@ class _CarddetailsState extends State<Carddetails> {
   }
 
   Widget _buildTag() {
-    // Determine which image to show based on tagLabel
     String imagePath;
     if (widget.tagLabel == 'On Campus') {
-      print(widget.tagLabel!);
       imagePath = 'assets/campus.png';
     } else if (widget.tagLabel == 'In House') {
-      print(widget.tagLabel!);
       imagePath = 'assets/inhouse.png';
     } else {
-      print(widget.tagLabel!);
-      imagePath = 'assets/outreach.png'; // for external or any other type
+      imagePath = 'assets/outreach.png';
     }
 
-    return Positioned(
-      top: 12,
-      right: 12,
-      child: Image.asset(
-        imagePath,
-        height: 50,
-        width: 150,
-        fit: BoxFit.contain,
-      ),
+    return Image.asset(
+      // ✅ No Positioned for Row
+      imagePath,
+      height: 50,
+      width: 150,
+      fit: BoxFit.contain,
     );
   }
 

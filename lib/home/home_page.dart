@@ -383,8 +383,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final cardWidth = screenSize.width - 40.0;
-    final cardHeight = screenSize.height * 0.50;
+    // In HomePage build method
+    final cardWidth = screenSize.width * 0.92; // Increased from 0.9
+    final cardHeight = screenSize.height * 0.55; // Adjusted for better fit
 
     return Consumer<JobProvider>(
       builder: (context, jobProvider, child) {

@@ -280,7 +280,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
 
               // ✅ Navigate to Skills page (which then goes to Experience)
               // Note: You might want to navigate to Skills page instead of ExperiencePage directly
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => Skills(

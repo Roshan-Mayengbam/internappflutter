@@ -186,7 +186,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       print("Project Description: ${userProject.projectDescription}");
     }
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => UploadScreen(userProject: userProject),

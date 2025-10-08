@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,6 +28,24 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   void initState() {
     super.initState();
     fetchStudentDetails();
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const Page2()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
   }
 
   Future<void> fetchStudentDetails() async {
@@ -359,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                   size: 25,
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  _signOut(context);
                 },
               ),
             ),

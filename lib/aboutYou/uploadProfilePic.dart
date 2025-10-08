@@ -198,7 +198,7 @@ class _UploadScreenState extends State<UploadScreen> {
               print('Preferences: ${uploadResume.preferences}');
               print('---------------------------');
 
-              Navigator.of(context).push(
+              Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) {
                     return TagPage(
