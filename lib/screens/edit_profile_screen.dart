@@ -14,7 +14,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final String baseUrl = "http://10.164.216.157:3000";
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
   late final String profilePicUrl;
 
   // controllers

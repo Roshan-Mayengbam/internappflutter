@@ -59,7 +59,8 @@ class _CarddetailsState extends State<Carddetails> {
   String _errorMessage = '';
   bool _isApplied = false; // Add this
   bool _isLoading = false; // Add this
-  static const String baseUrl = 'http://10.164.216.157:3000';
+  static const String baseUrl =
+      'https://hyrup-730899264601.asia-south1.run.app';
   Future<void> applyJob(String jobId, String jobType) async {
     print("🔄 Starting job application...");
     print("📋 Job ID: $jobId");

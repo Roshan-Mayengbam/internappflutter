@@ -18,7 +18,7 @@ class ProfileScreenPage extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreenPage> {
   Map<String, dynamic>? userData;
   final User? user = FirebaseAuth.instance.currentUser;
-  final String baseUrl = "http://10.164.216.157:3000";
+  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
   bool isLoading = false;
   String errorMessage = '';
 
@@ -47,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
       String uid = user.uid;
       String? idToken = await user.getIdToken();
-      print("🔑 ID Token: $idToken");
+
       if (idToken == null) {
         setState(() {
           errorMessage = "Could not get authentication token";
