@@ -9,10 +9,10 @@ class CustomCarouselSection extends StatelessWidget {
   final List<String> filters;
   final String selectedFilter;
   final Function(String) onFilterTap;
-  final Function(String) onCarouselTap;
   final bool statusPage;
   final List<Map<String, dynamic>> items;
   final VoidCallback? onViewMore;
+  final Function(Map<String, dynamic>)? onItemTap;
 
   const CustomCarouselSection({
     super.key,
@@ -21,10 +21,11 @@ class CustomCarouselSection extends StatelessWidget {
     required this.filters,
     required this.selectedFilter,
     required this.onFilterTap,
-    required this.onCarouselTap,
     required this.items,
     this.statusPage = false,
     this.onViewMore,
+    this.onItemTap,
+    required Null Function(String p1) onCarouselTap,
   });
 
   @override
@@ -103,10 +104,14 @@ class CustomCarouselSection extends StatelessWidget {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-                return GestureDetector(
-                  onTap: () => onCarouselTap(item["jobTitle"]),
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (onItemTap != null) {
+                        onItemTap!(item);
+                      }
+                    },
                     child: (statusPage)
                         ? CarouselCard(
                             title: item["jobTitle"],

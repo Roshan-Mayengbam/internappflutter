@@ -16,12 +16,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _hasShownError = false;
 
   // Convert API Job to display format
+  // ✅ FIXED VERSION - No more null check errors!
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
     return jobs.asMap().entries.map((entry) {
       int index = entry.key;
       Job job = entry.value;
+
       return {
         'jobTitle': job.title,
+        'id': job.id,
+        'jobType': job.jobType,
         'companyName': job.recruiter.isNotEmpty ? job.recruiter : 'Company',
         'location': job.preferences.location.isNotEmpty
             ? job.preferences.location
@@ -39,12 +43,33 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
         'jobId': job.id,
         'jobType': job.jobType,
-        'college': job.college,
-        // Add tag label and color based on job type
-        'tagLabel': job.jobType == 'on-campus' ? 'On Campus' : 'In House',
+        'college': job.college ?? 'N/A',
+        'tagLabel': job.jobType == 'on-campus'
+            ? 'On Campus'
+            : job.jobType == 'external'
+            ? 'External'
+            : 'In House',
         'tagColor': job.jobType == 'on-campus'
             ? const Color(0xFF6C63FF)
+            : job.jobType == 'external'
+            ? const Color(0xFF00BFA6)
             : const Color(0xFFFFB347),
+        'employmentType': job.employmentType,
+        'rolesAndResponsibilities':
+            job.rolesAndResponsibilities?.isNotEmpty == true
+            ? job.rolesAndResponsibilities
+            : 'Not specified',
+        'perks': job.perks?.isNotEmpty == true ? job.perks : 'Not specified',
+        'details': job.details?.isNotEmpty == true
+            ? job.details
+            : 'Not specified',
+        'noOfOpenings': job.noOfOpenings.toString(),
+        'duration': job.duration?.isNotEmpty == true
+            ? job.duration
+            : 'Not specified',
+        'skills': job.preferences.skills,
+        'mode': job.mode.isNotEmpty ? job.mode : 'Not specified',
+        'stipend': job.stipend != null ? '₹${job.stipend}' : 'Not specified',
       };
     }).toList();
   }
@@ -688,11 +713,73 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               2,
                                               displayJobs.length,
                                             )]['tagColor'],
+
+                                        // ✅ Pass all fields from displayJobs map
+                                        skills: List<String>.from(
+                                          displayJobs[_idx(
+                                                2,
+                                                displayJobs.length,
+                                              )]['skills'] ??
+                                              [],
+                                        ),
+                                        employmentType:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['employmentType'] ??
+                                            '',
+                                        rolesAndResponsibilities:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['rolesAndResponsibilities'] ??
+                                            '',
+                                        duration:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['duration'] ??
+                                            '',
+                                        stipend:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['stipend'] ??
+                                            '',
+                                        details:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['details'] ??
+                                            '',
+                                        noOfOpenings:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['noOfOpenings'] ??
+                                            '',
+                                        mode:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['mode'] ??
+                                            '',
+                                        id:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['id'] ??
+                                            '',
+                                        jobType:
+                                            displayJobs[_idx(
+                                              2,
+                                              displayJobs.length,
+                                            )]['jobType'] ??
+                                            '',
                                       ),
                                     ),
                                   ),
                                 ),
-
                                 // 2nd card
                                 Transform.scale(
                                   scale: nextScale,
@@ -749,6 +836,69 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               1,
                                               displayJobs.length,
                                             )]['tagColor'],
+
+                                        // ✅ Correct data mapping
+                                        skills: List<String>.from(
+                                          displayJobs[_idx(
+                                                1,
+                                                displayJobs.length,
+                                              )]['skills'] ??
+                                              [],
+                                        ),
+                                        employmentType:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['employmentType'] ??
+                                            '',
+                                        rolesAndResponsibilities:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['rolesAndResponsibilities'] ??
+                                            '',
+                                        duration:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['duration'] ??
+                                            '',
+                                        stipend:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['stipend'] ??
+                                            '',
+                                        details:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['details'] ??
+                                            '',
+                                        noOfOpenings:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['noOfOpenings'] ??
+                                            '',
+                                        mode:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['mode'] ??
+                                            '',
+                                        id:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['id'] ??
+                                            '',
+                                        jobType:
+                                            displayJobs[_idx(
+                                              1,
+                                              displayJobs.length,
+                                            )]['jobType'] ??
+                                            '',
                                       ),
                                     ),
                                   ),
@@ -788,8 +938,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       String jobType =
                                           displayJobs[currentIndex]['jobType'] ??
                                           'company';
-
-                                      // Pass jobId, jobType, and isLiked to the handler
                                       _handleJobAction(jobId, jobType, isLiked);
 
                                       setState(() {
@@ -848,6 +996,69 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             0,
                                             displayJobs.length,
                                           )]['tagColor'],
+
+                                      // ✅ Correct mapping
+                                      skills: List<String>.from(
+                                        displayJobs[_idx(
+                                              0,
+                                              displayJobs.length,
+                                            )]['skills'] ??
+                                            [],
+                                      ),
+                                      employmentType:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['employmentType'] ??
+                                          '',
+                                      rolesAndResponsibilities:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['rolesAndResponsibilities'] ??
+                                          '',
+                                      duration:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['duration'] ??
+                                          '',
+                                      stipend:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['stipend'] ??
+                                          '',
+                                      details:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['details'] ??
+                                          '',
+                                      noOfOpenings:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['noOfOpenings'] ??
+                                          '',
+                                      mode:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['mode'] ??
+                                          '',
+                                      id:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['id'] ??
+                                          '',
+                                      jobType:
+                                          displayJobs[_idx(
+                                            0,
+                                            displayJobs.length,
+                                          )]['jobType'] ??
+                                          '',
                                     ),
                                   ),
                                 ),
@@ -868,6 +1079,24 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   displayJobs[0]['initialColorIndex'],
                               tagLabel: displayJobs[0]['tagLabel'],
                               tagColor: displayJobs[0]['tagColor'],
+
+                              // ✅ Correct mapping
+                              skills: List<String>.from(
+                                displayJobs[0]['skills'] ?? [],
+                              ),
+                              employmentType:
+                                  displayJobs[0]['employmentType'] ?? '',
+                              rolesAndResponsibilities:
+                                  displayJobs[0]['rolesAndResponsibilities'] ??
+                                  '',
+                              duration: displayJobs[0]['duration'] ?? '',
+                              stipend: displayJobs[0]['stipend'] ?? '',
+                              details: displayJobs[0]['details'] ?? '',
+                              noOfOpenings:
+                                  displayJobs[0]['noOfOpenings'] ?? '',
+                              mode: displayJobs[0]['mode'] ?? '',
+                              id: displayJobs[0]['id'] ?? '',
+                              jobType: displayJobs[0]['jobType'] ?? '',
                             )
                           : const SizedBox.shrink(),
                     ),

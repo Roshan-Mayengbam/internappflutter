@@ -4,58 +4,94 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 // Job model to match your backend schema
+
 class Job {
   final String id;
   final String title;
   final String description;
   final String recruiter;
-  final String college;
+  final String? college;
   final String jobType;
+  final String employmentType;
+  final String? rolesAndResponsibilities;
+  final String? perks;
+  final String? details;
+  final int noOfOpenings;
+  final String? duration;
+  final String mode;
+  final int? stipend;
   final SalaryRange salaryRange;
   final Preferences preferences;
   final String? applicationLink;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool applied;
+  final List<String> skills;
 
   Job({
     required this.id,
     required this.title,
     required this.description,
     required this.recruiter,
-    required this.college,
+    this.college,
     required this.jobType,
+    required this.employmentType,
+    this.rolesAndResponsibilities,
+    this.perks,
+    this.details,
+    required this.noOfOpenings,
+    this.duration,
+    required this.mode,
+    this.stipend,
     required this.salaryRange,
     required this.preferences,
     this.applicationLink,
     required this.createdAt,
     required this.updatedAt,
+    this.applied = false,
+    this.skills = const [],
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
+    // Safely extract skills list
+    List<String> extractedSkills = [];
+    if (json['preferences']?['skills'] != null) {
+      extractedSkills = (json['preferences']['skills'] as List)
+          .map(
+            (skill) =>
+                skill is Map ? skill['type'].toString() : skill.toString(),
+          )
+          .toList();
+    }
+
     return Job(
       id: json['_id'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      recruiter: json['recruiter'] ?? '',
-      college: json['college'] ?? '',
-      jobType: json['jobType'] ?? 'company',
+      recruiter: json['recruiter']?.toString() ?? '',
+      college: json['college'],
+      jobType: json['jobType'] ?? 'company', // ✅ explicitly mapped
+      employmentType: json['employmentType'] ?? 'full-time',
+      rolesAndResponsibilities: json['rolesAndResponsibilities'],
+      perks: json['perks'],
+      details: json['details'],
+      noOfOpenings: (json['noOfOpenings'] is int)
+          ? json['noOfOpenings']
+          : int.tryParse(json['noOfOpenings'].toString()) ?? 1,
+      duration: json['duration'],
+      mode: json['mode'] ?? 'on-site',
+      stipend: json['stipend'] != null
+          ? int.tryParse(json['stipend'].toString())
+          : null,
       salaryRange: SalaryRange.fromJson(json['salaryRange'] ?? {}),
       preferences: Preferences.fromJson(json['preferences'] ?? {}),
       applicationLink: json['applicationLink'],
-      createdAt: DateTime.parse(
-        json['createdAt'] ?? DateTime.now().toIso8601String(),
-      ),
-      updatedAt: DateTime.parse(
-        json['updatedAt'] ?? DateTime.now().toIso8601String(),
-      ),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      applied: json['applied'] ?? false,
+      skills: extractedSkills,
     );
   }
-
-  // get jobType => null;
-
-  // get applicationLink => null;
-
-  // get college => null;
 
   Map<String, dynamic> toJson() {
     return {
@@ -64,31 +100,23 @@ class Job {
       'description': description,
       'recruiter': recruiter,
       'college': college,
-      'jobType': jobType,
+      'jobType': jobType, // ✅ included explicitly
+      'employmentType': employmentType,
+      'rolesAndResponsibilities': rolesAndResponsibilities,
+      'perks': perks,
+      'details': details,
+      'noOfOpenings': noOfOpenings,
+      'duration': duration,
+      'mode': mode,
+      'stipend': stipend,
       'salaryRange': salaryRange.toJson(),
       'preferences': preferences.toJson(),
       'applicationLink': applicationLink,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'applied': applied,
+      'skills': skills,
     };
-  }
-}
-
-class SalaryRange {
-  final double min;
-  final double max;
-
-  SalaryRange({required this.min, required this.max});
-
-  factory SalaryRange.fromJson(Map<String, dynamic> json) {
-    return SalaryRange(
-      min: (json['min'] ?? 0).toDouble(),
-      max: (json['max'] ?? 0).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'min': min, 'max': max};
   }
 }
 
@@ -106,9 +134,22 @@ class Preferences {
   });
 
   factory Preferences.fromJson(Map<String, dynamic> json) {
+    // Extract skills array safely
+    List<String> extractedSkills = [];
+    if (json['skills'] != null) {
+      extractedSkills = (json['skills'] as List)
+          .map(
+            (skill) =>
+                skill is Map ? skill['type'].toString() : skill.toString(),
+          )
+          .toList();
+    }
+
     return Preferences(
-      skills: List<String>.from(json['skills'] ?? []),
-      minExperience: json['minExperience'] ?? 0,
+      skills: extractedSkills,
+      minExperience: (json['minExperience'] is int)
+          ? json['minExperience']
+          : int.tryParse(json['minExperience']?.toString() ?? '0') ?? 0,
       education: json['education'] ?? '',
       location: json['location'] ?? '',
     );
@@ -116,7 +157,7 @@ class Preferences {
 
   Map<String, dynamic> toJson() {
     return {
-      'skills': skills,
+      'skills': skills.map((s) => {'type': s}).toList(),
       'minExperience': minExperience,
       'education': education,
       'location': location,
@@ -124,9 +165,33 @@ class Preferences {
   }
 }
 
+class SalaryRange {
+  final double min;
+  final double max;
+
+  SalaryRange({required this.min, required this.max});
+
+  factory SalaryRange.fromJson(Map<String, dynamic> json) {
+    return SalaryRange(
+      min: _toDouble(json['min']),
+      max: _toDouble(json['max']),
+    );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'min': min, 'max': max};
+  }
+}
+
 class JobProvider with ChangeNotifier {
-  static const String baseUrl =
-      'https://hyrup-730899264601.asia-south1.run.app';
+  static const String baseUrl = 'http://10.164.216.157:3000';
 
   List<Job> _jobs = [];
   bool _isLoading = false;
@@ -203,6 +268,7 @@ class JobProvider with ChangeNotifier {
       // Process opportunities response
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
+        print(responseData);
 
         if (responseData['success'] == true) {
           final List<dynamic> opportunitiesData =
@@ -229,6 +295,7 @@ class JobProvider with ChangeNotifier {
       // Process recruiter jobs response
       if (response2.statusCode == 200) {
         final Map<String, dynamic> responseData2 = json.decode(response2.body);
+        print(responseData2);
 
         if (responseData2['success'] == true) {
           final List<dynamic> recruiterJobsData =

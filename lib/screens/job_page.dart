@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
-import 'package:internappflutter/core/components/custom_search_field.dart';
-import 'package:internappflutter/screens/hackathon_details.dart';
-import 'package:internappflutter/screens/job_details_screen.dart';
-
-import '../core/components/custom_app_bar.dart';
+import 'package:internappflutter/home/cardDetails.dart';
+import 'package:internappflutter/models/jobs.dart';
+import 'package:provider/provider.dart';
 import '../core/components/jobs_page/custom_carousel_section.dart';
-import '../core/components/jobs_page/filter_tag.dart';
-import '../core/components/jobs_page/job_carousel_card.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
@@ -29,110 +24,6 @@ class _JobPageState extends State<JobPage> {
 
   String selectedJobFilter = 'Featured';
 
-  final List<Map<String, dynamic>> jobs = const [
-    {
-      'jobTitle': 'Senior Full-Stack Developer',
-      'companyName': 'Innovate Solutions Inc.',
-      'experienceLevel': '5+ years',
-      'description':
-          'Develop and maintain web applications using the MERN stack.',
-      'isVerified': true,
-      'location': 'San Francisco',
-      'tags': ['REMOTE', 'FULL-TIME', 'TECH'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Product Manager',
-      'companyName': 'Apex Innovations',
-      'experienceLevel': '3-5 years',
-      'description': 'Lead product development from ideation to launch.',
-      'isVerified': false,
-      'location': 'New York',
-      'tags': ['PRODUCT', 'AGILE', 'FINTECH'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Data Scientist',
-      'companyName': 'DataCraft Analytics',
-      'experienceLevel': '2-4 years',
-      'description': 'Analyze large datasets to provide actionable insights.',
-      'isVerified': true,
-      'location': 'Boston',
-      'tags': ['DATA', 'AI/ML', 'HEALTHCARE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Marketing Specialist',
-      'companyName': 'Growth Hub Agency',
-      'experienceLevel': '1-3 years',
-      'description': 'Develop and execute digital marketing campaigns.',
-      'isVerified': true,
-      'location': 'Remote',
-      'tags': ['MARKETING', 'REMOTE', 'DIGITAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'DevOps Engineer',
-      'companyName': 'CloudSphere Tech',
-      'experienceLevel': '4-6 years',
-      'description': 'Manage and optimize cloud infrastructure on AWS.',
-      'isVerified': true,
-      'location': 'Seattle',
-      'tags': ['DEVOPS', 'CLOUD', 'AWS'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'UI/UX Designer',
-      'companyName': 'Creative Minds Studio',
-      'experienceLevel': '0-2 years',
-      'description': 'Create intuitive and beautiful user interfaces.',
-      'isVerified': false,
-      'location': 'Austin',
-      'tags': ['DESIGN', 'UX/UI', 'STARTUP'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Mobile App Developer',
-      'companyName': 'Appify Solutions',
-      'experienceLevel': '2-3 years',
-      'description': 'Build cross-platform mobile applications with Flutter.',
-      'isVerified': true,
-      'location': 'Toronto',
-      'tags': ['MOBILE', 'FLUTTER', 'CROSS-PLATFORM'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Cybersecurity Analyst',
-      'companyName': 'SecureNet Systems',
-      'experienceLevel': '3-5 years',
-      'description': 'Protect company data and systems from threats.',
-      'isVerified': true,
-      'location': 'Washington D.C.',
-      'tags': ['SECURITY', 'CYBER', 'GOVERNMENT'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Game Developer',
-      'companyName': 'Pixel Playground',
-      'experienceLevel': '1-4 years',
-      'description': 'Design and develop engaging video games.',
-      'isVerified': false,
-      'location': 'Los Angeles',
-      'tags': ['GAMING', 'UNITY', 'CREATIVE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'HR Generalist',
-      'companyName': 'People First Corp.',
-      'experienceLevel': '2-5 years',
-      'description': 'Handle all aspects of human resources operations.',
-      'isVerified': true,
-      'location': 'Chicago',
-      'tags': ['HR', 'CORPORATE', 'BUSINESS'],
-      'applied': false,
-    },
-  ];
-
   final List<String> hackathonFilters = [
     'Featured',
     'Upcoming',
@@ -142,6 +33,39 @@ class _JobPageState extends State<JobPage> {
   ];
 
   String selectedHackathonFilter = 'Upcoming';
+
+  List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
+    return jobs.asMap().entries.map((entry) {
+      int index = entry.key;
+      Job job = entry.value;
+      return {
+        'jobTitle': job.title,
+        'companyName': job.recruiter.isNotEmpty ? job.recruiter : 'Company',
+        'location': job.preferences.location.isNotEmpty
+            ? job.preferences.location
+            : 'Location not specified',
+        'experienceLevel': job.preferences.minExperience > 0
+            ? '${job.preferences.minExperience}+ years'
+            : 'Entry level',
+        'requirements': job.preferences.skills.isNotEmpty
+            ? job.preferences.skills
+            : ['Skills not specified'],
+        'websiteUrl': job.applicationLink ?? 'Apply via app',
+        'initialColorIndex': index % 3,
+        'description': job.description,
+        'salaryRange':
+            '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
+        'jobId': job.id,
+        'jobType': job.jobType,
+        'college': job.college,
+        'applied': job.applied ?? false, // ✅ Add this line
+        'tagLabel': job.jobType == 'on-campus' ? 'On Campus' : 'In House',
+        'tagColor': job.jobType == 'on-campus'
+            ? const Color(0xFF6C63FF)
+            : const Color(0xFFFFB347),
+      };
+    }).toList();
+  }
 
   final List<Map<String, dynamic>> hackathons = const [
     {
@@ -188,151 +112,163 @@ class _JobPageState extends State<JobPage> {
       'tags': ['GAMING', 'DEVELOPMENT', 'VIRTUAL'],
       'applied': false,
     },
-    {
-      'jobTitle': 'Cyber Defense Marathon',
-      'companyName': 'Secure Future Foundation',
-      'experienceLevel': 'Undergraduates',
-      'location': 'Washington D.C.',
-      'date': 'December 13-15, 2025',
-      'theme': 'Build tools to combat cyber threats and protect data.',
-      'prizes': ['\$6,000 Cash', 'Internships with Government Agencies'],
-      'tags': ['CYBERSECURITY', 'SECURITY', 'IN-PERSON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Sustainable Techathon',
-      'companyName': 'Green Earth Alliance',
-      'experienceLevel': 'Undergraduates',
-      'location': 'Remote',
-      'date': 'January 10-12, 2026',
-      'theme': 'Developing sustainable and eco-friendly technology.',
-      'prizes': ['\$4,000 Cash', 'Featured on Tech Blog'],
-      'tags': ['SUSTAINABILITY', 'ENVIRONMENT', 'REMOTE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Data Science & Machine Learning Challenge',
-      'companyName': 'Data Guild',
-      'location': 'Seattle',
-      'experienceLevel': 'Undergraduates',
-      'date': 'January 24-26, 2026',
-      'theme': 'Solve complex real-world problems with data.',
-      'prizes': ['Job Offer', 'Trip to Tech Conference'],
-      'tags': ['DATA SCIENCE', 'ML', 'IN-PERSON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'UX/UI Design Sprint',
-      'companyName': 'Design Masters',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'February 7-9, 2026',
-      'theme': 'Designing intuitive user experiences and interfaces.',
-      'prizes': ['Portfolio Review', 'Design Tool Subscriptions'],
-      'tags': ['DESIGN', 'UX/UI', 'VIRTUAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Open Source Contribution Weekend',
-      'companyName': 'Community Coders',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'February 21-23, 2026',
-      'theme': 'Contribute to popular open-source projects.',
-      'prizes': ['Special Mentions', 'Swag'],
-      'tags': ['OPEN SOURCE', 'COMMUNITY', 'REMOTE'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Robotics Rumble',
-      'companyName': 'RoboTech Labs',
-      'location': 'Silicon Valley',
-      'experienceLevel': 'Tech Enthusiasts',
-      'date': 'March 7-9, 2026',
-      'theme': 'Build and program a robot to complete a challenge.',
-      'prizes': ['\$8,000 Cash', 'Robotics Kit'],
-      'tags': ['ROBOTICS', 'ENGINEERING', 'IN-PERSON'],
-      'applied': false,
-    },
   ];
-
-  final TextEditingController _searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    // Fetch jobs when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<JobProvider>().fetchJobs();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // We get the height of the screen to make the carousels responsive.
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: EdgeInsetsGeometry.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 50),
-            // Custom App Bar
-            CustomAppBar(
-              searchController: _searchController,
-              onSearchSubmit: (query) {
-                print("Search submitted: $query");
-                // Your search logic
-              },
-              onChatPressed: () {
-                print("Chat button pressed");
-              },
-              onNotificationPressed: () {
-                print("Notification button pressed");
-              },
-            ),
-            const SizedBox(height: 30),
-            // Top Job Picks Section
-            CustomCarouselSection(
-              title: 'Top job picks for you',
-              subtitle:
-                  'Based on your profile, preference and activity like applies, searches and saves',
-              filters: jobFilters,
-              selectedFilter: selectedJobFilter,
-              onFilterTap: (filter) {
-                setState(() {
-                  selectedJobFilter = filter;
-                });
-              },
-              onViewMore: () {},
-              statusPage: true,
-              items: jobs,
-              onCarouselTap: (String p1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const JobDetailsScreen(),
+      body: Consumer<JobProvider>(
+        builder: (context, jobProvider, child) {
+          // Show loading indicator
+          if (jobProvider.isLoading && jobProvider.jobs.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Show error message
+          if (jobProvider.errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    jobProvider.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red),
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 30),
-            CustomCarouselSection(
-              title: 'Hackathon',
-              subtitle:
-                  'Based on your profile, preference and activity like applies, searches and saves',
-              filters: hackathonFilters,
-              selectedFilter: selectedHackathonFilter,
-              onFilterTap: (filter) {
-                setState(() {
-                  selectedHackathonFilter = filter;
-                });
-              },
-              onViewMore: () {},
-              items: hackathons,
-              onCarouselTap: (String p1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HackathonDetailsScreen(),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => jobProvider.fetchJobs(),
+                    child: const Text('Retry'),
                   ),
-                );
-              },
+                ],
+              ),
+            );
+          }
+
+          // Convert Job objects to Map format using the helper function
+          final jobsList = jobsToDisplayFormat(jobProvider.jobs);
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 50),
+
+                // Top Job Picks Section
+                CustomCarouselSection(
+                  title: 'Top job picks for you',
+                  subtitle:
+                      'Based on your profile, preference and activity like applies, searches and saves',
+                  filters: jobFilters,
+                  selectedFilter: selectedJobFilter,
+                  onFilterTap: (filter) {
+                    setState(() {
+                      selectedJobFilter = filter;
+                    });
+                  },
+                  onViewMore: () {
+                    print("Pressed View more in jobs display");
+                  },
+                  statusPage: true,
+                  items: jobsList,
+                  onItemTap: (job) {
+                    // Add this callback to handle navigation
+                    print("---- Navigating to Carddetails ----");
+                    print("Job Title: ${job['jobTitle']}");
+                    print("Company Name: ${job['companyName']}");
+                    print("Location: ${job['location']}");
+                    print("Website URL: ${job['websiteUrl']}");
+                    print("Job Type: ${job['jobType']}");
+                    print("-----------------------------------");
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => Carddetails(
+                          jobTitle: job['jobTitle'] ?? '',
+                          companyName: job['companyName'] ?? '',
+                          location: job['location'] ?? '',
+                          experienceLevel: job['experienceLevel'] ?? '',
+                          requirements: job['requirements'] ?? [],
+                          websiteUrl: job['websiteUrl'] ?? '',
+                          tagLabel: job['tagLabel'],
+                          employmentType: job['jobType'] ?? '',
+                          rolesAndResponsibilities: job['description'] ?? '',
+                          duration:
+                              jobProvider.jobs
+                                  .firstWhere((j) => j.id == job['jobId'])
+                                  .duration ??
+                              'Not specified',
+                          stipend:
+                              jobProvider.jobs
+                                  .firstWhere((j) => j.id == job['jobId'])
+                                  .stipend
+                                  ?.toString() ??
+                              'Not specified',
+                          details: job['description'] ?? '',
+                          noOfOpenings: jobProvider.jobs
+                              .firstWhere((j) => j.id == job['jobId'])
+                              .noOfOpenings
+                              .toString(),
+                          mode: jobProvider.jobs
+                              .firstWhere((j) => j.id == job['jobId'])
+                              .mode,
+                          skills: job['requirements'] ?? [],
+                          id: job['jobId'] ?? '',
+                          jobType: job['jobType'] ?? '',
+                        ),
+                      ),
+                    );
+                  },
+                  onCarouselTap: (String) {},
+                ),
+                const SizedBox(height: 30),
+                CustomCarouselSection(
+                  title: 'Hackathon',
+                  subtitle: 'Based on your profile...',
+                  filters: hackathonFilters,
+                  selectedFilter: selectedHackathonFilter,
+                  onFilterTap: (filter) {
+                    setState(() {
+                      selectedHackathonFilter = filter;
+                    });
+                  },
+                  onViewMore: () {
+                    print("Pressed View more in hackathons");
+                  },
+                  items: hackathons,
+                  onCarouselTap: (String) {}, // Add hackathon data here
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
+
+  // You can add hackathons section separately if you have that data
+                // CustomCarouselSection(
+                //   title: 'Hackathon',
+                //   subtitle: 'Based on your profile...',
+                //   filters: hackathonFilters,
+                //   selectedFilter: selectedHackathonFilter,
+                //   onFilterTap: (filter) {
+                //     setState(() {
+                //       selectedHackathonFilter = filter;
+                //     });
+                //   },
+                //   onViewMore: () {
+                //     print("Pressed View more in hackathons");
+                //   },
+                //   items: [], // Add hackathon data here
+                // ),

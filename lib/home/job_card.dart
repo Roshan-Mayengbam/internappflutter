@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 
 class JobCard extends StatefulWidget {
+  final String id;
   final String jobTitle;
   final String companyName;
   final String location;
@@ -11,6 +12,15 @@ class JobCard extends StatefulWidget {
   final int initialColorIndex;
   final String? tagLabel;
   final Color? tagColor;
+  final List<String> skills;
+  final String employmentType;
+  final String rolesAndResponsibilities;
+  final String duration;
+  final String stipend;
+  final String details;
+  final String noOfOpenings;
+  final String mode;
+  final String jobType;
 
   const JobCard({
     super.key,
@@ -23,6 +33,16 @@ class JobCard extends StatefulWidget {
     required this.initialColorIndex,
     this.tagLabel,
     this.tagColor,
+    required this.skills,
+    required this.employmentType,
+    required this.rolesAndResponsibilities,
+    required this.duration,
+    required this.stipend,
+    required this.details,
+    required this.noOfOpenings,
+    required this.mode,
+    required this.id,
+    required this.jobType,
   });
 
   @override
@@ -30,25 +50,16 @@ class JobCard extends StatefulWidget {
 }
 
 class _JobCardState extends State<JobCard> {
-  static const List<Color> cardColors = [
-    Color.fromRGBO(230, 211, 252, 1),
-    Color.fromRGBO(229, 223, 156, 1),
-    Color.fromRGBO(184, 209, 230, 1),
-  ];
-
   late int colorIndex;
   bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    colorIndex = widget.initialColorIndex % cardColors.length;
   }
 
   void swapColours() {
-    setState(() {
-      colorIndex = (colorIndex + 1) % cardColors.length;
-    });
+    setState(() {});
   }
 
   void toggleFavourite() {
@@ -61,53 +72,58 @@ class _JobCardState extends State<JobCard> {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: swapColours,
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Shadow card
-            Positioned(
-              top: 16,
-              left: 16,
-              right: -4,
-              bottom: -4,
-              child: Card(
-                elevation: 0,
-                color: Colors.black.withOpacity(1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  side: const BorderSide(color: Colors.black, width: 1),
-                ),
-              ),
+      child: Stack(
+        children: [
+          // 🔹 Remove the shadow card completely OR keep it invisible if needed
+          // (removed the Positioned black card)
+
+          // Main card (kept same border and layout)
+          Card(
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            color: const Color.fromRGBO(230, 211, 252, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-            // Main card
-            Card(
-              elevation: 12,
-              shadowColor: Colors.black.withOpacity(1),
-              color: cardColors[colorIndex],
-              shape: RoundedRectangleBorder(
+            child: Container(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: Colors.black, width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPosterCard(),
-                    const SizedBox(height: 12),
-                    _buildJobTitleSection(),
-                    const SizedBox(height: 12),
-                    _buildInfoSection(),
-                  ],
+                border: const Border(
+                  top: BorderSide(
+                    color: Colors.black,
+                    width: 2, // slightly thinner top
+                  ),
+                  left: BorderSide(
+                    color: Colors.black,
+                    width: 2, // slightly thinner left
+                  ),
+                  right: BorderSide(
+                    color: Colors.black,
+                    width: 5, // thicker right
+                  ),
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 4, // thicker bottom
+                  ),
                 ),
               ),
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPosterCard(),
+                  const SizedBox(height: 12),
+                  _buildJobTitleSection(),
+                  const SizedBox(height: 12),
+                  _buildInfoSection(),
+                ],
+              ),
             ),
-            // Tag positioned on top of the card
-            if (widget.tagLabel != null) _buildTag(),
-          ],
-        ),
+          ),
+
+          // Keep your tag on top if present
+          if (widget.tagLabel != null) _buildTag(),
+        ],
       ),
     );
   }
@@ -132,7 +148,7 @@ class _JobCardState extends State<JobCard> {
       child: Image.asset(
         imagePath,
         height: 50,
-        width: 140,
+        width: 150,
         fit: BoxFit.contain,
       ),
     );
@@ -141,6 +157,26 @@ class _JobCardState extends State<JobCard> {
   Widget _buildPosterCard() {
     return InkWell(
       onTap: () {
+        print("---- Navigating to Carddetails ----");
+        print("Job Title: ${widget.jobTitle}");
+        print("Company Name: ${widget.companyName}");
+        print("Location: ${widget.location}");
+        print("Experience Level: ${widget.experienceLevel}");
+        print("Requirements: ${widget.requirements}");
+        print("Website URL: ${widget.websiteUrl}");
+        print("Tag Label: ${widget.tagLabel}");
+        print("Employment Type: ${widget.employmentType}");
+        print("Roles & Responsibilities: ${widget.rolesAndResponsibilities}");
+        print("Duration: ${widget.duration}");
+        print("Stipend: ${widget.stipend}");
+        print("Details: ${widget.details}");
+        print("No. of Openings: ${widget.noOfOpenings}");
+        print("Mode: ${widget.mode}");
+        print("Skills: ${widget.skills}");
+        print("id: ${widget.id}");
+        print("JobType: ${widget.jobType}");
+        print("-----------------------------------");
+
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => Carddetails(
@@ -150,6 +186,17 @@ class _JobCardState extends State<JobCard> {
               experienceLevel: widget.experienceLevel,
               requirements: widget.requirements,
               websiteUrl: widget.websiteUrl,
+              tagLabel: widget.tagLabel,
+              employmentType: widget.employmentType,
+              rolesAndResponsibilities: widget.rolesAndResponsibilities,
+              duration: widget.duration,
+              stipend: widget.stipend as String,
+              details: widget.details,
+              noOfOpenings: widget.noOfOpenings as String,
+              mode: widget.mode,
+              skills: widget.skills,
+              id: widget.id,
+              jobType: widget.jobType,
             ),
           ),
         );
@@ -180,7 +227,7 @@ class _JobCardState extends State<JobCard> {
 
             // Scrollable requirements
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 100),
+              constraints: const BoxConstraints(maxHeight: 200),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,28 +353,6 @@ class _JobCardState extends State<JobCard> {
             ),
 
             // Favorite button
-            InkWell(
-              onTap: toggleFavourite,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(0, 5),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                  ],
-                  color: Colors.pink[200],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 1),
-                ),
-                child: const Icon(Icons.favorite, color: Colors.pink, size: 24),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
