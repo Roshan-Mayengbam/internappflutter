@@ -317,6 +317,7 @@ class _SavedState extends State<Saved> {
                         print("Location: ${job['location']}");
                         print("Website URL: ${job['websiteUrl']}");
                         print("Job Type: ${job['jobType']}");
+                        print("tagLabel: ${job['tagLabel']}");
                         print("-----------------------------------");
 
                         Navigator.of(context).push(
@@ -334,7 +335,8 @@ class _SavedState extends State<Saved> {
                                   : <String>[],
                               websiteUrl: job['websiteUrl'] ?? '',
                               tagLabel: job['tagLabel'],
-                              employmentType: job['jobType'] ?? 'Not specified',
+                              employmentType:
+                                  job['employmentType'] ?? 'Not specified',
                               rolesAndResponsibilities:
                                   job['description'] ??
                                   'No description available',
@@ -377,6 +379,54 @@ class _SavedState extends State<Saved> {
                         );
                       },
                       onCarouselTap: (String p1) {},
+                      onItemTap: (job) {
+                        print("---- Navigating to Carddetails ----");
+                        print("Job Title: ${job['jobTitle']}");
+                        print("Company Name: ${job['companyName']}");
+                        print("Location: ${job['location']}");
+                        print("Website URL: ${job['websiteUrl']}");
+                        print("Job Type: ${job['jobType']}");
+                        print("tagLabel: ${job['tagLabel']}");
+                        print("-----------------------------------");
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Carddetails(
+                              jobTitle: job['jobTitle'] ?? 'No Title',
+                              companyName:
+                                  job['companyName'] ?? 'Unknown Company',
+                              location:
+                                  job['location'] ?? 'Location not specified',
+                              experienceLevel:
+                                  job['experienceLevel'] ?? 'Not specified',
+                              requirements: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              websiteUrl: job['websiteUrl'] ?? '',
+                              tagLabel: job['tagLabel'],
+                              employmentType:
+                                  job['employmentType'] ?? 'Not specified',
+                              rolesAndResponsibilities:
+                                  job['description'] ??
+                                  'No description available',
+                              duration: job['duration'] ?? 'Not specified',
+                              stipend:
+                                  job['stipend']?.toString() ?? 'Not specified',
+                              details:
+                                  job['description'] ?? 'No details available',
+                              noOfOpenings:
+                                  job['noOfOpenings']?.toString() ??
+                                  'Not specified',
+                              mode: job['mode'] ?? 'Not specified',
+                              skills: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              id: job['jobId'] ?? '',
+                              jobType: job['jobType'] ?? 'Not specified',
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

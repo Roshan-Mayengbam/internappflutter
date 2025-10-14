@@ -185,19 +185,27 @@ class _CarddetailsState extends State<Carddetails> {
                   // Company Name with Badge
                   Row(
                     children: [
-                      Text(
-                        widget.companyName,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.verified, color: Colors.blue[400], size: 20),
+                      // Expanded(
+
+                      //   child: Text(
+                      //     widget.companyName.isNotEmpty
+                      //         ? widget.companyName
+                      //         : 'Company',
+                      //     style: const TextStyle(
+                      //       fontSize: 16,
+                      //       fontWeight: FontWeight.w600,
+                      //     ),
+                      //     overflow:
+                      //         TextOverflow.ellipsis, // Adds "..." if too long
+                      //   ),
+                      // ),
+                      // const SizedBox(width: 8),
+                      // Icon(Icons.verified, color: Colors.blue[400], size: 20),
                       const Spacer(),
                       _buildTag(),
                     ],
                   ),
+
                   const SizedBox(height: 12),
 
                   // Job Title
@@ -209,7 +217,7 @@ class _CarddetailsState extends State<Carddetails> {
 
                   // Location and Time
                   Text(
-                    'Coimbatore, ${widget.location} · 3 weeks ago · Over 100 people clicked apply',
+                    '${widget.location}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 16),
@@ -972,7 +980,7 @@ class _CarddetailsState extends State<Carddetails> {
 
                   // About Company
                   const Text(
-                    'About Lumel Technologies :',
+                    'About:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),

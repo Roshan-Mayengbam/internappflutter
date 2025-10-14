@@ -52,6 +52,7 @@ class JobCard extends StatefulWidget {
 class _JobCardState extends State<JobCard> {
   late int colorIndex;
   bool isFavorite = false;
+  bool _showAllRequirements = false;
 
   @override
   void initState() {
@@ -158,6 +159,27 @@ class _JobCardState extends State<JobCard> {
   Widget _buildPosterCard(double screenWidth, double screenHeight) {
     return InkWell(
       onTap: () {
+        // Print all the values before navigation
+        print('--- Job Details ---');
+        print('Job Title: ${widget.jobTitle}');
+        print('Company Name: ${widget.companyName}');
+        print('Location: ${widget.location}');
+        print('Experience Level: ${widget.experienceLevel}');
+        print('Requirements: ${widget.requirements}');
+        print('Website URL: ${widget.websiteUrl}');
+        print('Tag Label: ${widget.tagLabel}');
+        print('Employment Type: ${widget.employmentType}');
+        print('Roles & Responsibilities: ${widget.rolesAndResponsibilities}');
+        print('Duration: ${widget.duration}');
+        print('Stipend: ${widget.stipend}');
+        print('Details: ${widget.details}');
+        print('No. of Openings: ${widget.noOfOpenings}');
+        print('Mode: ${widget.mode}');
+        print('Skills: ${widget.skills}');
+        print('ID: ${widget.id}');
+        print('Job Type: ${widget.jobType}');
+        print('-------------------');
+
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => Carddetails(
@@ -182,6 +204,7 @@ class _JobCardState extends State<JobCard> {
           ),
         );
       },
+
       child: Container(
         padding: EdgeInsets.all(screenWidth * 0.04),
         decoration: BoxDecoration(
@@ -212,9 +235,55 @@ class _JobCardState extends State<JobCard> {
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.requirements
-                      .map((req) => _buildRequirementRow(req, screenWidth))
-                      .toList(),
+                  children: [
+                    // Show only first 3 requirements
+                    ...widget.requirements
+                        .take(3)
+                        .map((req) => _buildRequirementRow(req, screenWidth))
+                        .toList(),
+
+                    // Show "Show more..." button if there are more than 3 requirements
+                    if (widget.requirements.length > 3)
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => Carddetails(
+                                jobTitle: widget.jobTitle,
+                                companyName: widget.companyName,
+                                location: widget.location,
+                                experienceLevel: widget.experienceLevel,
+                                requirements: widget.requirements,
+                                websiteUrl: widget.websiteUrl,
+                                tagLabel: widget.tagLabel,
+                                employmentType: widget.employmentType,
+                                rolesAndResponsibilities:
+                                    widget.rolesAndResponsibilities,
+                                duration: widget.duration,
+                                stipend: widget.stipend as String,
+                                details: widget.details,
+                                noOfOpenings: widget.noOfOpenings as String,
+                                mode: widget.mode,
+                                skills: widget.skills,
+                                id: widget.id,
+                                jobType: widget.jobType,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 0.0),
+                          child: Text(
+                            'Show more...',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
