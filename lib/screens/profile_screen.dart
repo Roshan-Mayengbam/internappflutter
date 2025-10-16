@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
+import 'package:internappflutter/skillVerify/SkillVerification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreenPage extends StatefulWidget {
@@ -321,14 +322,40 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
                       // Skills section
                       if (userSkills.isNotEmpty) ...[
-                        Text(
-                          'Skills',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.jost().fontFamily,
-                            color: Color(0xFF100739),
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Skills',
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: GoogleFonts.jost().fontFamily,
+                                color: Color(0xFF100739),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SkillVerification(
+                                      userSkills: userSkills,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Verify Skills",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: GoogleFonts.jost().fontFamily,
+                                  color: Color(0xFF100739),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 10),
                         Wrap(

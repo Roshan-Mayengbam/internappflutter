@@ -340,7 +340,7 @@ class _TagPageState extends State<TagPage> {
 
     for (String skill in skills) {
       skillsMap[skill] = {
-        "level": "mid", // Default level, you can modify this logic
+        "level": "unverified", // Default level, you can modify this logic
       };
     }
 

@@ -53,6 +53,8 @@ dependencies:
   url_launcher: ^6.3.2
   appinio_swiper: ^2.1.1
   image_picker: ^1.0.7
+  lottie: ^3.3.1
+
 
 
 
@@ -133,6 +135,9 @@ flutter:
     - assets/Union.png
     - assets/images/puzzle.png
     - assets/text.png
+    - assets/skills.json
+    - assets/animations/Stressed Woman at work.json
+    - assets/animations/Trophy animation.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

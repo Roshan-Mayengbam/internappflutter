@@ -680,9 +680,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         // Background cards configuration (creates the rotated stacked look)
                         backgroundCardCount: 2,
                         backgroundCardOffset: const Offset(
-                          40,
-                          30,
-                        ), // More offset to the right
+                          45,
+                          -40, // Moves the second card upward
+                        ),
+
                         backgroundCardScale:
                             0.85, // More dramatic size difference
                         // Swipe callback
