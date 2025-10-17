@@ -9,6 +9,7 @@ import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 import 'package:internappflutter/skillVerify/SkillVerification.dart';
+import 'package:internappflutter/skillVerify/TestStart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreenPage extends StatefulWidget {
@@ -361,12 +362,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                         Wrap(
                           spacing: 10.0,
                           runSpacing: 10.0,
-                          children: userSkills.keys
-                              .map<Widget>(
-                                (skillName) =>
-                                    _buildSkillChip(skillName, Colors.white),
-                              )
-                              .toList(),
+                          children: userSkills.entries.map<Widget>((entry) {
+                            String skillName = entry.key;
+                            String level =
+                                entry.value['level']
+                                    ?.toString()
+                                    .toLowerCase() ??
+                                'unverified';
+                            return _buildSkillChip(skillName, level);
+                          }).toList(),
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -597,25 +601,49 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
           ],
         ),
         const SizedBox(height: 10),
-        Wrap(
-          spacing: 50.0,
-          runSpacing: 35.0,
-          children: [
-            _buildSkillChip('ADOBE', const Color(0xFFFDD34F)),
-            _buildSkillChip('REACT', Colors.white),
-            _buildSkillChip('FLUTTER', const Color(0xFF96E7E5)),
-            _buildSkillChip('FIGMA', const Color(0xFF40FFB9)),
-            _buildSkillChip('TENSOR FLOW', Colors.white),
-          ],
-        ),
+        // Wrap(
+        //   spacing: 50.0,
+        //   runSpacing: 35.0,
+        //   children: [
+        //     _buildSkillChip('ADOBE', const Color(0xFFFDD34F)),
+        //     _buildSkillChip('REACT', Colors.white),
+        //     _buildSkillChip('FLUTTER', const Color(0xFF96E7E5)),
+        //     _buildSkillChip('FIGMA', const Color(0xFF40FFB9)),
+        //     _buildSkillChip('TENSOR FLOW', Colors.white),
+        //   ],
+        // ),
       ],
     );
   }
 
-  Widget _buildSkillChip(String label, Color color) {
+  Widget _buildSkillChip(String skill, String level) {
+    // Determine color based on level
+    Color chipColor;
+    switch (level.toLowerCase()) {
+      case 'beginner':
+        chipColor = const Color(0xFFFDD34F); // Yellow
+        break;
+      case 'intermediate':
+        chipColor = const Color(0xFF96E7E5); // Cyan
+        break;
+      case 'advanced':
+      case 'advance':
+        chipColor = const Color(0xFF40FFB9); // Green
+        break;
+      case 'unverified':
+      default:
+        chipColor = const Color.fromARGB(
+          255,
+          255,
+          244,
+          244,
+        ); // Light grey for unverified
+        break;
+    }
+
     return Container(
       decoration: BoxDecoration(
-        color: color, // Chip background
+        color: chipColor, // Use the level-based color
         boxShadow: const [
           // Bottom shadow
           BoxShadow(
@@ -647,18 +675,38 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
           bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
         ),
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 4,
-      ), // optional spacing
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 20,
-          fontFamily: GoogleFonts.jost().fontFamily,
-          color: const Color(0xFF1FA7E3),
-          fontWeight: FontWeight.bold,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            skill,
+            style: TextStyle(
+              fontSize: 20,
+              fontFamily: GoogleFonts.jost().fontFamily,
+              color: const Color(0xFF1FA7E3),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Optional small badge showing level
+          if (level.toLowerCase() != 'unverified')
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                level.toUpperCase()[0], // First letter B/I/A
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

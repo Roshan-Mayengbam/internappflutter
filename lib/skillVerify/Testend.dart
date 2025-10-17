@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/bottomnavbar.dart';
+import 'package:internappflutter/skillVerify/SkillVerification.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
@@ -64,7 +66,8 @@ class _TestSuccessPageState extends State<TestSuccessPage>
       final idToken = await user.getIdToken();
 
       // API endpoint - replace with your actual backend URL
-      const String apiUrl = 'https://hyrup-730899264601.asia-south1.run.app';
+      const String apiUrl =
+          'https://hyrup-730899264601.asia-south1.run.app/student/verifySkills';
 
       print('Sending request to: $apiUrl');
       print('Skill: ${widget.userskill}, Level: ${widget.userlevel}');
@@ -315,7 +318,13 @@ class _TestSuccessPageState extends State<TestSuccessPage>
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                BottomnavbarAlternative(userData: ''),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,

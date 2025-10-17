@@ -1,10 +1,14 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:internappflutter/auth/page2.dart';
+import 'package:internappflutter/chat/chatpage.dart';
+import 'package:internappflutter/chat/chatscreen.dart';
 import 'package:internappflutter/home/saved.dart';
 import 'package:provider/provider.dart';
 import 'package:internappflutter/models/jobs.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'job_card.dart' hide Job, JobProvider;
+import 'job_card.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic userData;
@@ -16,7 +20,6 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _hasShownError = false;
-  final CardSwiperController _cardController = CardSwiperController();
   late AppinioSwiperController _appinioController;
 
   // Convert API Job to display format
@@ -45,6 +48,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'salaryRange':
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
         'jobId': job.id,
+        // ignore: equal_keys_in_map
         'jobType': job.jobType,
         'college': job.college ?? 'N/A',
         'tagLabel': job.jobType == 'on-campus'
@@ -107,6 +111,24 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<JobProvider>().fetchJobs();
     });
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const Page2()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
   }
 
   void _initAnimations() {
@@ -268,9 +290,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
                 padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  Icons.chat_bubble_outline,
-                  color: Colors.black,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChatPage()),
+                    );
+                  },
+                  child: const Icon(
+                    Icons.chat_bubble_outline,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -456,7 +486,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: _retryFetchJobs,
+                            onPressed: () {
+                              _signOut(context); // call it inside a closure
+                            },
                             child: const Text('Retry'),
                           ),
                         ],

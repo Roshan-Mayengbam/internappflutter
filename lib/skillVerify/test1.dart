@@ -380,15 +380,29 @@ class _test1State extends State<test1> {
                         Positioned(
                           top: 16,
                           left: 16,
-                          child: SizedBox(
-                            width: 230,
-                            child: Text(
-                              currentQuestion['Question']?.toString() ?? '',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Jost',
-                                color: Colors.black,
+                          child: InkWell(
+                            onTap: () {
+                              print(
+                                'Question: ${currentQuestion['Question']?.toString()}',
+                              );
+                              print('Options:');
+                              for (int i = 0; i < options.length; i++) {
+                                print('  ${i + 1}. ${options[i]}');
+                              }
+                              print(
+                                'Correct Answer: ${currentQuestion['Correct']?.toString()}',
+                              );
+                            },
+                            child: SizedBox(
+                              width: 230,
+                              child: Text(
+                                currentQuestion['Question']?.toString() ?? '',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Jost',
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),

@@ -13,27 +13,38 @@ class SkillVerification extends StatefulWidget {
 
 class _SkillVerificationState extends State<SkillVerification> {
   String? selectedSkill;
+  String? selectedSkillLevel;
 
   @override
   Widget build(BuildContext context) {
-    // Extract skills from the userSkills map
-    List<String> skills = [];
+    // Extract skills from the userSkills map with their levels
+    Map<String, String> skillsWithLevels = {};
+
     if (widget.userSkills.containsKey('skills')) {
-      // If skills is a list
-      if (widget.userSkills['skills'] is List) {
-        skills = List<String>.from(widget.userSkills['skills']);
-      }
       // If skills is a map with skill names as keys
-      else if (widget.userSkills['skills'] is Map) {
-        skills = (widget.userSkills['skills'] as Map).keys
-            .map((e) => e.toString())
-            .toList();
+      if (widget.userSkills['skills'] is Map) {
+        final skillsMap = widget.userSkills['skills'] as Map;
+        skillsMap.forEach((key, value) {
+          String level = 'unverified';
+          if (value is Map && value.containsKey('level')) {
+            level = value['level'].toString();
+          }
+          skillsWithLevels[key.toString()] = level;
+        });
       }
     }
     // If skills are at the root level of userSkills map
     else {
-      skills = widget.userSkills.keys.map((e) => e.toString()).toList();
+      widget.userSkills.forEach((key, value) {
+        String level = 'unverified';
+        if (value is Map && value.containsKey('level')) {
+          level = value['level'].toString();
+        }
+        skillsWithLevels[key.toString()] = level;
+      });
     }
+
+    List<String> skills = skillsWithLevels.keys.toList();
 
     return Scaffold(
       body: Container(
@@ -91,7 +102,7 @@ class _SkillVerificationState extends State<SkillVerification> {
               style: TextStyle(fontSize: 14, color: Colors.blue),
             ),
             SizedBox(height: 24),
-            Container(
+            SizedBox(
               height: 500,
               child: skills.isEmpty
                   ? Center(
@@ -103,9 +114,9 @@ class _SkillVerificationState extends State<SkillVerification> {
                   : GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 1.5,
-                        crossAxisSpacing: 30,
-                        mainAxisSpacing: 20,
+                        childAspectRatio: 2.5,
+                        crossAxisSpacing: 70,
+                        mainAxisSpacing: 10,
                       ),
                       itemCount: skills.length,
                       shrinkWrap: true,
@@ -114,16 +125,22 @@ class _SkillVerificationState extends State<SkillVerification> {
                           text: skills[index],
                           isSelected: selectedSkill == skills[index],
                           onTap: () {
+                            setState(() {
+                              selectedSkill = skills[index];
+                              selectedSkillLevel =
+                                  skillsWithLevels[skills[index]];
+                            });
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    TestStart(selectedSkill: skills[index]),
+                                builder: (context) => TestStart(
+                                  selectedSkill: skills[index],
+                                  UserSkillLevel:
+                                      skillsWithLevels[skills[index]]!,
+                                ),
                               ),
                             );
-                            setState(() {
-                              selectedSkill = skills[index];
-                            });
                           },
                         );
                       },
@@ -152,8 +169,10 @@ class _SkillVerificationState extends State<SkillVerification> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                TestStart(selectedSkill: selectedSkill!),
+                            builder: (context) => TestStart(
+                              selectedSkill: selectedSkill!,
+                              UserSkillLevel: selectedSkillLevel!,
+                            ),
                           ),
                         );
                       },

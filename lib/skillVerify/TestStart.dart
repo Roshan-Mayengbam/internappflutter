@@ -3,7 +3,12 @@ import 'package:internappflutter/skillVerify/test1.dart';
 
 class TestStart extends StatefulWidget {
   final String selectedSkill;
-  const TestStart({super.key, required this.selectedSkill});
+  final String UserSkillLevel;
+  const TestStart({
+    super.key,
+    required this.selectedSkill,
+    required this.UserSkillLevel,
+  });
 
   @override
   State<TestStart> createState() => _TestStartState();
@@ -13,6 +18,52 @@ List<String> levels = ["Beginner", "Intermediate", "Advanced"];
 
 class _TestStartState extends State<TestStart> {
   String currentOption = levels[0];
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.UserSkillLevel);
+    print(widget.selectedSkill);
+
+    // Set default selected option based on user's current level
+    if (widget.UserSkillLevel.toLowerCase() == 'beginner') {
+      currentOption = levels[1]; // Intermediate
+    } else if (widget.UserSkillLevel.toLowerCase() == 'intermediate' ||
+        widget.UserSkillLevel.toLowerCase() == 'mid') {
+      currentOption = levels[2]; // Advanced
+    } else {
+      currentOption = levels[0]; // Beginner for unverified
+    }
+  }
+
+  // Function to check if a level should be disabled
+  bool isLevelDisabled(String level) {
+    String userLevel = widget.UserSkillLevel.toLowerCase();
+
+    // If unverified, all levels are available
+    if (userLevel == 'unverified') {
+      return false;
+    }
+
+    // If beginner, disable beginner level
+    if (userLevel == 'beginner' && level.toLowerCase() == 'beginner') {
+      return true;
+    }
+
+    // If intermediate/mid, disable beginner and intermediate levels
+    if ((userLevel == 'intermediate' || userLevel == 'mid') &&
+        (level.toLowerCase() == 'beginner' ||
+            level.toLowerCase() == 'intermediate')) {
+      return true;
+    }
+
+    // If advanced, disable all levels (they've already completed all)
+    if (userLevel == 'advanced') {
+      return true;
+    }
+
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +128,33 @@ class _TestStartState extends State<TestStart> {
                     children: [
                       SizedBox(height: 20),
 
-                      // Title Image
-                      Image.asset(
-                        'assets/text1.png',
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                      ),
+                      // Current Level Badge
+                      if (widget.UserSkillLevel.toLowerCase() != 'unverified')
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.black, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Current Level: ${widget.UserSkillLevel.toUpperCase()}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
 
                       SizedBox(height: 30),
 
@@ -104,7 +176,9 @@ class _TestStartState extends State<TestStart> {
 
                       // Level Selection Text
                       Text(
-                        'Choose your level:',
+                        widget.UserSkillLevel.toLowerCase() == 'unverified'
+                            ? 'Choose your level:'
+                            : 'Choose next level to unlock:',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -117,16 +191,21 @@ class _TestStartState extends State<TestStart> {
                       ...levels.asMap().entries.map((entry) {
                         int index = entry.key;
                         String level = entry.value;
+                        bool disabled = isLevelDisabled(level);
+
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: LevelOption(
                             level: level,
                             isSelected: currentOption == level,
-                            onTap: () {
-                              setState(() {
-                                currentOption = level;
-                              });
-                            },
+                            isDisabled: disabled,
+                            onTap: disabled
+                                ? () {} // Do nothing if disabled
+                                : () {
+                                    setState(() {
+                                      currentOption = level;
+                                    });
+                                  },
                           ),
                         );
                       }).toList(),
@@ -195,58 +274,76 @@ class _TestStartState extends State<TestStart> {
 class LevelOption extends StatelessWidget {
   final String level;
   final bool isSelected;
+  final bool isDisabled;
   final VoidCallback onTap;
 
   const LevelOption({
     Key? key,
     required this.level,
     required this.isSelected,
+    this.isDisabled = false,
     required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected ? Colors.black : Colors.transparent,
-              spreadRadius: 2,
-              blurRadius: 0,
-              offset: Offset(3, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              height: 24,
-              width: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 2),
-                color: isSelected ? Colors.black : Colors.white,
+      onTap: isDisabled ? null : onTap,
+      child: Opacity(
+        opacity: isDisabled ? 0.4 : 1.0,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: isDisabled ? Colors.grey.shade300 : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.black, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected && !isDisabled
+                    ? Colors.black
+                    : Colors.transparent,
+                spreadRadius: 2,
+                blurRadius: 0,
+                offset: Offset(3, 3),
               ),
-              child: isSelected
-                  ? Icon(Icons.check, size: 16, color: Colors.white)
-                  : null,
-            ),
-            SizedBox(width: 16),
-            Text(
-              level.toUpperCase(),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 24,
+                width: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                  color: isSelected && !isDisabled
+                      ? Colors.black
+                      : Colors.white,
+                ),
+                child: isSelected && !isDisabled
+                    ? Icon(Icons.check, size: 16, color: Colors.white)
+                    : isDisabled
+                    ? Icon(Icons.lock, size: 14, color: Colors.grey)
+                    : null,
               ),
-            ),
-          ],
+              SizedBox(width: 16),
+              Text(
+                level.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: isSelected && !isDisabled
+                      ? FontWeight.bold
+                      : FontWeight.w500,
+                  color: isDisabled ? Colors.grey.shade600 : Colors.black,
+                ),
+              ),
+              if (isDisabled) ...[
+                Spacer(),
+                Icon(Icons.check_circle, color: Colors.green, size: 20),
+              ],
+            ],
+          ),
         ),
       ),
     );
