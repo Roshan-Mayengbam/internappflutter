@@ -28,8 +28,10 @@ class ArticleModel {
   // Helper to remove HTML tags and entities from snippet text
   static String _cleanHtml(String? htmlString) {
     // If the input is null, provide the default text for the card snippet.
-    final text = htmlString ?? 'Click to read full article.';
-
+    String text = htmlString ?? 'Click to read full article.';
+    text = text.length > 100
+        ? "${text.substring(0, 100)}....\n\n\t\tSee more in the website"
+        : text;
     // Basic regex to strip HTML tags and common entities for clean display
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '');
   }
@@ -52,10 +54,12 @@ class ArticleModel {
       // Nested 'fields' object
       thumbnailUrl: (fields['thumbnail'] as String?) ?? '',
       byline: (fields['byline'] as String?) ?? 'The Guardian Staff',
-      bodyHtml: (fields['body'] as String?) ?? 'No article content available.',
+      bodyHtml: _cleanHtml(
+        fields['body'] as String? ?? 'No article content available.',
+      ),
 
       // Clean the trailText, which now handles the fallback internally
-      trailText: _cleanHtml(fields['trailText'] as String?),
+      trailText: _cleanHtml(fields['body'] as String?),
     );
   }
 

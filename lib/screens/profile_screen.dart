@@ -3,19 +3,21 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileScreenPage extends StatefulWidget {
+  const ProfileScreenPage({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreenPage> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreenPage> {
   Map<String, dynamic>? userData;
   final User? user = FirebaseAuth.instance.currentUser;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
@@ -28,9 +30,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     fetchStudentDetails();
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const Page2()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
+  }
+
   Future<void> fetchStudentDetails() async {
     setState(() {
-      isLoading = false;
+      isLoading = true; // ← Change from false to true
     });
 
     try {
@@ -40,12 +60,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           errorMessage = "User not logged in";
           isLoading = false;
         });
+        // Navigate back or to login screen
+        Navigator.of(context).pushReplacementNamed('/signup');
         return;
       }
 
       String uid = user.uid;
       String? idToken = await user.getIdToken();
-      print("🔑 ID Token: $idToken");
+
       if (idToken == null) {
         setState(() {
           errorMessage = "Could not get authentication token";
@@ -66,14 +88,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       if (response.statusCode == 200) {
-        isLoading = false;
         final data = json.decode(response.body);
-        userData = data['user'];
-        print("🔄 Fetched user details...$userData");
-        // setState(() {
-        //   print("✅ user details: $data");
-        //   // Extract job details from applications
-        // });
+        setState(() {
+          userData = data['user'];
+          isLoading = false;
+        });
+        print("✅ Fetched user details: $userData");
       } else {
         setState(() {
           errorMessage =
@@ -81,6 +101,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isLoading = false;
         });
         print("❌ Failed to load Student details: ${response.statusCode}");
+        // Show a snackbar instead
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load profile. Please try again.'),
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: fetchStudentDetails,
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() {
@@ -88,17 +120,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isLoading = false;
       });
       print("❌ Error fetching Student details: ${e.toString()}");
+      // Show a snackbar for errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred. Please try again.'),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: fetchStudentDetails,
+            ),
+          ),
+        );
+      }
     }
   }
 
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (userData == null) {
-      return Center(
-        child: Text(errorMessage.isNotEmpty ? errorMessage : 'No user data'),
+    // Show loading indicator while fetching data
+    if (isLoading || userData == null) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFE9E4F5),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -129,10 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   )
                 : const Icon(Icons.person, size: 100, color: Colors.white),
           ),
-
-          // Profile avatar
-
-          // Back button
 
           // Draggable sheet with all content
           DraggableScrollableSheet(
@@ -172,13 +210,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            fullName,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: GoogleFonts.jost().fontFamily,
-                              color: Colors.black,
+                          Expanded(
+                            child: Text(
+                              fullName,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: GoogleFonts.jost().fontFamily,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                           ElevatedButton(
@@ -223,6 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
 
                       // Bio section
+                      const SizedBox(height: 15),
                       Text(
                         'Bio',
                         style: TextStyle(
@@ -240,24 +281,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontFamily: GoogleFonts.jost().fontFamily,
                         ),
                       ),
-                      // const SizedBox(height: 15),
-                      // Text(
-                      //   'About',
-                      //   style: TextStyle(
-                      //     fontSize: 25,
-                      //     fontWeight: FontWeight.bold,
-                      //     fontFamily: GoogleFonts.jost().fontFamily,
-                      //     color: Colors.black,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 5),
-                      // Text(
-                      //   'Manage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your searchManage the qualifications or preference used to hide jobs from your search',
-                      //   style: TextStyle(
-                      //     color: Color(0xFF100739),
-                      //     fontFamily: GoogleFonts.jost().fontFamily,
-                      //   ),
-                      // ),
                       const SizedBox(height: 20),
 
                       Text(
@@ -297,17 +320,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 20),
 
                       // Skills section
-                      Wrap(
-                        spacing: 10.0,
-                        runSpacing: 10.0,
-                        children: userSkills.keys
-                            .map<Widget>(
-                              (skillName) =>
-                                  _buildSkillChip(skillName, Colors.white),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 20),
+                      if (userSkills.isNotEmpty) ...[
+                        Text(
+                          'Skills',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: GoogleFonts.jost().fontFamily,
+                            color: Color(0xFF100739),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: userSkills.keys
+                              .map<Widget>(
+                                (skillName) =>
+                                    _buildSkillChip(skillName, Colors.white),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
 
                       // Job Preference section
                       _buildJobPreferenceSection(),
@@ -326,6 +361,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
           ),
+
+          // Back button
           Positioned(
             top: 40,
             left: 10,
@@ -342,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   size: 25,
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  _signOut(context);
                 },
               ),
             ),

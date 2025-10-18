@@ -7,7 +7,7 @@ import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../features/data/models/job_response_model.dart';
+import 'cardDetails.dart';
 
 class Saved extends StatefulWidget {
   const Saved({super.key});
@@ -18,8 +18,8 @@ class Saved extends StatefulWidget {
 
 class _SavedState extends State<Saved> {
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  List<JobModel> savedJobs = [];
-  List<JobModel> appliedJobs = [];
+  List<dynamic> savedJobs = [];
+  List<dynamic> appliedJobs = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -65,9 +65,7 @@ class _SavedState extends State<Saved> {
         final data = json.decode(response.body);
         setState(() {
           print("✅ Saved jobs: $data");
-          savedJobs = (data['saves'] as List? ?? [])
-              .map((job) => JobModel.fromJson(job as Map<String, dynamic>))
-              .toList();
+          savedJobs = data['saves'] ?? [];
         });
       } else {
         print("❌ Failed to load saved jobs: ${response.statusCode}");
@@ -119,7 +117,6 @@ class _SavedState extends State<Saved> {
           appliedJobs = (data['applications'] as List)
               .map((app) => app['job'])
               .where((job) => job != null)
-              .map((job) => JobModel.fromJson(job as Map<String, dynamic>))
               .toList();
           isLoading = false;
         });
@@ -139,7 +136,19 @@ class _SavedState extends State<Saved> {
     }
   }
 
-  List<Map<String, String>> convertJobsToItems(List<dynamic> jobs) {
+  // Helper to get full job data by ID
+  dynamic getFullJobData(String jobId, List<dynamic> jobsList) {
+    try {
+      return jobsList.firstWhere(
+        (job) => job['_id'] == jobId,
+        orElse: () => null,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Map<String, dynamic>> convertJobsToItems(List<dynamic> jobs) {
     return jobs.where((job) => job != null).map((job) {
       try {
         // Safe getter helper
@@ -180,6 +189,18 @@ class _SavedState extends State<Saved> {
           }
         }
 
+        // Extract additional fields for navigation
+        List<String> requirements = [];
+        if (job['requirements'] != null && job['requirements'] is List) {
+          requirements = (job['requirements'] as List)
+              .map((e) => e.toString())
+              .toList();
+        } else if (job['skills'] != null && job['skills'] is List) {
+          requirements = (job['skills'] as List)
+              .map((e) => e.toString())
+              .toList();
+        }
+
         return {
           "jobId": safeGet(job['_id'], ''),
           "jobTitle": safeGet(job['title']),
@@ -188,6 +209,14 @@ class _SavedState extends State<Saved> {
           "experienceLevel": experienceLevel,
           "salaryRange": salaryRange,
           "jobType": safeGet(job['jobType']),
+          "description": safeGet(job['description'], ''),
+          "requirements": requirements,
+          "websiteUrl": safeGet(job['websiteUrl'], ''),
+          "tagLabel": job['tagLabel'],
+          "duration": safeGet(job['duration'], 'Not specified'),
+          "stipend": job['stipend']?.toString() ?? 'Not specified',
+          "noOfOpenings": safeGet(job['noOfOpenings'], 'Not specified'),
+          "mode": safeGet(job['mode'], 'Not specified'),
         };
       } catch (e) {
         print("❌ Error converting job: $e");
@@ -201,6 +230,14 @@ class _SavedState extends State<Saved> {
           "experienceLevel": 'N/A',
           "salaryRange": 'N/A',
           "jobType": 'N/A',
+          "description": '',
+          "requirements": [],
+          "websiteUrl": '',
+          "tagLabel": null,
+          "duration": 'Not specified',
+          "stipend": 'Not specified',
+          "noOfOpenings": 'Not specified',
+          "mode": 'Not specified',
         };
       }
     }).toList();
@@ -232,14 +269,13 @@ class _SavedState extends State<Saved> {
                   children: [
                     Row(
                       children: [
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomButton(
-                            onPressed: () => print("hello"),
+                            onPressed: () => Navigator.pop(context),
                             buttonIcon: Icons.arrow_back,
                           ),
                         ),
-                        SizedBox(width: 0),
                         Expanded(
                           child: CustomAppBar(
                             searchController: TextEditingController(),
@@ -259,7 +295,7 @@ class _SavedState extends State<Saved> {
                       onFilterTap: (filter) {
                         // Implement filter logic here
                       },
-                      items: savedJobs,
+                      items: convertJobsToItems(savedJobs),
                       onViewMore: () {
                         Navigator.push(
                           context,
@@ -267,6 +303,55 @@ class _SavedState extends State<Saved> {
                             builder: (context) => ViewMores(
                               items: convertJobsToItems(savedJobs),
                               statusPage: true,
+                            ),
+                          ),
+                        );
+                      },
+                      onCarouselTap: (String p1) {},
+
+                      // Replace the onItemTap callback in both CustomCarouselSection widgets with this:
+                      onItemTap: (job) {
+                        print("---- Navigating to Carddetails ----");
+                        print("Job Title: ${job['jobTitle']}");
+                        print("Company Name: ${job['companyName']}");
+                        print("Location: ${job['location']}");
+                        print("Website URL: ${job['websiteUrl']}");
+                        print("Job Type: ${job['jobType']}");
+                        print("-----------------------------------");
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Carddetails(
+                              jobTitle: job['jobTitle'] ?? 'No Title',
+                              companyName:
+                                  job['companyName'] ?? 'Unknown Company',
+                              location:
+                                  job['location'] ?? 'Location not specified',
+                              experienceLevel:
+                                  job['experienceLevel'] ?? 'Not specified',
+                              requirements: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              websiteUrl: job['websiteUrl'] ?? '',
+                              tagLabel: job['tagLabel'],
+                              employmentType: job['jobType'] ?? 'Not specified',
+                              rolesAndResponsibilities:
+                                  job['description'] ??
+                                  'No description available',
+                              duration: job['duration'] ?? 'Not specified',
+                              stipend:
+                                  job['stipend']?.toString() ?? 'Not specified',
+                              details:
+                                  job['description'] ?? 'No details available',
+                              noOfOpenings:
+                                  job['noOfOpenings']?.toString() ??
+                                  'Not specified',
+                              mode: job['mode'] ?? 'Not specified',
+                              skills: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              id: job['jobId'] ?? '',
+                              jobType: job['jobType'] ?? 'Not specified',
                             ),
                           ),
                         );
@@ -279,7 +364,7 @@ class _SavedState extends State<Saved> {
                       filters: ['all', 'applied', 'interviewing', 'offered'],
                       selectedFilter: 'all',
                       onFilterTap: (filter) => {},
-                      items: appliedJobs,
+                      items: convertJobsToItems(appliedJobs),
                       onViewMore: () {
                         Navigator.push(
                           context,
@@ -291,6 +376,53 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
+                      onItemTap: (job) {
+                        print("---- Navigating to Carddetails ----");
+                        print("Job Title: ${job['jobTitle']}");
+                        print("Company Name: ${job['companyName']}");
+                        print("Location: ${job['location']}");
+                        print("Website URL: ${job['websiteUrl']}");
+                        print("Job Type: ${job['jobType']}");
+                        print("-----------------------------------");
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Carddetails(
+                              jobTitle: job['jobTitle'] ?? 'No Title',
+                              companyName:
+                                  job['companyName'] ?? 'Unknown Company',
+                              location:
+                                  job['location'] ?? 'Location not specified',
+                              experienceLevel:
+                                  job['experienceLevel'] ?? 'Not specified',
+                              requirements: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              websiteUrl: job['websiteUrl'] ?? '',
+                              tagLabel: job['tagLabel'],
+                              employmentType: job['jobType'] ?? 'Not specified',
+                              rolesAndResponsibilities:
+                                  job['description'] ??
+                                  'No description available',
+                              duration: job['duration'] ?? 'Not specified',
+                              stipend:
+                                  job['stipend']?.toString() ?? 'Not specified',
+                              details:
+                                  job['description'] ?? 'No details available',
+                              noOfOpenings:
+                                  job['noOfOpenings']?.toString() ??
+                                  'Not specified',
+                              mode: job['mode'] ?? 'Not specified',
+                              skills: job['requirements'] != null
+                                  ? List<String>.from(job['requirements'])
+                                  : <String>[],
+                              id: job['jobId'] ?? '',
+                              jobType: job['jobType'] ?? 'Not specified',
+                            ),
+                          ),
+                        );
+                      },
+                      onCarouselTap: (String p1) {},
                     ),
                   ],
                 ),

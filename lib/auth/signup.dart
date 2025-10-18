@@ -349,56 +349,59 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ],
                     ),
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 12,
+                          ),
                         ),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 12,
+                        onPressed: () async {
+                          final user = await GoogleAuthService()
+                              .signInWithGoogle();
+                          if (user != null) {
+                            // ✅ Successfully signed in - Navigate to TagPage with user data
+                            final userModel = UserModel(
+                              name: user.displayName ?? 'Unknown User',
+                              email: user.email ?? 'No Email',
+                              role: 'Student',
+                              uid: '', // Default role, can be customized
+                            );
+
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RegisterPage(userModel: userModel),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Google Sign-In failed"),
+                              ),
+                            );
+                          }
+                        },
+
+                        icon: SvgPicture.asset(
+                          "assets/svg/google_logo.svg",
+                          height: 24,
+                          width: 24,
                         ),
-                      ),
-                      onPressed: () async {
-                        final user = await GoogleAuthService()
-                            .signInWithGoogle();
-                        if (user != null) {
-                          // ✅ Successfully signed in - Navigate to TagPage with user data
-                          final userModel = UserModel(
-                            name: user.displayName ?? 'Unknown User',
-                            email: user.email ?? 'No Email',
-                            role: 'Student',
-                            uid: '', // Default role, can be customized
-                          );
-
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  RegisterPage(userModel: userModel),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Google Sign-In failed"),
-                            ),
-                          );
-                        }
-                      },
-
-                      icon: SvgPicture.asset(
-                        "assets/svg/google_logo.svg",
-                        height: 24,
-                        width: 24,
-                      ),
-                      label: Text(
-                        "Continue with Google",
-                        style: GoogleFonts.jost(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        label: Text(
+                          "Continue with Google",
+                          style: GoogleFonts.jost(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

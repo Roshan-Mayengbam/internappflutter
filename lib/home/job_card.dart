@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 
 class JobCard extends StatefulWidget {
+  final String id;
   final String jobTitle;
   final String companyName;
   final String location;
@@ -11,6 +12,15 @@ class JobCard extends StatefulWidget {
   final int initialColorIndex;
   final String? tagLabel;
   final Color? tagColor;
+  final List<String> skills;
+  final String employmentType;
+  final String rolesAndResponsibilities;
+  final String duration;
+  final String stipend;
+  final String details;
+  final String noOfOpenings;
+  final String mode;
+  final String jobType;
 
   const JobCard({
     super.key,
@@ -23,6 +33,16 @@ class JobCard extends StatefulWidget {
     required this.initialColorIndex,
     this.tagLabel,
     this.tagColor,
+    required this.skills,
+    required this.employmentType,
+    required this.rolesAndResponsibilities,
+    required this.duration,
+    required this.stipend,
+    required this.details,
+    required this.noOfOpenings,
+    required this.mode,
+    required this.id,
+    required this.jobType,
   });
 
   @override
@@ -30,25 +50,16 @@ class JobCard extends StatefulWidget {
 }
 
 class _JobCardState extends State<JobCard> {
-  static const List<Color> cardColors = [
-    Color.fromRGBO(230, 211, 252, 1),
-    Color.fromRGBO(229, 223, 156, 1),
-    Color.fromRGBO(184, 209, 230, 1),
-  ];
-
   late int colorIndex;
   bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    colorIndex = widget.initialColorIndex % cardColors.length;
   }
 
   void swapColours() {
-    setState(() {
-      colorIndex = (colorIndex + 1) % cardColors.length;
-    });
+    setState(() {});
   }
 
   void toggleFavourite() {
@@ -59,86 +70,92 @@ class _JobCardState extends State<JobCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions for responsive sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate responsive values
+    final cardPadding = screenWidth * 0.03;
+    final borderRadius = screenWidth * 0.05;
+
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: swapColours,
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Shadow card
-            Positioned(
-              top: 16,
-              left: 16,
-              right: -4,
-              bottom: -4,
-              child: Card(
-                elevation: 0,
-                color: Colors.black.withOpacity(1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  side: const BorderSide(color: Colors.black, width: 1),
+      child: Stack(
+        children: [
+          // Main card with responsive sizing
+          Card(
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            color: const Color.fromRGBO(230, 211, 252, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.005,
+                  ),
+                  left: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.005,
+                  ),
+                  right: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.012,
+                  ),
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.01,
+                  ),
                 ),
               ),
-            ),
-            // Main card
-            Card(
-              elevation: 12,
-              shadowColor: Colors.black.withOpacity(1),
-              color: cardColors[colorIndex],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: Colors.black, width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPosterCard(),
-                    const SizedBox(height: 12),
-                    _buildJobTitleSection(),
-                    const SizedBox(height: 12),
-                    _buildInfoSection(),
-                  ],
-                ),
+              padding: EdgeInsets.all(cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPosterCard(screenWidth, screenHeight),
+                  SizedBox(height: screenHeight * 0.015),
+                  _buildJobTitleSection(screenWidth),
+                  SizedBox(height: screenHeight * 0.015),
+                  _buildInfoSection(screenWidth),
+                ],
               ),
             ),
-            // Tag positioned on top of the card
-            if (widget.tagLabel != null) _buildTag(),
-          ],
-        ),
+          ),
+
+          // Responsive tag
+          if (widget.tagLabel != null) _buildTag(screenWidth),
+        ],
       ),
     );
   }
 
-  Widget _buildTag() {
-    // Determine which image to show based on tagLabel
+  Widget _buildTag(double screenWidth) {
     String imagePath;
     if (widget.tagLabel == 'On Campus') {
-      print(widget.tagLabel!);
       imagePath = 'assets/campus.png';
     } else if (widget.tagLabel == 'In House') {
-      print(widget.tagLabel!);
       imagePath = 'assets/inhouse.png';
     } else {
-      print(widget.tagLabel!);
-      imagePath = 'assets/outreach.png'; // for external or any other type
+      imagePath = 'assets/outreach.png';
     }
 
     return Positioned(
-      top: 12,
-      right: 12,
+      top: screenWidth * 0.03,
+      right: screenWidth * 0.03,
       child: Image.asset(
         imagePath,
-        height: 50,
-        width: 140,
+        height: screenWidth * 0.12,
+        width: screenWidth * 0.35,
         fit: BoxFit.contain,
       ),
     );
   }
 
-  Widget _buildPosterCard() {
+  Widget _buildPosterCard(double screenWidth, double screenHeight) {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
@@ -150,83 +167,106 @@ class _JobCardState extends State<JobCard> {
               experienceLevel: widget.experienceLevel,
               requirements: widget.requirements,
               websiteUrl: widget.websiteUrl,
+              tagLabel: widget.tagLabel,
+              employmentType: widget.employmentType,
+              rolesAndResponsibilities: widget.rolesAndResponsibilities,
+              duration: widget.duration,
+              stipend: widget.stipend as String,
+              details: widget.details,
+              noOfOpenings: widget.noOfOpenings as String,
+              mode: widget.mode,
+              skills: widget.skills,
+              id: widget.id,
+              jobType: widget.jobType,
             ),
           ),
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(screenWidth * 0.04),
         decoration: BoxDecoration(
           color: const Color(0xFF4B20C2),
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(screenWidth * 0.04),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHiringTag(),
-            const SizedBox(height: 12),
+            _buildHiringTag(screenWidth),
+            SizedBox(height: screenHeight * 0.015),
             Text(
               widget.jobTitle,
-              style: const TextStyle(
-                color: Color(0xFFF9A825),
-                fontSize: 28,
+              style: TextStyle(
+                color: const Color(0xFFF9A825),
+                fontSize: screenWidth * 0.065,
                 fontWeight: FontWeight.bold,
                 height: 1.2,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: screenHeight * 0.015),
 
-            // Scrollable requirements
+            // Scrollable requirements with responsive height
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 100),
+              constraints: BoxConstraints(maxHeight: screenHeight * 0.25),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: widget.requirements
-                      .map((req) => _buildRequirementRow(req))
+                      .map((req) => _buildRequirementRow(req, screenWidth))
                       .toList(),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            _buildWebsiteButton(),
+            SizedBox(height: screenHeight * 0.02),
+            _buildWebsiteButton(screenWidth),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHiringTag() {
+  Widget _buildHiringTag(double screenWidth) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.03,
+        vertical: screenWidth * 0.015,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(screenWidth * 0.05),
       ),
-      child: const Text(
+      child: Text(
         'WE ARE HIRING!',
         style: TextStyle(
-          color: Color(0xFF4B20C2),
+          color: const Color(0xFF4B20C2),
           fontWeight: FontWeight.bold,
-          fontSize: 10,
+          fontSize: screenWidth * 0.025,
         ),
       ),
     );
   }
 
-  Widget _buildRequirementRow(String text) {
+  Widget _buildRequirementRow(String text, double screenWidth) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
+      padding: EdgeInsets.only(bottom: screenWidth * 0.01),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(color: Colors.white, fontSize: 14)),
+          Text(
+            '• ',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: screenWidth * 0.035,
+            ),
+          ),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: screenWidth * 0.035,
+              ),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -236,19 +276,23 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  Widget _buildWebsiteButton() {
+  Widget _buildWebsiteButton(double screenWidth) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.06,
+          vertical: screenWidth * 0.025,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(screenWidth * 0.075),
         ),
         child: Text(
           widget.websiteUrl,
-          style: const TextStyle(
-            color: Color(0xFF4B20C2),
+          style: TextStyle(
+            color: const Color(0xFF4B20C2),
             fontWeight: FontWeight.w600,
+            fontSize: screenWidth * 0.032,
             overflow: TextOverflow.ellipsis,
           ),
           maxLines: 1,
@@ -257,7 +301,7 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  Widget _buildJobTitleSection() {
+  Widget _buildJobTitleSection(double screenWidth) {
     return Column(
       children: [
         Row(
@@ -270,67 +314,43 @@ class _JobCardState extends State<JobCard> {
                 children: [
                   Text(
                     widget.jobTitle,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: screenWidth * 0.01),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
                         child: Text(
                           widget.companyName,
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.035,
                             color: Colors.black54,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(
+                      SizedBox(width: screenWidth * 0.01),
+                      Icon(
                         Icons.check_circle,
                         color: Colors.blue,
-                        size: 18,
+                        size: screenWidth * 0.045,
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-
-            // Favorite button
-            InkWell(
-              onTap: toggleFavourite,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(0, 5),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                  ],
-                  color: Colors.pink[200],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 1),
-                ),
-                child: const Icon(Icons.favorite, color: Colors.pink, size: 24),
-              ),
-            ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: screenWidth * 0.03),
         const Divider(
           color: Color.fromARGB(255, 19, 16, 16),
           thickness: 1,
@@ -340,29 +360,43 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(double screenWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Icons.location_on, color: Colors.grey, size: 20),
-            const SizedBox(width: 4),
+            Icon(
+              Icons.location_on,
+              color: Colors.grey,
+              size: screenWidth * 0.05,
+            ),
+            SizedBox(width: screenWidth * 0.01),
             Expanded(
               child: Text(
                 widget.location,
-                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: screenWidth * 0.035,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 12),
-            const Icon(Icons.people_alt, color: Colors.grey, size: 20),
-            const SizedBox(width: 4),
+            SizedBox(width: screenWidth * 0.03),
+            Icon(
+              Icons.people_alt,
+              color: Colors.grey,
+              size: screenWidth * 0.05,
+            ),
+            SizedBox(width: screenWidth * 0.01),
             Expanded(
               child: Text(
                 widget.experienceLevel,
-                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: screenWidth * 0.035,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -374,7 +408,6 @@ class _JobCardState extends State<JobCard> {
   }
 }
 
-// Custom clipper for the arrow-shaped tag
 class TagClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

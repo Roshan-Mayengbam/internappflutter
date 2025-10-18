@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/core/components/jobs_page/carousel_card.dart';
+import 'package:internappflutter/core/components/jobs_page/job_carousel_card.dart';
 
 class ViewMores extends StatelessWidget {
   final List<Map<String, dynamic>> items;

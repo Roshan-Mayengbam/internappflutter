@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CarouselCardConstants {
+class JobCardConstants {
   // Card styling
   static const double borderRadius = 20;
   static const EdgeInsets margin = EdgeInsets.symmetric(

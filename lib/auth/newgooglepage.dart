@@ -11,36 +11,60 @@ class HyrupOnboardingScreen extends StatefulWidget {
 class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
+    // Get screen size for responsiveness
+    final size = MediaQuery.of(context).size;
+
+    // Calculate responsive padding and scaling factors
+    final horizontalPadding = size.width * 0.1; // 10% of width
+    final characterScaleFactor = size.height < 600
+        ? 0.7
+        : size.height < 800
+        ? 0.9
+        : 1.0; // Scale character based on screen height
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8F5E8),
       body: SafeArea(
         child: Column(
           children: [
-            // Status Bar
-            _buildStatusBar(),
+            // Status Bar (Kept fixed for standard UI)
+            _buildStatusBar(size),
             // Main Content
             Expanded(
               child: Stack(
                 children: [
-                  // Background decorative elements
-                  _buildDecorativeElements(),
+                  // Background decorative elements (Positioned relatively)
+                  _buildDecorativeElements(size),
                   // Main content
-                  Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      // Character illustration with speech bubble
-                      _buildCharacterSection(),
-                      const SizedBox(height: 60),
-                      // Main text
-                      _buildMainText(),
-                      const SizedBox(height: 30),
-                      // Subtitle
-                      _buildSubtitle(),
-                      const Spacer(),
-                      // Continue button
-                      _buildContinueButton(),
-                      const SizedBox(height: 40),
-                    ],
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.05,
+                    ), // A bit of horizontal breathing room
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: size.height * 0.05,
+                        ), // Responsive spacing
+                        // Character illustration with speech bubble
+                        _buildCharacterSection(characterScaleFactor),
+                        SizedBox(
+                          height: size.height * 0.06,
+                        ), // Responsive spacing
+                        // Main text
+                        _buildMainText(size),
+                        SizedBox(
+                          height: size.height * 0.03,
+                        ), // Responsive spacing
+                        // Subtitle
+                        _buildSubtitle(),
+                        const Spacer(), // Pushes the button to the bottom
+                        // Continue button
+                        _buildContinueButton(horizontalPadding),
+                        SizedBox(
+                          height: size.height * 0.04,
+                        ), // Responsive spacing
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -51,13 +75,17 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildStatusBar() {
+  // Helper method to build the status bar
+  Widget _buildStatusBar(Size size) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.05,
+        vertical: 10,
+      ),
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             '9:41',
             style: TextStyle(
               fontSize: 17,
@@ -68,9 +96,9 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
           Row(
             children: [
               Icon(Icons.signal_cellular_4_bar, size: 18, color: Colors.black),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Icon(Icons.wifi, size: 18, color: Colors.black),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Icon(Icons.battery_full, size: 18, color: Colors.black),
             ],
           ),
@@ -79,14 +107,15 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildDecorativeElements() {
+  // REVISED: Decorative Elements use relative positioning based on screen size
+  Widget _buildDecorativeElements(Size size) {
     return Stack(
       children: [
         // Crosses
-        const Positioned(
-          top: 80,
-          left: 50,
-          child: RotationTransition(
+        Positioned(
+          top: size.height * 0.08, // 8% from top
+          left: size.width * 0.12, // 12% from left
+          child: const RotationTransition(
             turns: AlwaysStoppedAnimation(15 / 360),
             child: Text(
               '×',
@@ -94,10 +123,10 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
             ),
           ),
         ),
-        const Positioned(
-          top: 180,
-          right: 40,
-          child: RotationTransition(
+        Positioned(
+          top: size.height * 0.2, // 20% from top
+          right: size.width * 0.1, // 10% from right
+          child: const RotationTransition(
             turns: AlwaysStoppedAnimation(-20 / 360),
             child: Text(
               '×',
@@ -105,10 +134,10 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
             ),
           ),
         ),
-        const Positioned(
-          bottom: 250,
-          left: 30,
-          child: RotationTransition(
+        Positioned(
+          bottom: size.height * 0.3, // 30% from bottom
+          left: size.width * 0.08, // 8% from left
+          child: const RotationTransition(
             turns: AlwaysStoppedAnimation(45 / 360),
             child: Text(
               '×',
@@ -116,10 +145,10 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
             ),
           ),
         ),
-        const Positioned(
-          bottom: 150,
-          right: 60,
-          child: RotationTransition(
+        Positioned(
+          bottom: size.height * 0.2, // 20% from bottom
+          right: size.width * 0.15, // 15% from right
+          child: const RotationTransition(
             turns: AlwaysStoppedAnimation(-30 / 360),
             child: Text(
               '×',
@@ -129,8 +158,8 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
         ),
         // Dots
         Positioned(
-          top: 120,
-          left: 20,
+          top: size.height * 0.15, // 15% from top
+          left: size.width * 0.05, // 5% from left
           child: Container(
             width: 8,
             height: 8,
@@ -141,8 +170,8 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
           ),
         ),
         Positioned(
-          top: 250,
-          right: 20,
+          top: size.height * 0.3, // 30% from top
+          right: size.width * 0.05, // 5% from right
           child: Container(
             width: 8,
             height: 8,
@@ -153,18 +182,18 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
           ),
         ),
         // Stars
-        const Positioned(
-          bottom: 200,
-          left: 50,
-          child: Text(
+        Positioned(
+          bottom: size.height * 0.25, // 25% from bottom
+          left: size.width * 0.12, // 12% from left
+          child: const Text(
             '✦',
             style: TextStyle(fontSize: 16, color: Colors.orange),
           ),
         ),
-        const Positioned(
-          top: 150,
-          left: 80,
-          child: Text(
+        Positioned(
+          top: size.height * 0.18, // 18% from top
+          left: size.width * 0.2, // 20% from left
+          child: const Text(
             '✦',
             style: TextStyle(fontSize: 16, color: Colors.orange),
           ),
@@ -173,37 +202,46 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildCharacterSection() {
+  // REVISED: Character section scales and uses relative positioning for the bubble
+  Widget _buildCharacterSection(double factor) {
     return SizedBox(
-      height: 280,
+      height: 280 * factor, // Scaled height
       child: Stack(
         alignment: Alignment.center,
         children: [
           // Character
-          _buildCharacter(),
-          // Speech bubble
-          Positioned(top: 20, right: 20, child: _buildSpeechBubble()),
+          _buildCharacter(factor),
+          // Speech bubble - positioned relative to the character section size
+          Positioned(
+            top: 20 * factor,
+            right: 20 * factor,
+            child: _buildSpeechBubble(factor),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCharacter() {
+  // All character components are scaled by the factor
+  Widget _buildCharacter(double factor) {
+    final width = 200 * factor;
+    final height = 250 * factor;
+
     return SizedBox(
-      width: 200,
-      height: 250,
+      width: width,
+      height: height,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // Arms (behind body)
           Positioned(
-            top: 100,
-            left: 10,
+            top: 100 * factor,
+            left: 10 * factor,
             child: Transform.rotate(
               angle: -0.5,
               child: Container(
-                width: 60,
-                height: 60,
+                width: 60 * factor,
+                height: 60 * factor,
                 decoration: const BoxDecoration(
                   color: Color(0xFFE74C3C),
                   shape: BoxShape.circle,
@@ -212,13 +250,13 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
             ),
           ),
           Positioned(
-            top: 100,
-            right: 10,
+            top: 100 * factor,
+            right: 10 * factor,
             child: Transform.rotate(
               angle: 0.5,
               child: Container(
-                width: 60,
-                height: 60,
+                width: 60 * factor,
+                height: 60 * factor,
                 decoration: const BoxDecoration(
                   color: Color(0xFFE74C3C),
                   shape: BoxShape.circle,
@@ -228,40 +266,40 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
           ),
           // Body
           Positioned(
-            top: 80,
+            top: 80 * factor,
             child: Container(
-              width: 80,
-              height: 120,
-              decoration: const BoxDecoration(
+              width: 80 * factor,
+              height: 120 * factor,
+              decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
+                  topLeft: Radius.circular(40 * factor),
+                  topRight: Radius.circular(40 * factor),
                 ),
               ),
             ),
           ),
           // Legs
           Positioned(
-            bottom: 20,
+            bottom: 20 * factor,
             child: Container(
-              width: 100,
-              height: 80,
-              decoration: const BoxDecoration(
-                color: Color(0xFF9B59B6),
+              width: 100 * factor,
+              height: 80 * factor,
+              decoration: BoxDecoration(
+                color: const Color(0xFF9B59B6),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
+                  bottomLeft: Radius.circular(40 * factor),
+                  bottomRight: Radius.circular(40 * factor),
                 ),
               ),
             ),
           ),
           // Head
           Positioned(
-            top: 40,
+            top: 40 * factor,
             child: Container(
-              width: 60,
-              height: 60,
+              width: 60 * factor,
+              height: 60 * factor,
               decoration: const BoxDecoration(
                 color: Color(0xFF8B4513),
                 shape: BoxShape.circle,
@@ -270,14 +308,17 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
           ),
           // Glasses
           Positioned(
-            top: 55,
+            top: 55 * factor,
             child: Container(
-              width: 50,
-              height: 20,
+              width: 50 * factor,
+              height: 20 * factor,
               decoration: BoxDecoration(
                 color: Colors.lightBlue.withOpacity(0.3),
-                border: Border.all(color: Colors.black, width: 3),
-                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.black,
+                  width: 3 * factor.clamp(0.5, 3.0),
+                ),
+                borderRadius: BorderRadius.circular(20 * factor),
               ),
             ),
           ),
@@ -286,27 +327,31 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildSpeechBubble() {
+  // Speech bubble scales with the factor
+  Widget _buildSpeechBubble(double factor) {
     return Transform.rotate(
       angle: -0.1,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: 16 * factor,
+          vertical: 8 * factor,
+        ),
         decoration: BoxDecoration(
           color: const Color(0xFF4A90E2),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20 * factor),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF4A90E2).withOpacity(0.3),
-              blurRadius: 10,
+              blurRadius: 10 * factor,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: const Text(
+        child: Text(
           'SWIPE\nMATCH\nGROW',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 12 * factor.clamp(0.8, 1.0),
             fontWeight: FontWeight.bold,
             height: 1.2,
           ),
@@ -316,14 +361,18 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildMainText() {
+  // Main text uses font size relative to screen height
+  Widget _buildMainText(Size size) {
+    final baseFontSize = size.height * 0.055;
+    final starFontSize = baseFontSize * 0.8;
+
     return Column(
       children: [
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: const TextStyle(
-              fontSize: 48,
+            style: TextStyle(
+              fontSize: baseFontSize.clamp(36, 55),
               fontWeight: FontWeight.w900,
               color: Colors.black,
               height: 0.9,
@@ -340,9 +389,12 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
                 ),
               ),
               const TextSpan(text: 'INTO '),
-              const TextSpan(
+              TextSpan(
                 text: '✦',
-                style: TextStyle(color: Color(0xFFF39C12), fontSize: 40),
+                style: TextStyle(
+                  color: const Color(0xFFF39C12),
+                  fontSize: starFontSize.clamp(30, 45),
+                ),
               ),
               const TextSpan(text: ' TO\nYOUR\nDREAMS'),
             ],
@@ -367,9 +419,10 @@ class _HyrupOnboardingScreenState extends State<HyrupOnboardingScreen> {
     );
   }
 
-  Widget _buildContinueButton() {
+  // Button uses responsive horizontal margin
+  Widget _buildContinueButton(double horizontalPadding) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40),
+      margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {

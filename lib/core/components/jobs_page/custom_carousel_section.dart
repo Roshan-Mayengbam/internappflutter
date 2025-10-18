@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/features/domain/entities/job_response.dart';
-
 import 'filter_tag.dart';
-import 'carousel_card.dart';
+import 'job_carousel_card.dart';
 
 // Reusable Custom Carousel Section
 class CustomCarouselSection extends StatelessWidget {
@@ -12,8 +10,9 @@ class CustomCarouselSection extends StatelessWidget {
   final String selectedFilter;
   final Function(String) onFilterTap;
   final bool statusPage;
-  final List<Job> items; // This remains the same
+  final List<Map<String, dynamic>> items;
   final VoidCallback? onViewMore;
+  final Function(Map<String, dynamic>)? onItemTap;
 
   const CustomCarouselSection({
     super.key,
@@ -25,6 +24,8 @@ class CustomCarouselSection extends StatelessWidget {
     required this.items,
     this.statusPage = false,
     this.onViewMore,
+    this.onItemTap,
+    required Null Function(String p1) onCarouselTap,
   });
 
   @override
@@ -63,10 +64,10 @@ class CustomCarouselSection extends StatelessWidget {
                 child: const Text(
                   "View More",
                   style: TextStyle(
-                    fontSize: 14, // slightly larger
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black, // black text
-                    decoration: TextDecoration.underline, // underline
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -93,7 +94,8 @@ class CustomCarouselSection extends StatelessWidget {
                 )
               : Container(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+
           // Carousel
           SizedBox(
             height: 300,
@@ -101,17 +103,29 @@ class CustomCarouselSection extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: items.length,
               itemBuilder: (context, index) {
-                // --- PARSING LOGIC IS IMPLEMENTED HERE ---
-                final job = items[index];
+                final item = items[index];
                 return Padding(
                   padding: const EdgeInsets.only(right: 12.0),
-                  child: CarouselCard(
-                    title: job.title,
-                    subtitle: job.recruiter.company.name,
-                    tag1: job.location ?? 'N/A',
-                    tag2: job.recruiter.company.companyType ?? 'Startup',
-                    isVerified: job.recruiter.isVerified,
-                    statusCard: statusPage,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (onItemTap != null) {
+                        onItemTap!(item);
+                      }
+                    },
+                    child: (statusPage)
+                        ? CarouselCard(
+                            title: item["jobTitle"],
+                            subtitle: item["companyName"],
+                            tag1: item["applied"] ? "Applied" : "Not Applied",
+                            statusCard: statusPage,
+                          )
+                        : CarouselCard(
+                            title: item["jobTitle"],
+                            subtitle: item["companyName"],
+                            tag1: item["location"],
+                            tag2: item['experienceLevel'],
+                            statusCard: statusPage,
+                          ),
                   ),
                 );
               },

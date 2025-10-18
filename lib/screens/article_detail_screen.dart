@@ -23,7 +23,6 @@ class ArticleDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Controller for the search bar (local to this screen)
-    final _searchController = TextEditingController();
     const String customFont = 'Jost';
 
     return Scaffold(

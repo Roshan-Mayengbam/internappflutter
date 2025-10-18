@@ -10,7 +10,8 @@ import 'article_detail_screen.dart';
 // ... other imports ...
 
 class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
+  ExplorePage({super.key});
+  final TextEditingController _searchController = TextEditingController();
 
   // Helper method to build the main content widget tree
   Widget _buildContent(BuildContext context, ExploreViewModel viewModel) {
@@ -65,8 +66,6 @@ class ExplorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _searchController = TextEditingController();
-
     // 1. Initial Fetch Management using a Selector (The FIX)
     // The Selector runs whenever the VM changes, but its builder only runs if the
     // selected value (initialLoadAttempted) changes.

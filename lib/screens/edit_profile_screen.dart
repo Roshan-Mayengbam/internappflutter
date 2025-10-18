@@ -130,8 +130,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final profileData = {
         "FullName": fullNameCtrl.text.trim(),
         "bio": bioCtrl.text.trim(),
-        "profilePicture": profilePicUrl
-            .trim(), // assume you set this after upload
+        "profilePicture": profilePicUrl.trim(),
         "about": aboutCtrl.text.trim(),
       };
 
@@ -264,7 +263,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (idToken == null) return;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/student/addSkill'),
+        Uri.parse('$baseUrl/student/addSkills'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',

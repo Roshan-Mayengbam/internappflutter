@@ -186,7 +186,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       print("Project Description: ${userProject.projectDescription}");
     }
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => UploadScreen(userProject: userProject),
@@ -387,7 +387,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: isFormComplete ? _addProject : null,
+                      onPressed: isFormComplete ? _addProject : () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isFormComplete
                             ? Colors.orange

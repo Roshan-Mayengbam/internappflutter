@@ -134,6 +134,9 @@ flutter:
     - assets/outreach.png
     - assets/inhouse.png
     - assets/campus.png
+    - assets/Union.png
+    - assets/images/puzzle.png
+    - assets/text.png
 
   fonts:
     - family: Jost

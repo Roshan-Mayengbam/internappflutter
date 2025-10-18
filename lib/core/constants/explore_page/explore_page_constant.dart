@@ -29,8 +29,13 @@ class ExploreFilter {
 
 List<ExploreFilter> kVisibleExploreFilters = [
   ExploreFilter(
+    label: 'Software Development',
+    searchFilter: 'technology/software', // New: Developer-focused search
+    icon: Icons.code,
+  ),
+  ExploreFilter(
     label: 'All Technology',
-    searchFilter: 'technology',
+    searchFilter: 'technology/technology',
     icon: Icons.public,
   ),
   ExploreFilter(
@@ -52,11 +57,6 @@ List<ExploreFilter> kVisibleExploreFilters = [
     label: 'Social Media',
     searchFilter: 'technology/social', // New: Specific section tag
     icon: Icons.people,
-  ),
-  ExploreFilter(
-    label: 'Software Development',
-    searchFilter: 'technology/software', // New: Developer-focused search
-    icon: Icons.code,
   ),
   ExploreFilter(
     label: 'AI & ML',

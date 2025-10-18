@@ -194,7 +194,7 @@ class _ExperiencePageState extends State<ExperiencePage> {
       print("Description: ${userExperience.description}");
     }
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => ProjectsPage(userExperience: userExperience),

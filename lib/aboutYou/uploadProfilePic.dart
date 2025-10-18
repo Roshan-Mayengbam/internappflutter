@@ -51,6 +51,7 @@ class _UploadScreenState extends State<UploadScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -198,7 +199,7 @@ class _UploadScreenState extends State<UploadScreen> {
               print('Preferences: ${uploadResume.preferences}');
               print('---------------------------');
 
-              Navigator.of(context).push(
+              Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) {
                     return TagPage(
