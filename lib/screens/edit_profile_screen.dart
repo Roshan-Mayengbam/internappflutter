@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -5,6 +9,7 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/screens/add_experience.dart';
 import 'package:internappflutter/screens/add_project_screen.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -15,7 +20,9 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  late final String profilePicUrl;
+  final String baseUrl2 = "http://10.164.216.157:3000";
+
+  String profilePicUrl = '';
 
   // controllers
   final TextEditingController fullNameCtrl = TextEditingController();
@@ -33,6 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   List<String> jobPreferences = [];
   List<Map<String, dynamic>> experiences = [];
   List<Map<String, dynamic>> projects = [];
+  final ImagePicker _picker = ImagePicker();
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -42,6 +50,165 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+  }
+
+  /// Alternative: Pick from camera
+  Future<void> _pickImageSource() async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Choose Profile Picture',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Jost',
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library,
+                  color: Color(0xFF1FA7E3),
+                ),
+                title: const Text(
+                  'Gallery',
+                  style: TextStyle(fontFamily: 'Jost'),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickAndUploadImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Color(0xFF1FA7E3)),
+                title: const Text(
+                  'Camera',
+                  style: TextStyle(fontFamily: 'Jost'),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickAndUploadImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Pick and upload image from specified source
+  Future<void> _pickAndUploadImage(ImageSource source) async {
+    try {
+      print("1. Starting image upload process...");
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Pick image
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 70,
+        maxWidth: 800,
+      );
+      print("2. Image picked: ${pickedFile?.path}");
+
+      if (pickedFile == null) {
+        Navigator.pop(context);
+        return;
+      }
+
+      final User? user = _auth.currentUser;
+      print("3. User: ${user?.uid}");
+
+      if (user == null) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('User not authenticated')));
+        return;
+      }
+
+      final String uid = user.uid;
+      final String? idToken = await user.getIdToken();
+      print("4. ID Token obtained: ${idToken != null}");
+
+      if (idToken == null) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to get auth token')),
+        );
+        return;
+      }
+
+      // Upload to Firebase Storage
+      final File imageFile = File(pickedFile.path);
+      final String fileName =
+          'profile_${uid}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      print("5. Uploading to Firebase Storage...");
+      final Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child(fileName);
+      final UploadTask uploadTask = storageRef.putFile(imageFile);
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadURL = await snapshot.ref.getDownloadURL();
+      print("6. Firebase Storage URL: $downloadURL");
+
+      // Send to backend
+      print("7. Sending to backend: $baseUrl2/student/profile-photo");
+      final response = await http.put(
+        Uri.parse('$baseUrl/student/profile-photo'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: json.encode({'profileUrl': downloadURL}),
+      );
+
+      print("8. Backend response status: ${response.statusCode}");
+      print("9. Backend response body: ${response.body}");
+
+      Navigator.pop(context);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          profilePicUrl = downloadURL;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile picture updated successfully!'),
+          ),
+        );
+      } else {
+        final errorData = json.decode(response.body);
+        print('Upload failed: ${errorData['message']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed: ${errorData['message'] ?? 'Unknown error'}'),
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      print('Error uploading image: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -401,30 +568,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               const SizedBox(height: 20),
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.black,
-                      radius: 60,
-                      backgroundImage: NetworkImage(profilePicUrl),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          size: 20,
-                          color: Colors.white,
+                child: // Replace the profile picture section in your build method with this:
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.black,
+                        radius: 60,
+                        backgroundImage: profilePicUrl.isNotEmpty
+                            ? NetworkImage(profilePicUrl)
+                            : null,
+                        child: profilePicUrl.isEmpty
+                            ? const Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: InkWell(
+                            onTap: _pickImageSource,
+                            child: const Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 100),

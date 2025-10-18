@@ -75,6 +75,7 @@ class GoogleAuthService {
       print("📡 Backend response status: ${response.statusCode}");
       print("📄 Backend response body: ${response.body}");
 
+      // ✅ Handle 200 - User exists
       if (response.statusCode == 200) {
         try {
           final responseData = jsonDecode(response.body);
@@ -83,7 +84,6 @@ class GoogleAuthService {
           print("📄 'exists' value: ${responseData['exists']}");
           print("📄 'exists' type: ${responseData['exists'].runtimeType}");
 
-          // ✅ CRITICAL FIX: Check the 'exists' field from backend response
           if (responseData.containsKey('exists')) {
             if (responseData['exists'] == true &&
                 responseData.containsKey('user')) {
@@ -105,7 +105,23 @@ class GoogleAuthService {
           print("❌ Raw response: ${response.body}");
           return null;
         }
-      } else {
+      }
+      // ✅ Handle 404 - User not found (this is what you're getting)
+      else if (response.statusCode == 404) {
+        try {
+          final responseData = jsonDecode(response.body);
+          print("👤 User not found in database (404)");
+          print("📄 Message: ${responseData['message']}");
+          // Return exists: false to trigger registration flow
+          return {"exists": false};
+        } catch (parseError) {
+          print("❌ JSON parsing error on 404: $parseError");
+          // Still return exists: false even if parsing fails
+          return {"exists": false};
+        }
+      }
+      // ❌ Handle other status codes
+      else {
         print("❌ Unexpected status code: ${response.statusCode}");
         print("❌ Response body: ${response.body}");
         return null;
