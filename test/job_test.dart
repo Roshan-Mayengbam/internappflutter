@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:internappflutter/features/domain/entities/job_response.dart';
-import 'package:internappflutter/features/data/models/job_response_model.dart';
-
+import 'package:internappflutter/features/AvailableJobs/data/models/job_response_model.dart';
+import 'package:internappflutter/features/AvailableJobs/domain/entities/job_response.dart';
 
 // A helper function to read fixture files (optional, but good practice)
 // For this example, we'll embed the JSON directly.
@@ -58,51 +57,43 @@ void main() {
   ''');
 
   group('JobResponseModel', () {
-    test(
-      'should be a subclass of JobResponse entity',
-      () {
-        // assert
-        expect(
-            JobResponseModel(jobs: [], totalPages: 1, currentPage: 1),
-            isA<JobResponse>());
-      },
-    );
+    test('should be a subclass of JobResponse entity', () {
+      // assert
+      expect(
+        JobResponseModel(jobs: [], totalPages: 1, currentPage: 1),
+        isA<JobResponse>(),
+      );
+    });
 
-    test(
-      'should correctly parse a non-empty JSON response',
-      () {
-        // act
-        final result = JobResponseModel.fromJson(nonEmptyJsonResponse);
+    test('should correctly parse a non-empty JSON response', () {
+      // act
+      final result = JobResponseModel.fromJson(nonEmptyJsonResponse);
 
-        // assert
-        expect(result, isA<JobResponseModel>());
-        expect(result.jobs.length, 1);
-        expect(result.currentPage, 1);
-        expect(result.totalPages, 1);
+      // assert
+      expect(result, isA<JobResponseModel>());
+      expect(result.jobs.length, 1);
+      expect(result.currentPage, 1);
+      expect(result.totalPages, 1);
 
-        // Check the details of the parsed job
-        final job = result.jobs.first;
-        expect(job.id, '60d0fe4f5311236168a109ca');
-        expect(job.title, 'Senior Flutter Developer');
-        expect(job.location, 'Remote');
-        expect(job.recruiter.name, 'Jane Doe');
-        expect(job.recruiter.company.name, 'Tech Solutions Inc.');
-        expect(job.salaryRange.min, 80000);
-      },
-    );
+      // Check the details of the parsed job
+      final job = result.jobs.first;
+      expect(job.id, '60d0fe4f5311236168a109ca');
+      expect(job.title, 'Senior Flutter Developer');
+      expect(job.location, 'Remote');
+      expect(job.recruiter.name, 'Jane Doe');
+      expect(job.recruiter.company.name, 'Tech Solutions Inc.');
+      expect(job.salaryRange.min, 80000);
+    });
 
-    test(
-      'should correctly parse an empty JSON response',
-      () {
-        // act
-        final result = JobResponseModel.fromJson(emptyJsonResponse);
+    test('should correctly parse an empty JSON response', () {
+      // act
+      final result = JobResponseModel.fromJson(emptyJsonResponse);
 
-        // assert
-        expect(result, isA<JobResponseModel>());
-        expect(result.jobs, isEmpty);
-        expect(result.currentPage, 1);
-        expect(result.totalPages, 0);
-      },
-    );
+      // assert
+      expect(result, isA<JobResponseModel>());
+      expect(result.jobs, isEmpty);
+      expect(result.currentPage, 1);
+      expect(result.totalPages, 0);
+    });
   });
 }

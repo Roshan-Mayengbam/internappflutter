@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
-import 'package:internappflutter/features/domain/entities/job_response.dart';
+
+import '../../AvailableJobs/domain/entities/job.dart';
+import '../../AvailableJobs/domain/usecases/get_jobs.dart';
 
 enum JobState { initial, loading, loaded, error }
 

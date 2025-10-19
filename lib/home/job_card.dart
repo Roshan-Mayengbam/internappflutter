@@ -193,9 +193,9 @@ class _JobCardState extends State<JobCard> {
               employmentType: widget.employmentType,
               rolesAndResponsibilities: widget.rolesAndResponsibilities,
               duration: widget.duration,
-              stipend: widget.stipend as String,
+              stipend: widget.stipend,
               details: widget.details,
-              noOfOpenings: widget.noOfOpenings as String,
+              noOfOpenings: widget.noOfOpenings,
               mode: widget.mode,
               skills: widget.skills,
               id: widget.id,
@@ -239,8 +239,7 @@ class _JobCardState extends State<JobCard> {
                     // Show only first 3 requirements
                     ...widget.requirements
                         .take(3)
-                        .map((req) => _buildRequirementRow(req, screenWidth))
-                        .toList(),
+                        .map((req) => _buildRequirementRow(req, screenWidth)),
 
                     // Show "Show more..." button if there are more than 3 requirements
                     if (widget.requirements.length > 3)
@@ -260,9 +259,9 @@ class _JobCardState extends State<JobCard> {
                                 rolesAndResponsibilities:
                                     widget.rolesAndResponsibilities,
                                 duration: widget.duration,
-                                stipend: widget.stipend as String,
+                                stipend: widget.stipend,
                                 details: widget.details,
-                                noOfOpenings: widget.noOfOpenings as String,
+                                noOfOpenings: widget.noOfOpenings,
                                 mode: widget.mode,
                                 skills: widget.skills,
                                 id: widget.id,

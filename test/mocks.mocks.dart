@@ -5,10 +5,11 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 
-import 'package:internappflutter/features/data/datasources/guardian_api_remote_datasource.dart'
+import 'package:internappflutter/features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart'
     as _i2;
-import 'package:internappflutter/features/domain/entities/article.dart' as _i5;
-import 'package:internappflutter/features/domain/repositories/news_repository.dart'
+import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart'
+    as _i5;
+import 'package:internappflutter/features/NewsFeed/domain/repositories/news_repository.dart'
     as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -37,9 +38,9 @@ class MockGuardianApiDataSource extends _i1.Mock
   }
 
   @override
-  _i3.Future<Map<String, dynamic>> fetchRawArticles(int? page) =>
+  _i3.Future<Map<String, dynamic>> fetchRawArticles(int? page, String? tags) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchRawArticles, [page]),
+            Invocation.method(#fetchRawArticles, [page, tags]),
             returnValue: _i3.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
@@ -56,9 +57,9 @@ class MockNewsRepository extends _i1.Mock implements _i4.NewsRepository {
   }
 
   @override
-  _i3.Future<List<_i5.Article>> fetchArticles(int? page) =>
+  _i3.Future<List<_i5.Article>> fetchArticles(int? page, String? tags) =>
       (super.noSuchMethod(
-            Invocation.method(#fetchArticles, [page]),
+            Invocation.method(#fetchArticles, [page, tags]),
             returnValue: _i3.Future<List<_i5.Article>>.value(<_i5.Article>[]),
           )
           as _i3.Future<List<_i5.Article>>);

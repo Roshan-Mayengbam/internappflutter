@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/explore_page/explore_page_constant.dart';
-import '../../domain/entities/article.dart';
-import '../../domain/usecases/get_tech_news.dart';
+import '../../NewsFeed/domain/entities/article.dart';
+import '../../NewsFeed/domain/usecases/get_tech_news.dart';
 
 class ExploreViewModel extends ChangeNotifier {
   final GetTechNewsUseCase getNewsUseCase;

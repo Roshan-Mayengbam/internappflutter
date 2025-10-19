@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import 'package:internappflutter/features/domain/entities/article.dart';
+import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
 import 'article_tile.dart';
 
 /// Organism responsible for displaying articles in a Masonry (Pinterest) layout.

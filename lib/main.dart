@@ -21,14 +21,14 @@ import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
 
 // Imports for the NEW provider (JProvider)
-import 'package:internappflutter/features/data/datasources/job_response_remote_datasource.dart';
-import 'package:internappflutter/features/data/repositories/job_repository_impl.dart';
-import 'package:internappflutter/features/domain/usecases/get_jobs.dart';
+import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
+import 'package:internappflutter/features/AvailableJobs/data/repositories/job_repository_impl.dart';
 import 'package:internappflutter/features/presentation/providers/job_provider.dart';
 
-import 'features/data/datasources/guardian_api_remote_datasource.dart';
-import 'features/data/repositories/news_repository_impl.dart';
-import 'features/domain/usecases/get_tech_news.dart';
+import 'features/AvailableJobs/domain/usecases/get_jobs.dart';
+import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
+import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
+import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
 import 'features/presentation/providers/news_provider.dart';
 
 void main() async {

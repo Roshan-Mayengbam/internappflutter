@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:internappflutter/features/domain/entities/article.dart';
+import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
 
 class ArticleTile extends StatelessWidget {
   final Article article;

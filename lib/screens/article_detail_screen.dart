@@ -6,7 +6,7 @@ import 'package:internappflutter/core/components/custom_search_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/components/custom_button.dart';
-import '../features/domain/entities/article.dart';
+import '../features/NewsFeed/domain/entities/article.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
   final Article article;
