@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/custom_app_bar.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
-import 'package:internappflutter/core/components/jobs_page/custom_carousel_section.dart';
+import 'package:internappflutter/common/components/custom_app_bar.dart';
+import 'package:internappflutter/common/components/custom_button.dart';
+import 'package:internappflutter/common/components/jobs_page/custom_carousel_section.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

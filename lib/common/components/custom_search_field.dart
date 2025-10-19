@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/constants/search_field_constants.dart';
+import 'package:internappflutter/common/constants/search_field_constants.dart';
 
 class CustomSearchField extends StatelessWidget {
   const CustomSearchField({

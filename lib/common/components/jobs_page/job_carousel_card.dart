@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/constants/job_carousel_card_constants.dart';
+import 'package:internappflutter/common/constants/job_carousel_card_constants.dart';
 
 class CarouselCard extends StatelessWidget {
   final String title;

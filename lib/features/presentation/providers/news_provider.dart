@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/explore_page/explore_page_constant.dart';
+import '../../../common/constants/explore_page/explore_page_constant.dart';
 import '../../NewsFeed/domain/entities/article.dart';
 import '../../NewsFeed/domain/usecases/get_tech_news.dart';
 

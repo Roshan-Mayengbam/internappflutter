@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:internappflutter/core/constants/app_constants.dart';
+import 'package:internappflutter/common/constants/app_constants.dart';
 import 'package:internappflutter/features/core/errors/failiure.dart';
 import 'package:internappflutter/features/AvailableJobs/data/models/job_response_model.dart';
 

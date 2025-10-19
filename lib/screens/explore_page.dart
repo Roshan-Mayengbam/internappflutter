@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../core/components/custom_app_bar.dart';
-import '../core/components/explore_page/article_content_grid.dart';
-import '../core/components/explore_page/filter_tag_group.dart';
+import '../common/components/explore_page/article_content_grid.dart';
+import '../common/components/custom_app_bar.dart';
+import '../common/components/explore_page/filter_tag_group.dart';
 import '../features/NewsFeed/domain/entities/article.dart';
 import '../features/presentation/providers/news_provider.dart';
 import 'article_detail_screen.dart';

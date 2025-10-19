@@ -25,7 +25,7 @@ class ExploreFilter {
 }
 
 // --- Common Tech-Related Filter Tags ---
-// lib/core/nts/explore_page_nts.dart
+// lib/common/nts/explore_page_nts.dart
 
 List<ExploreFilter> kVisibleExploreFilters = [
   ExploreFilter(

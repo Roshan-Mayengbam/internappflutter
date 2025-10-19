@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/core/constants/explore_page/explore_page_constant.dart';
-import 'package:internappflutter/core/components/jobs_page/filter_tag.dart';
+import 'package:internappflutter/common/constants/explore_page/explore_page_constant.dart';
+import 'package:internappflutter/common/components/jobs_page/filter_tag.dart';
 
 class FilterTagGroup extends StatelessWidget {
   // Change type from String to the ExploreFilter enum

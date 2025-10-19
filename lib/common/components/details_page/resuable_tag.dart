@@ -1,6 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/constants/details_page/reusable_tag_constants.dart';
+import 'package:internappflutter/common/constants/details_page/reusable_tag_constants.dart';
 
 class ReusableTag extends StatelessWidget {
   final String label;

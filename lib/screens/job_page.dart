@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:provider/provider.dart';
-import '../core/components/jobs_page/custom_carousel_section.dart';
+import '../common/components/jobs_page/custom_carousel_section.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
