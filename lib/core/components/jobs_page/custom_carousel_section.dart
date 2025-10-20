@@ -116,7 +116,9 @@ class CustomCarouselSection extends StatelessWidget {
                         ? CarouselCard(
                             title: item["jobTitle"],
                             subtitle: item["companyName"],
-                            tag1: item["applied"] ? "Applied" : "Not Applied",
+                            tag1: (item["applied"] ?? false)
+                                ? "Applied"
+                                : "Not Applied", // ✅ FIXED: Added null check
                             statusCard: statusPage,
                           )
                         : CarouselCard(

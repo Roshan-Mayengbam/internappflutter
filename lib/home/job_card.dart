@@ -21,6 +21,7 @@ class JobCard extends StatefulWidget {
   final String noOfOpenings;
   final String mode;
   final String jobType;
+  final Map<String, dynamic>? recruiter;
 
   const JobCard({
     super.key,
@@ -43,6 +44,7 @@ class JobCard extends StatefulWidget {
     required this.mode,
     required this.id,
     required this.jobType,
+    this.recruiter,
   });
 
   @override
@@ -177,6 +179,16 @@ class _JobCardState extends State<JobCard> {
         print('Mode: ${widget.mode}');
         print('Skills: ${widget.skills}');
         print('ID: ${widget.id}');
+        print('Recruiter Details:');
+        print('Recruiter Details:');
+        print('Recruiter ${widget.recruiter}');
+        if (widget.recruiter != null) {
+          print('Recruiter Name: ${widget.recruiter?['name']}');
+          print('Firebase ID: ${widget.recruiter?['firebaseId']}'); // Add this
+          print('Email: ${widget.recruiter?['email']}');
+          print('Designation: ${widget.recruiter?['designation']}');
+        }
+
         print('Job Type: ${widget.jobType}');
         print('-------------------');
 
@@ -193,13 +205,14 @@ class _JobCardState extends State<JobCard> {
               employmentType: widget.employmentType,
               rolesAndResponsibilities: widget.rolesAndResponsibilities,
               duration: widget.duration,
-              stipend: widget.stipend as String,
+              stipend: widget.stipend,
               details: widget.details,
-              noOfOpenings: widget.noOfOpenings as String,
+              noOfOpenings: widget.noOfOpenings,
               mode: widget.mode,
               skills: widget.skills,
               id: widget.id,
               jobType: widget.jobType,
+              recruiter: widget.recruiter, // ✅ Add this line
             ),
           ),
         );
