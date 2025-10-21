@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,10 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
-import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-
-import 'package:internappflutter/screens/job_page.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
@@ -121,8 +117,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
@@ -141,9 +135,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(builder: (context) => const Page2()),
       );
-      setState(() {
-        _errorMessage = "User not logged in";
-      });
+      setState(() {});
     } else {
       Navigator.pushReplacement(
         context,

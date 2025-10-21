@@ -196,6 +196,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         children: [
           Stack(
             children: [
+              Positioned(
+                left: 8,
+                top: 8,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
               InkWell(
                 onTap: () {
                   Navigator.push(
@@ -287,17 +299,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
                 padding: const EdgeInsets.all(8),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatPage()),
-                    );
-                  },
-                  child: const Icon(
-                    Icons.chat_bubble_outline,
-                    color: Colors.black,
-                  ),
+                child: const Icon(
+                  Icons.chat_bubble_outline,
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(width: 12),

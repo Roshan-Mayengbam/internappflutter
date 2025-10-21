@@ -38,9 +38,31 @@ class _JobPageState extends State<JobPage> {
     return jobs.asMap().entries.map((entry) {
       int index = entry.key;
       Job job = entry.value;
+
+      // Create recruiter map - handle both populated and unpopulated cases
+      Map<String, dynamic>? recruiterMap;
+      if (job.recruiterDetails != null) {
+        // Recruiter is populated
+        recruiterMap = job.recruiterDetails;
+      } else if (job.recruiter is String && job.recruiter.isNotEmpty) {
+        // Recruiter is just an ID - create minimal map
+        recruiterMap = {
+          'id': job.recruiter,
+          'name': 'Unknown',
+          'email': 'N/A',
+          'firebaseId': job.recruiter, // Use the ID as fallback
+          'designation': 'N/A',
+          'company': {'name': 'Unknown Company'},
+        };
+      }
+
       return {
         'jobTitle': job.title,
-        'companyName': job.recruiter.isNotEmpty ? job.recruiter : 'Company',
+        'id': job.id,
+        'jobType': job.jobType,
+        'companyName': job.recruiterName.isNotEmpty
+            ? job.recruiterName
+            : 'Company',
         'location': job.preferences.location.isNotEmpty
             ? job.preferences.location
             : 'Location not specified',
@@ -57,12 +79,36 @@ class _JobPageState extends State<JobPage> {
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
         'jobId': job.id,
         'jobType': job.jobType,
-        'college': job.college,
-        'applied': job.applied ?? false, // ✅ Add this line
-        'tagLabel': job.jobType == 'on-campus' ? 'On Campus' : 'In House',
+        'college': job.college ?? 'N/A',
+        'tagLabel': job.jobType == 'on-campus'
+            ? 'On Campus'
+            : job.jobType == 'external'
+            ? 'External'
+            : 'In House',
         'tagColor': job.jobType == 'on-campus'
             ? const Color(0xFF6C63FF)
+            : job.jobType == 'external'
+            ? const Color(0xFF00BFA6)
             : const Color(0xFFFFB347),
+        'employmentType': job.employmentType,
+        'rolesAndResponsibilities':
+            job.rolesAndResponsibilities?.isNotEmpty == true
+            ? job.rolesAndResponsibilities
+            : 'Not specified',
+        'perks': job.perks?.isNotEmpty == true ? job.perks : 'Not specified',
+        'details': job.details?.isNotEmpty == true
+            ? job.details
+            : 'Not specified',
+        'noOfOpenings': job.noOfOpenings.toString(),
+        'duration': job.duration?.isNotEmpty == true
+            ? job.duration
+            : 'Not specified',
+        'skills': job.preferences.skills,
+        'mode': job.mode.isNotEmpty ? job.mode : 'Not specified',
+        'stipend': job.stipend != null ? '₹${job.stipend}' : 'Not specified',
+
+        // Use the recruiterMap we created
+        'recruiter': recruiterMap,
       };
     }).toList();
   }
@@ -224,6 +270,7 @@ class _JobPageState extends State<JobPage> {
                           skills: job['requirements'] ?? [],
                           id: job['jobId'] ?? '',
                           jobType: job['jobType'] ?? '',
+                          recruiter: job['recruiter'],
                         ),
                       ),
                     );

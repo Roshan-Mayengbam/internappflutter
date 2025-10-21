@@ -79,7 +79,7 @@ void main() {
       final job = result.jobs.first;
       expect(job.id, '60d0fe4f5311236168a109ca');
       expect(job.title, 'Senior Flutter Developer');
-      expect(job.location, 'Remote');
+      expect(job.preferences.location, 'Remote');
       expect(job.recruiter.name, 'Jane Doe');
       expect(job.recruiter.company.name, 'Tech Solutions Inc.');
       expect(job.salaryRange.min, 80000);

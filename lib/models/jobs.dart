@@ -8,10 +8,10 @@ import 'package:http/http.dart' as http;
 class Job {
   final String id;
   final String title;
-  final String description;
-  final String recruiter;
-  final String? college;
   final String jobType;
+  final dynamic recruiter; // Can be String (ID) or Map (populated object)
+  final String description;
+  final String? applicationLink;
   final String employmentType;
   final String? rolesAndResponsibilities;
   final String? perks;
@@ -19,10 +19,10 @@ class Job {
   final int noOfOpenings;
   final String? duration;
   final String mode;
-  final int? stipend;
+  final double? stipend;
+  final String? college;
+  final JobPreferences preferences;
   final SalaryRange salaryRange;
-  final Preferences preferences;
-  final String? applicationLink;
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool applied;
@@ -31,10 +31,10 @@ class Job {
   Job({
     required this.id,
     required this.title,
-    required this.description,
-    required this.recruiter,
-    this.college,
     required this.jobType,
+    required this.recruiter,
+    required this.description,
+    this.applicationLink,
     required this.employmentType,
     this.rolesAndResponsibilities,
     this.perks,
@@ -43,9 +43,9 @@ class Job {
     this.duration,
     required this.mode,
     this.stipend,
-    required this.salaryRange,
+    this.college,
     required this.preferences,
-    this.applicationLink,
+    required this.salaryRange,
     required this.createdAt,
     required this.updatedAt,
     this.applied = false,
@@ -65,12 +65,12 @@ class Job {
     }
 
     return Job(
-      id: json['_id'] ?? '',
+      id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
+      jobType: json['jobType'] ?? 'company',
+      recruiter: json['recruiter'], // Keep as dynamic - can be String or Map
       description: json['description'] ?? '',
-      recruiter: json['recruiter']?.toString() ?? '',
-      college: json['college'],
-      jobType: json['jobType'] ?? 'company', // ✅ explicitly mapped
+      applicationLink: json['applicationLink'],
       employmentType: json['employmentType'] ?? 'full-time',
       rolesAndResponsibilities: json['rolesAndResponsibilities'],
       perks: json['perks'],
@@ -81,11 +81,13 @@ class Job {
       duration: json['duration'],
       mode: json['mode'] ?? 'on-site',
       stipend: json['stipend'] != null
-          ? int.tryParse(json['stipend'].toString())
+          ? (json['stipend'] is int
+                ? (json['stipend'] as int).toDouble()
+                : double.tryParse(json['stipend'].toString()))
           : null,
+      college: json['college'],
+      preferences: JobPreferences.fromJson(json['preferences'] ?? {}),
       salaryRange: SalaryRange.fromJson(json['salaryRange'] ?? {}),
-      preferences: Preferences.fromJson(json['preferences'] ?? {}),
-      applicationLink: json['applicationLink'],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       applied: json['applied'] ?? false,
@@ -97,10 +99,10 @@ class Job {
     return {
       '_id': id,
       'title': title,
-      'description': description,
+      'jobType': jobType,
       'recruiter': recruiter,
-      'college': college,
-      'jobType': jobType, // ✅ included explicitly
+      'description': description,
+      'applicationLink': applicationLink,
       'employmentType': employmentType,
       'rolesAndResponsibilities': rolesAndResponsibilities,
       'perks': perks,
@@ -109,31 +111,60 @@ class Job {
       'duration': duration,
       'mode': mode,
       'stipend': stipend,
-      'salaryRange': salaryRange.toJson(),
+      'college': college,
       'preferences': preferences.toJson(),
-      'applicationLink': applicationLink,
+      'salaryRange': salaryRange.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'applied': applied,
       'skills': skills,
     };
   }
+
+  // Helper getter to check if recruiter is populated (object) or just an ID (string)
+  bool get isRecruiterPopulated => recruiter is Map<String, dynamic>;
+
+  // Helper getter to safely get recruiter details
+  Map<String, dynamic>? get recruiterDetails {
+    if (recruiter is Map<String, dynamic>) {
+      return recruiter as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  // Helper getter to get recruiter ID (works for both populated and unpopulated)
+  String get recruiterId {
+    if (recruiter is String) {
+      return recruiter as String;
+    } else if (recruiter is Map<String, dynamic>) {
+      return recruiter['_id'] ?? recruiter['id'] ?? '';
+    }
+    return '';
+  }
+
+  // Helper getter to get recruiter name
+  String get recruiterName {
+    if (recruiter is Map<String, dynamic>) {
+      return recruiter['name'] ?? 'Unknown';
+    }
+    return 'Unknown';
+  }
 }
 
-class Preferences {
+class JobPreferences {
   final List<String> skills;
+  final String location;
   final int minExperience;
   final String education;
-  final String location;
 
-  Preferences({
+  JobPreferences({
     required this.skills,
+    required this.location,
     required this.minExperience,
     required this.education,
-    required this.location,
   });
 
-  factory Preferences.fromJson(Map<String, dynamic> json) {
+  factory JobPreferences.fromJson(Map<String, dynamic> json) {
     // Extract skills array safely
     List<String> extractedSkills = [];
     if (json['skills'] != null) {
@@ -145,22 +176,22 @@ class Preferences {
           .toList();
     }
 
-    return Preferences(
+    return JobPreferences(
       skills: extractedSkills,
+      location: json['location'] ?? '',
       minExperience: (json['minExperience'] is int)
           ? json['minExperience']
           : int.tryParse(json['minExperience']?.toString() ?? '0') ?? 0,
       education: json['education'] ?? '',
-      location: json['location'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'skills': skills.map((s) => {'type': s}).toList(),
+      'location': location,
       'minExperience': minExperience,
       'education': education,
-      'location': location,
     };
   }
 }
@@ -193,6 +224,7 @@ class SalaryRange {
 class JobProvider with ChangeNotifier {
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
+  static const String baseUrl2 = 'http://10.196.234.157:3000';
 
   List<Job> _jobs = [];
   bool _isLoading = false;
