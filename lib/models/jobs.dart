@@ -53,7 +53,6 @@ class Job {
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
-    // Safely extract skills list
     List<String> extractedSkills = [];
     if (json['preferences']?['skills'] != null) {
       extractedSkills = (json['preferences']['skills'] as List)
@@ -68,7 +67,7 @@ class Job {
       id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
       jobType: json['jobType'] ?? 'company',
-      recruiter: json['recruiter'], // Keep as dynamic - can be String or Map
+      recruiter: json['recruiter'],
       description: json['description'] ?? '',
       applicationLink: json['applicationLink'],
       employmentType: json['employmentType'] ?? 'full-time',
@@ -121,10 +120,10 @@ class Job {
     };
   }
 
-  // Helper getter to check if recruiter is populated (object) or just an ID (string)
+  // ===== EXISTING HELPER METHODS =====
+
   bool get isRecruiterPopulated => recruiter is Map<String, dynamic>;
 
-  // Helper getter to safely get recruiter details
   Map<String, dynamic>? get recruiterDetails {
     if (recruiter is Map<String, dynamic>) {
       return recruiter as Map<String, dynamic>;
@@ -132,7 +131,6 @@ class Job {
     return null;
   }
 
-  // Helper getter to get recruiter ID (works for both populated and unpopulated)
   String get recruiterId {
     if (recruiter is String) {
       return recruiter as String;
@@ -142,12 +140,97 @@ class Job {
     return '';
   }
 
-  // Helper getter to get recruiter name
   String get recruiterName {
     if (recruiter is Map<String, dynamic>) {
       return recruiter['name'] ?? 'Unknown';
     }
     return 'Unknown';
+  }
+
+  // ===== NEW COMPANY HELPER METHODS =====
+
+  /// Get company information from recruiter data
+  Map<String, dynamic>? get companyInfo {
+    if (recruiter is Map<String, dynamic>) {
+      final rec = recruiter as Map<String, dynamic>;
+      // Check if company exists as a nested object (common structure)
+      if (rec.containsKey('company') && rec['company'] is Map) {
+        return rec['company'] as Map<String, dynamic>;
+      }
+      // If recruiter object itself contains company fields
+      return rec;
+    }
+    return null;
+  }
+
+  /// Get company name with fallback
+  String get companyName {
+    final company = companyInfo;
+    if (company != null) {
+      return company['name']?.toString() ?? recruiterName;
+    }
+    return recruiterName;
+  }
+
+  /// Get company description
+  String get companyDescription {
+    final company = companyInfo;
+    if (company != null) {
+      return company['description']?.toString() ?? 'No description available';
+    }
+    return 'No description available';
+  }
+
+  /// Get company website
+  String? get companyWebsite {
+    final company = companyInfo;
+    return company?['website']?.toString();
+  }
+
+  /// Get company location
+  Map<String, dynamic>? get companyLocation {
+    final company = companyInfo;
+    if (company != null && company['location'] is Map) {
+      return company['location'] as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  /// Get formatted company location string
+  String get companyLocationString {
+    final location = companyLocation;
+    if (location != null) {
+      final parts = <String>[];
+      if (location['city'] != null) parts.add(location['city'].toString());
+      if (location['state'] != null) parts.add(location['state'].toString());
+      if (location['country'] != null)
+        parts.add(location['country'].toString());
+      return parts.join(', ');
+    }
+    return 'Location not specified';
+  }
+
+  /// Get company type (e.g., Startup, Enterprise)
+  String? get companyType {
+    final company = companyInfo;
+    return company?['companyType']?.toString();
+  }
+
+  /// Get company founded year
+  int? get companyFoundedYear {
+    final company = companyInfo;
+    if (company?['founded'] != null) {
+      if (company!['founded'] is int) return company['founded'];
+      return int.tryParse(company['founded'].toString());
+    }
+    return null;
+  }
+
+  /// Get company logo URL
+  String? get companyLogo {
+    final company = companyInfo;
+    final logo = company?['logo']?.toString();
+    return (logo != null && logo.isNotEmpty) ? logo : null;
   }
 }
 
@@ -165,7 +248,6 @@ class JobPreferences {
   });
 
   factory JobPreferences.fromJson(Map<String, dynamic> json) {
-    // Extract skills array safely
     List<String> extractedSkills = [];
     if (json['skills'] != null) {
       extractedSkills = (json['skills'] as List)

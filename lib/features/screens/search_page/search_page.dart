@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
 import 'package:internappflutter/home/cardDetails.dart';
+import 'package:internappflutter/screens/hackathon_details.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -96,7 +97,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void _performSearch({bool isInitialLoad = false}) {
     final jobProvider = context.read<JProvider>();
-    final hackathonProvider = context.read<HackathonProvider>();
+    final hackathonProvider = context.read<HProvider>();
     final filterSlug = _selectedSearchCategory.searchFilter;
     final query = isInitialLoad ? null : _currentSearchQuery;
 
@@ -187,7 +188,7 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Widget _buildHackathonResults(HackathonProvider hackathonProvider) {
+  Widget _buildHackathonResults(HProvider hackathonProvider) {
     final state = hackathonProvider.state;
     final hackathons = hackathonProvider.hackathons;
     final totalHackathons = hackathons.length;
@@ -290,7 +291,7 @@ class _SearchPageState extends State<SearchPage> {
                   )
                 : (filterSlug == 'hackathons')
                 ? Expanded(
-                    child: Consumer<HackathonProvider>(
+                    child: Consumer<HProvider>(
                       builder: (context, hackathonProvider, child) {
                         return _buildHackathonResults(hackathonProvider);
                       },
@@ -344,12 +345,13 @@ class _JobListItem extends StatelessWidget {
           rolesAndResponsibilities: job.rolesAndResponsibilities ?? "N/A",
           duration: job.duration ?? "N/A",
           stipend: job.stipend?.toString() ?? 'N/A',
-          details: job.description ?? "",
+          details: job.details ?? "",
           noOfOpenings: job.noOfOpenings.toString(),
           mode: job.mode,
           skills: job.preferences.skills,
           id: job.id,
           jobType: job.jobType,
+          about: job.description,
         ),
       ),
     );
@@ -382,10 +384,21 @@ class _HackathonListItem extends StatelessWidget {
 
   // 2. Handle the tap action
   void _handleTap(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Tapped on Hackathon: ${hackathon.title} - Organized by: ${hackathon.organizer}',
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HackathonDetailsScreen(
+          title: hackathon.title,
+          organizer: hackathon.organizer,
+          description: hackathon.description,
+          location: hackathon.location,
+          startDate: hackathon.startDate,
+          endDate: hackathon.endDate,
+          registrationDeadline: hackathon.registrationDeadline,
+          eligibility: hackathon.eligibility ?? "N/A",
+          website: hackathon.website,
+          createdAt: hackathon.startDate,
+          updatedAt: hackathon.endDate,
         ),
       ),
     );

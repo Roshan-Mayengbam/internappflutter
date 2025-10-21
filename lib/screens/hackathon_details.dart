@@ -1,276 +1,642 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class HackathonDetailsScreen extends StatelessWidget {
-  const HackathonDetailsScreen({super.key});
+class AppConstants {
+  static const Color backgroundColor = Colors.white;
+  static const Color borderColor = Colors.blue;
+}
 
+class HackathonDetailsScreen extends StatefulWidget {
+  final String title;
+  final String organizer;
+  final String description;
+  final String location;
+  final DateTime startDate;
+  final DateTime endDate;
+  final DateTime registrationDeadline;
+  final String? prizePool;
+  final String eligibility;
+  final String? website;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const HackathonDetailsScreen({
+    super.key,
+    required this.title,
+    required this.organizer,
+    required this.description,
+    required this.location,
+    required this.startDate,
+    required this.endDate,
+    required this.registrationDeadline,
+    this.prizePool,
+    required this.eligibility,
+    required this.website,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  @override
+  State<HackathonDetailsScreen> createState() => _HackathonDetailsScreenState();
+}
+
+class _HackathonDetailsScreenState extends State<HackathonDetailsScreen> {
+  IconData icon = Icons.arrow_back;
+  String _errorMessage = '';
+  bool _isApplied = false; // Add this
+  bool _isLoading = false; // Add this
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         elevation: 0,
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pop(context); // Go back when pressed
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(0, 5),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(5, 0),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(5, 5),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+              ],
+              color: AppConstants.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: const Color.fromARGB(255, 6, 7, 8),
+                width: 2,
+              ),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: const Color.fromARGB(255, 7, 8, 9)),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Organizer + Logo
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Google Developers Group ",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const Icon(Icons.verified, color: Colors.blue, size: 18),
-              ],
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              "CodeSprint 2024",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              "Coimbatore, Tamil Nadu, India • 3 weeks ago • Over 100 people clicked apply",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 12),
-
-            // Tags
-            Row(
-              children: [
-                _tag("On-site"),
-                const SizedBox(width: 10),
-                _tag("Full Time"),
-                const Spacer(),
-                const Icon(Icons.favorite_border, color: Colors.pink),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Apply Button
+            // Header Section
             Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: const Border(
-                  top: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 1,
+              color: Colors.white,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(
+                    color: Color.fromARGB(255, 4, 4, 4),
+                    thickness: 1,
+                    height: 30,
                   ),
-                  left: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 1,
+                  // Company Name with Badge
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.organizer,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                      const Spacer(),
+                    ],
                   ),
-                  right: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 2,
+
+                  const SizedBox(height: 12),
+
+                  // Job Title
+                  Text(
+                    widget.title,
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  bottom: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 2,
+                  const SizedBox(height: 8),
+
+                  // Location and Time
+                  Text(
+                    'Location:${widget.location}',
+                    style: TextStyle(fontSize: 20, color: Colors.grey[900]),
                   ),
-                ),
-                boxShadow: const [
-                  // Bottom shadow
-                  BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(0, 6),
-                    blurRadius: 0,
-                    spreadRadius: -2,
+                  const SizedBox(height: 16),
+
+                  // Badges
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow[100],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.yellow[700]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.yellow[700],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'On site',
+                              style: TextStyle(
+                                color: Colors.yellow[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow[100],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.yellow[700]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.yellow[700],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Full Time',
+                              style: TextStyle(
+                                color: Colors.yellow[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
                   ),
-                  // Right shadow
-                  BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(6, 0),
-                    blurRadius: 0,
-                    spreadRadius: -2,
-                  ),
-                  // Bottom-right corner shadow
-                  BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(6, 6),
-                    blurRadius: 0,
-                    spreadRadius: -2,
+                  const SizedBox(height: 16),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(0, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 0),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                            ],
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: const Border(
+                              top: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 1,
+                              ),
+                              left: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 1,
+                              ),
+                              right: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 2,
+                              ),
+                              bottom: BorderSide(
+                                color: Color.fromARGB(255, 6, 7, 8),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    print("Website URL: ${widget.website}");
+
+                                    if (widget.website != null &&
+                                        widget.website!.isNotEmpty &&
+                                        widget.website != 'Apply via app' &&
+                                        widget.website != 'N/A') {
+                                      try {
+                                        String url = widget.website ?? '';
+
+                                        // Add https:// if not present
+                                        if (!url.startsWith('http://') &&
+                                            !url.startsWith('https://')) {
+                                          url = 'https://$url';
+                                        }
+
+                                        print("Final URL: $url");
+
+                                        final Uri uri = Uri.parse(url);
+
+                                        // Try to launch the URL
+                                        bool launched = await launchUrl(
+                                          uri,
+                                          mode: LaunchMode.inAppWebView,
+                                        );
+
+                                        if (!launched) {
+                                          // If in-app doesn't work, try external browser
+                                          launched = await launchUrl(
+                                            uri,
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          );
+                                        }
+
+                                        if (!launched) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Could not open: $url',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        print("Error launching URL: $e");
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Invalid URL: ${widget.website}',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'No application link available for this job',
+                                          ),
+                                          backgroundColor: Colors.orange,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.lightGreen[300],
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.black,
+                                      ),
+                                    ),
+                                  )
+                                : const Text(
+                                    'Apply Now',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF9F3C6),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 50,
+            ),
+
+            const SizedBox(height: 20),
+
+            // About the job Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'About the job',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+                  const SizedBox(height: 16),
+
+                  // Job Details Grid
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildInfoCard(
+                                'Job Type',
+                                widget.eligibility,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildInfoCard(
+                                'Duration',
+                                '${widget.endDate.difference(widget.startDate).inDays} days',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(child: _buildInfoCard('Mode', 'Online')),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildInfoCard(
+                                'Stipend',
+                                widget.prizePool ?? 'N/A',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Skills Section
+                        // Replace the Skills Section in your Carddetails widget with this:
+
+                        // Skills Section
+                      ],
+                    ),
                   ),
-                  elevation: 0, // Remove default button shadow
-                ),
-                child: const Text("Apply Now"),
+
+                  // Details
+                  const Text(
+                    'Details :',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(0, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 0),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(6, 6),
+                          blurRadius: 0,
+                          spreadRadius: -2,
+                        ),
+                      ],
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: const Border(
+                        top: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 1,
+                        ),
+                        left: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 1,
+                        ),
+                        right: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 2,
+                        ),
+                        bottom: BorderSide(
+                          color: Color.fromARGB(255, 6, 7, 8),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      widget.description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            // About the job
-            _sectionTitle("About the job"),
-            const SizedBox(height: 12),
-
-            _infoGrid([
-              _infoCard("Mode", "Online"),
-              _infoCard("Start Date", "2024-02-15"),
-              _infoCard("End Date", "2024-02-17"),
-              _infoCard("Prize", "20k/month"),
-            ]),
-            const SizedBox(height: 20),
-
-            _sectionTitle("Description:"),
-            _description(),
           ],
         ),
       ),
     );
   }
 
-  // Helper Widgets
-  static Widget _tag(String text) => Container(
-    decoration: BoxDecoration(
-      color: const Color(0xFFF9F3C6), // background color for the whole tag
-      borderRadius: BorderRadius.circular(10), // match DottedBorder radius
-    ),
-    child: DottedBorder(
-      options: RoundedRectDottedBorderOptions(
-        radius: const Radius.circular(10),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        strokeWidth: 1.5,
-        color: Colors.black26,
-        dashPattern: const <double>[4, 3],
-      ),
-      child: Center(
-        child: Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
-      ),
-    ),
-  );
-
-  static Widget _infoCard(String title, String value) => Container(
-    width: 150,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      boxShadow: [
-        // Bottom shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(0, 6),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-        // Right shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(6, 0),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-        // Bottom-right corner shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(6, 6),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-      ],
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      border: const Border(
-        top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-        left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-        right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-        bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-      ),
-    ),
-    child: Column(
-      children: [
-        Text(title, style: const TextStyle(fontSize: 12, fontFamily: 'jost')),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'jost',
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(0, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
           ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 0),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: const Border(
+          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
         ),
-      ],
-    ),
-  );
-
-  static Widget _infoGrid(List<Widget> children) =>
-      Wrap(spacing: 12, runSpacing: 12, children: children);
-
-  static Widget _chip(String text) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-    decoration: BoxDecoration(
-      boxShadow: [
-        // Bottom shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(0, 6),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-        // Right shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(6, 0),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-        // Bottom-right corner shadow
-        const BoxShadow(
-          color: Colors.black,
-          offset: Offset(6, 6),
-          blurRadius: 0,
-          spreadRadius: -2,
-        ),
-      ],
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(15),
-      border: const Border(
-        top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-        left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-        right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-        bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
       ),
-    ),
-    child: Text(text, style: TextStyle(color: Color(0xFF1FA7E3))),
-  );
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
 
-  static Widget _sectionTitle(String text) => Text(
-    text,
-    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  );
+  Widget _buildSkillChip(String skill) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(0, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 0),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: const Border(
+          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+        ),
+      ),
+      child: Text(
+        skill,
+        style: TextStyle(
+          color: Colors.blue[400],
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
 
-  static Widget _description() => Container(
-    padding: const EdgeInsets.all(12),
-    margin: const EdgeInsets.only(top: 8),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.black),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Text(
-      "Durante seu estágio, você pode aprimorar seu conhecimento e ganhar experiência profissional trabalhando em projetos de clientes. Esta função oferece uma oportunidade excepcional para construir um portfólio atraente, adquirir novas habilidades, obter insights sobre diversos setores e abraçar novos desafios para sua futura carreira.",
-      style: TextStyle(fontSize: 13),
-    ),
-  );
+  Widget _buildPerkButton(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(0, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 0),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        border: const Border(
+          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.blue[400],
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
 }

@@ -22,24 +22,20 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _hasShownError = false;
 
   // Convert API Job to display format
-  // ✅ FIXED VERSION - No more null check errors!
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
     return jobs.asMap().entries.map((entry) {
       int index = entry.key;
       Job job = entry.value;
 
-      // Create recruiter map - handle both populated and unpopulated cases
       Map<String, dynamic>? recruiterMap;
       if (job.recruiterDetails != null) {
-        // Recruiter is populated
         recruiterMap = job.recruiterDetails;
       } else if (job.recruiter is String && job.recruiter.isNotEmpty) {
-        // Recruiter is just an ID - create minimal map
         recruiterMap = {
           'id': job.recruiter,
           'name': 'Unknown',
           'email': 'N/A',
-          'firebaseId': job.recruiter, // Use the ID as fallback
+          'firebaseId': job.recruiter,
           'designation': 'N/A',
           'company': {'name': 'Unknown Company'},
         };
@@ -49,9 +45,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'jobTitle': job.title,
         'id': job.id,
         'jobType': job.jobType,
-        'companyName': job.recruiterName.isNotEmpty
+        'companyName':
+            job.recruiterDetails?['company']?['name']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['name']
+            : job.recruiterName.isNotEmpty
             ? job.recruiterName
             : 'Company',
+        'about':
+            job.recruiterDetails?['company']?['description']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['description']
+            : job.recruiterName.isNotEmpty
+            ? job.recruiterName
+            : 'description not available',
         'location': job.preferences.location.isNotEmpty
             ? job.preferences.location
             : 'Location not specified',
@@ -67,7 +72,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'salaryRange':
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
         'jobId': job.id,
-        'jobType': job.jobType,
         'college': job.college ?? 'N/A',
         'tagLabel': job.jobType == 'on-campus'
             ? 'On Campus'
@@ -95,14 +99,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'skills': job.preferences.skills,
         'mode': job.mode.isNotEmpty ? job.mode : 'Not specified',
         'stipend': job.stipend != null ? '₹${job.stipend}' : 'Not specified',
-
-        // Use the recruiterMap we created
         'recruiter': recruiterMap,
       };
     }).toList();
   }
 
-  // Notification data
   Map notifications = {
     'msg': [
       'New job matching your skills',
@@ -124,8 +125,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late List<Animation<Offset>> _animations;
 
   int _topIndex = 0;
-  double _dragProgress = 0.0;
-  DismissDirection? _dragDirection;
+
+  // ✅ Use ValueNotifier for smoother updates without full rebuilds
+  final ValueNotifier<double> _dragProgress = ValueNotifier(0.0);
+  final ValueNotifier<DismissDirection?> _dragDirection = ValueNotifier(null);
 
   int _idx(int offset, int totalJobs) => (_topIndex + offset) % totalJobs;
 
@@ -172,11 +175,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void _handleJobAction(String jobId, String jobType, bool isLiked) async {
     if (isLiked) {
       print("Attempting to apply for job: $jobId (Type: $jobType)");
-
       context.read<JobProvider>().clearError();
       _hasShownError = false;
-
-      // Pass jobType to applyJob
       await context.read<JobProvider>().applyJob(jobId, jobType);
     }
   }
@@ -301,88 +301,88 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(width: 12),
-              Builder(
-                builder: (context) => InkWell(
-                  onTap: () => Scaffold.of(context).openEndDrawer(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(0, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 0),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: const Border(
-                        top: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        left: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        right: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                        bottom: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: Stack(
-                      children: [
-                        const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
-                        ),
-                        if (notifications['msg'].isNotEmpty)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 16,
-                                minHeight: 16,
-                              ),
-                              child: Text(
-                                '${notifications['msg'].length}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // Builder(
+              //   builder: (context) => InkWell(
+              //     onTap: () => Scaffold.of(context).openEndDrawer(),
+              //     child: Container(
+              //       decoration: BoxDecoration(
+              //         boxShadow: const [
+              //           BoxShadow(
+              //             color: Colors.black,
+              //             offset: Offset(0, 6),
+              //             blurRadius: 0,
+              //             spreadRadius: -2,
+              //           ),
+              //           BoxShadow(
+              //             color: Colors.black,
+              //             offset: Offset(6, 0),
+              //             blurRadius: 0,
+              //             spreadRadius: -2,
+              //           ),
+              //           BoxShadow(
+              //             color: Colors.black,
+              //             offset: Offset(6, 6),
+              //             blurRadius: 0,
+              //             spreadRadius: -2,
+              //           ),
+              //         ],
+              //         color: Colors.white,
+              //         borderRadius: BorderRadius.circular(10),
+              //         border: const Border(
+              //           top: BorderSide(
+              //             color: Color.fromARGB(255, 6, 7, 8),
+              //             width: 1,
+              //           ),
+              //           left: BorderSide(
+              //             color: Color.fromARGB(255, 6, 7, 8),
+              //             width: 1,
+              //           ),
+              //           right: BorderSide(
+              //             color: Color.fromARGB(255, 6, 7, 8),
+              //             width: 2,
+              //           ),
+              //           bottom: BorderSide(
+              //             color: Color.fromARGB(255, 6, 7, 8),
+              //             width: 2,
+              //           ),
+              //         ),
+              //       ),
+              //       padding: const EdgeInsets.all(8),
+              //       child: Stack(
+              //         children: [
+              //           const Icon(
+              //             Icons.notifications_none,
+              //             color: Colors.black,
+              //           ),
+              //           if (notifications['msg'].isNotEmpty)
+              //             Positioned(
+              //               right: 0,
+              //               top: 0,
+              //               child: Container(
+              //                 padding: const EdgeInsets.all(2),
+              //                 decoration: BoxDecoration(
+              //                   color: Colors.red,
+              //                   borderRadius: BorderRadius.circular(10),
+              //                 ),
+              //                 constraints: const BoxConstraints(
+              //                   minWidth: 16,
+              //                   minHeight: 16,
+              //                 ),
+              //                 child: Text(
+              //                   '${notifications['msg'].length}',
+              //                   style: const TextStyle(
+              //                     color: Colors.white,
+              //                     fontSize: 10,
+              //                   ),
+              //                   textAlign: TextAlign.center,
+              //                 ),
+              //               ),
+              //             ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ],
@@ -401,15 +401,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     for (var c in _controllers) {
       c.dispose();
     }
+    _dragProgress.dispose();
+    _dragDirection.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    // In HomePage build method
-    final cardWidth = screenSize.width * 0.92; // Increased from 0.9
-    final cardHeight = screenSize.height * 0.55; // Adjusted for better fit
+    final cardWidth = screenSize.width * 0.92;
+    final cardHeight = screenSize.height * 0.55;
 
     return Consumer<JobProvider>(
       builder: (context, jobProvider, child) {
@@ -539,19 +540,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           );
         }
 
-        // Main content with jobs
-        final nextScale = 0.95 + (0.03 * _dragProgress);
-        final nextTranslateY = 24 - (8 * _dragProgress);
-        final thirdScale = 0.90 + (0.03 * _dragProgress * 0.5);
-        final thirdTranslateY = 48 - (8 * _dragProgress * 0.5);
-        final topAngle =
-            (_dragDirection == DismissDirection.startToEnd
-                ? 1
-                : _dragDirection == DismissDirection.endToStart
-                ? -1
-                : 0) *
-            (0.20 * _dragProgress);
-
+        // ✅ Main content - Use ValueListenableBuilder for smooth animations
         return Scaffold(
           backgroundColor: Colors.white,
           endDrawer: Drawer(
@@ -672,484 +661,150 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
 
-                // Card stack
+                // ✅ Card stack with ValueListenableBuilder
                 Expanded(
                   child: Center(
                     child: SizedBox(
                       width: cardWidth,
                       height: cardHeight,
                       child: displayJobs.length >= 3
-                          ? Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                // 3rd card
-                                Transform.scale(
-                                  scale: thirdScale,
-                                  alignment: Alignment.bottomRight,
-                                  child: Transform.translate(
-                                    offset: Offset(0, thirdTranslateY),
-                                    child: Transform.rotate(
-                                      angle: 0.20,
-                                      alignment: Alignment.bottomRight,
-                                      child: JobCard(
-                                        jobTitle:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['jobTitle'],
-                                        companyName:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['companyName'],
-                                        location:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['location'],
-                                        experienceLevel:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['experienceLevel'],
-                                        requirements: List<String>.from(
-                                          displayJobs[_idx(
-                                            2,
-                                            displayJobs.length,
-                                          )]['requirements'],
+                          ? ValueListenableBuilder<double>(
+                              valueListenable: _dragProgress,
+                              builder: (context, progress, _) {
+                                return ValueListenableBuilder<
+                                  DismissDirection?
+                                >(
+                                  valueListenable: _dragDirection,
+                                  builder: (context, direction, _) {
+                                    // ✅ Calculate transforms once
+                                    final nextScale = 0.95 + (0.03 * progress);
+                                    final nextTranslateY = 24 - (8 * progress);
+                                    final thirdScale =
+                                        0.90 + (0.03 * progress * 0.5);
+                                    final thirdTranslateY =
+                                        48 - (8 * progress * 0.5);
+                                    final topAngle =
+                                        (direction ==
+                                                DismissDirection.startToEnd
+                                            ? 1
+                                            : direction ==
+                                                  DismissDirection.endToStart
+                                            ? -1
+                                            : 0) *
+                                        (0.20 * progress);
+
+                                    return Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        // 3rd card (back)
+                                        Transform.scale(
+                                          scale: thirdScale,
+                                          alignment: Alignment.bottomRight,
+                                          child: Transform.translate(
+                                            offset: Offset(0, thirdTranslateY),
+                                            child: Transform.rotate(
+                                              angle: 0.20,
+                                              alignment: Alignment.bottomRight,
+                                              child: _buildJobCard(
+                                                displayJobs,
+                                                _idx(2, displayJobs.length),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        websiteUrl:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['websiteUrl'],
-                                        initialColorIndex:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['initialColorIndex'],
-                                        tagLabel:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['tagLabel'],
-                                        tagColor:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['tagColor'],
 
-                                        // ✅ Pass all fields from displayJobs map
-                                        skills: List<String>.from(
-                                          displayJobs[_idx(
-                                                2,
-                                                displayJobs.length,
-                                              )]['skills'] ??
-                                              [],
+                                        // 2nd card (middle)
+                                        Transform.scale(
+                                          scale: nextScale,
+                                          alignment: Alignment.bottomRight,
+                                          child: Transform.translate(
+                                            offset: Offset(0, nextTranslateY),
+                                            child: Transform.rotate(
+                                              angle: 0.10,
+                                              alignment: Alignment.bottomRight,
+                                              child: _buildJobCard(
+                                                displayJobs,
+                                                _idx(1, displayJobs.length),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        employmentType:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['employmentType'] ??
-                                            '',
-                                        rolesAndResponsibilities:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['rolesAndResponsibilities'] ??
-                                            '',
-                                        duration:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['duration'] ??
-                                            '',
-                                        stipend:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['stipend'] ??
-                                            '',
-                                        details:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['details'] ??
-                                            '',
-                                        noOfOpenings:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['noOfOpenings'] ??
-                                            '',
-                                        mode:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['mode'] ??
-                                            '',
-                                        id:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['id'] ??
-                                            '',
-                                        jobType:
-                                            displayJobs[_idx(
-                                              2,
-                                              displayJobs.length,
-                                            )]['jobType'] ??
-                                            '',
-                                        recruiter:
-                                            displayJobs[0]['recruiter']
-                                                as Map<String, dynamic>?,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                // 2nd card
-                                Transform.scale(
-                                  scale: nextScale,
-                                  alignment: Alignment.bottomRight,
-                                  child: Transform.translate(
-                                    offset: Offset(0, nextTranslateY),
-                                    child: Transform.rotate(
-                                      angle: 0.10,
-                                      alignment: Alignment.bottomRight,
-                                      child: JobCard(
-                                        jobTitle:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['jobTitle'],
-                                        companyName:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['companyName'],
-                                        location:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['location'],
-                                        experienceLevel:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['experienceLevel'],
-                                        requirements: List<String>.from(
-                                          displayJobs[_idx(
-                                            1,
-                                            displayJobs.length,
-                                          )]['requirements'],
-                                        ),
-                                        websiteUrl:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['websiteUrl'],
-                                        initialColorIndex:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['initialColorIndex'],
-                                        tagLabel:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['tagLabel'],
-                                        tagColor:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['tagColor'],
 
-                                        // ✅ Correct data mapping
-                                        skills: List<String>.from(
-                                          displayJobs[_idx(
-                                                1,
-                                                displayJobs.length,
-                                              )]['skills'] ??
-                                              [],
-                                        ),
-                                        employmentType:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['employmentType'] ??
-                                            '',
-                                        rolesAndResponsibilities:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['rolesAndResponsibilities'] ??
-                                            '',
-                                        duration:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['duration'] ??
-                                            '',
-                                        stipend:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['stipend'] ??
-                                            '',
-                                        details:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['details'] ??
-                                            '',
-                                        noOfOpenings:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['noOfOpenings'] ??
-                                            '',
-                                        mode:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['mode'] ??
-                                            '',
-                                        id:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['id'] ??
-                                            '',
-                                        jobType:
-                                            displayJobs[_idx(
-                                              1,
-                                              displayJobs.length,
-                                            )]['jobType'] ??
-                                            '',
-                                        recruiter:
-                                            displayJobs[_idx(
-                                                  1,
-                                                  displayJobs.length,
-                                                )]['recruiter']
-                                                as Map<String, dynamic>?,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Top card
-                                Transform.rotate(
-                                  angle: topAngle,
-                                  child: Dismissible(
-                                    key: ValueKey(
-                                      'job_${_idx(0, displayJobs.length)}_$_topIndex',
-                                    ),
-                                    direction: DismissDirection.horizontal,
-                                    dismissThresholds: const {
-                                      DismissDirection.startToEnd: 0.35,
-                                      DismissDirection.endToStart: 0.35,
-                                    },
-                                    onUpdate: (details) {
-                                      setState(() {
-                                        _dragProgress = details.progress.clamp(
-                                          0.0,
-                                          1.0,
-                                        );
-                                        _dragDirection = details.direction;
-                                      });
-                                    },
-                                    onDismissed: (direction) {
-                                      bool isLiked =
-                                          direction ==
-                                          DismissDirection.startToEnd;
-                                      int currentIndex = _idx(
-                                        0,
-                                        displayJobs.length,
-                                      );
-                                      String jobId =
-                                          displayJobs[currentIndex]['jobId'];
-                                      String jobType =
-                                          displayJobs[currentIndex]['jobType'] ??
-                                          'company';
-
-                                      // ✅ Check if this is the last card
-                                      if ((_topIndex + 1) %
-                                              displayJobs.length ==
-                                          0) {
-                                        print(
-                                          "Reached last card! Fetching new jobs...",
-                                        );
-                                        context.read<JobProvider>().fetchJobs();
-                                      }
-
-                                      _handleJobAction(jobId, jobType, isLiked);
-
-                                      setState(() {
-                                        _dragProgress = 0.0;
-                                        _dragDirection = null;
-                                        _topIndex =
-                                            (_topIndex + 1) %
-                                            displayJobs.length;
-                                      });
-                                    },
-                                    confirmDismiss: (direction) async => true,
-                                    child: JobCard(
-                                      jobTitle:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['jobTitle'],
-                                      companyName:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['companyName'],
-                                      location:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['location'],
-                                      experienceLevel:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['experienceLevel'],
-                                      requirements: List<String>.from(
-                                        displayJobs[_idx(
-                                          0,
-                                          displayJobs.length,
-                                        )]['requirements'],
-                                      ),
-                                      websiteUrl:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['websiteUrl'],
-                                      initialColorIndex:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['initialColorIndex'],
-                                      tagLabel:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['tagLabel'],
-                                      tagColor:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['tagColor'],
-
-                                      // ✅ Correct mapping
-                                      skills: List<String>.from(
-                                        displayJobs[_idx(
-                                              0,
-                                              displayJobs.length,
-                                            )]['skills'] ??
-                                            [],
-                                      ),
-                                      employmentType:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['employmentType'] ??
-                                          '',
-                                      rolesAndResponsibilities:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['rolesAndResponsibilities'] ??
-                                          '',
-                                      duration:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['duration'] ??
-                                          '',
-                                      stipend:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['stipend'] ??
-                                          '',
-                                      details:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['details'] ??
-                                          '',
-                                      noOfOpenings:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['noOfOpenings'] ??
-                                          '',
-                                      mode:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['mode'] ??
-                                          '',
-                                      id:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['id'] ??
-                                          '',
-                                      jobType:
-                                          displayJobs[_idx(
-                                            0,
-                                            displayJobs.length,
-                                          )]['jobType'] ??
-                                          '',
-                                      recruiter:
-                                          displayJobs[_idx(
+                                        // Top card (interactive)
+                                        Transform.rotate(
+                                          angle: topAngle,
+                                          child: Dismissible(
+                                            key: ValueKey(
+                                              'job_${_idx(0, displayJobs.length)}_$_topIndex',
+                                            ),
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            dismissThresholds: const {
+                                              DismissDirection.startToEnd: 0.35,
+                                              DismissDirection.endToStart: 0.35,
+                                            },
+                                            onUpdate: (details) {
+                                              // ✅ Update ValueNotifiers instead of setState
+                                              _dragProgress.value = details
+                                                  .progress
+                                                  .clamp(0.0, 1.0);
+                                              _dragDirection.value =
+                                                  details.direction;
+                                            },
+                                            onDismissed: (dismissDirection) {
+                                              bool isLiked =
+                                                  dismissDirection ==
+                                                  DismissDirection.startToEnd;
+                                              int currentIndex = _idx(
                                                 0,
                                                 displayJobs.length,
-                                              )]['recruiter']
-                                              as Map<String, dynamic>?,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                              );
+                                              String jobId =
+                                                  displayJobs[currentIndex]['jobId'];
+                                              String jobType =
+                                                  displayJobs[currentIndex]['jobType'] ??
+                                                  'company';
+
+                                              if ((_topIndex + 1) %
+                                                      displayJobs.length ==
+                                                  0) {
+                                                print(
+                                                  "Reached last card! Fetching new jobs...",
+                                                );
+                                                context
+                                                    .read<JobProvider>()
+                                                    .fetchJobs();
+                                              }
+
+                                              _handleJobAction(
+                                                jobId,
+                                                jobType,
+                                                isLiked,
+                                              );
+
+                                              // ✅ Reset and update index
+                                              setState(() {
+                                                _topIndex =
+                                                    (_topIndex + 1) %
+                                                    displayJobs.length;
+                                              });
+                                              _dragProgress.value = 0.0;
+                                              _dragDirection.value = null;
+                                            },
+                                            child: _buildJobCard(
+                                              displayJobs,
+                                              _idx(0, displayJobs.length),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                             )
                           : displayJobs.isNotEmpty
-                          ? JobCard(
-                              jobTitle: displayJobs[0]['jobTitle'],
-                              companyName: displayJobs[0]['companyName'],
-                              location: displayJobs[0]['location'],
-                              experienceLevel:
-                                  displayJobs[0]['experienceLevel'],
-                              requirements: List<String>.from(
-                                displayJobs[0]['requirements'],
-                              ),
-                              websiteUrl: displayJobs[0]['websiteUrl'],
-                              initialColorIndex:
-                                  displayJobs[0]['initialColorIndex'],
-                              tagLabel: displayJobs[0]['tagLabel'],
-                              tagColor: displayJobs[0]['tagColor'],
-
-                              // ✅ Correct mapping
-                              skills: List<String>.from(
-                                displayJobs[0]['skills'] ?? [],
-                              ),
-                              employmentType:
-                                  displayJobs[0]['employmentType'] ?? '',
-                              rolesAndResponsibilities:
-                                  displayJobs[0]['rolesAndResponsibilities'] ??
-                                  '',
-                              duration: displayJobs[0]['duration'] ?? '',
-                              stipend: displayJobs[0]['stipend'] ?? '',
-                              details: displayJobs[0]['details'] ?? '',
-                              noOfOpenings:
-                                  displayJobs[0]['noOfOpenings'] ?? '',
-                              mode: displayJobs[0]['mode'] ?? '',
-                              id: displayJobs[0]['id'] ?? '',
-                              jobType: displayJobs[0]['jobType'] ?? '',
-                              recruiter: displayJobs[0]['recruiter'],
-                            )
+                          ? _buildJobCard(displayJobs, 0)
                           : const SizedBox.shrink(),
                     ),
                   ),
@@ -1161,6 +816,35 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+
+  // ✅ Helper method to reduce code duplication
+  Widget _buildJobCard(List<Map<String, dynamic>> jobs, int index) {
+    final job = jobs[index];
+    return JobCard(
+      jobTitle: job['jobTitle'],
+      companyName: job['companyName'],
+
+      location: job['location'],
+      experienceLevel: job['experienceLevel'],
+      requirements: List<String>.from(job['requirements']),
+      websiteUrl: job['websiteUrl'],
+      initialColorIndex: job['initialColorIndex'],
+      tagLabel: job['tagLabel'],
+      tagColor: job['tagColor'],
+      skills: List<String>.from(job['skills'] ?? []),
+      employmentType: job['employmentType'] ?? '',
+      rolesAndResponsibilities: job['rolesAndResponsibilities'] ?? '',
+      duration: job['duration'] ?? '',
+      stipend: job['stipend'] ?? '',
+      details: job['details'] ?? '',
+      noOfOpenings: job['noOfOpenings'] ?? '',
+      mode: job['mode'] ?? '',
+      id: job['id'] ?? '',
+      jobType: job['jobType'] ?? '',
+      recruiter: job['recruiter'] as Map<String, dynamic>?,
+      about: job['about'] ?? 'description not available',
     );
   }
 }

@@ -279,8 +279,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       Text(
                         bio,
                         style: TextStyle(
-                          color: Colors.black54,
+                          color: Colors.black,
                           fontFamily: GoogleFonts.jost().fontFamily,
+                          fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -386,6 +387,29 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       // Projects section
                       _buildProjectsSection(),
                       const SizedBox(height: 20),
+
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            _signOut(context);
+                          },
+                          icon: const Icon(Icons.logout, color: Colors.white),
+                          label: const Text(
+                            'Logout',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -394,27 +418,6 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
           ),
 
           // Back button
-          Positioned(
-            top: 40,
-            left: 10,
-            child: Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 255, 255, 255),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  size: 25,
-                ),
-                onPressed: () {
-                  _signOut(context);
-                },
-              ),
-            ),
-          ),
 
           // Edit button
           Positioned(

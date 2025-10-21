@@ -211,34 +211,33 @@ class SkillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 53,
-      width: 133,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            offset: Offset(4, 4),
-            blurRadius: 0,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isSelected ? Color(0xFF40FFB9) : Color(0xFFE3FEAA),
-          elevation: 0,
-          minimumSize: Size(120, 53),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+    return GestureDetector(
+      onTap: onTap, // Makes the entire area tappable
+      child: Container(
+        height: 53,
+        width: 133,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF40FFB9) : const Color(0xFFE3FEAA),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(4, 4),
+              blurRadius: 0,
+              spreadRadius: 1,
+            ),
+          ],
         ),
-        onPressed: onTap,
         child: Text(
           text.toUpperCase(),
-          style: TextStyle(fontSize: 20, color: Color(0xFF1FA7E3)),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Color(0xFF1FA7E3),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

@@ -20,7 +20,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  final String baseUrl2 = "http://10.164.216.157:3000";
+  final String baseUrl2 = "http://10.96.91.157:3000";
 
   String profilePicUrl = '';
 
@@ -193,6 +193,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             content: Text('Profile picture updated successfully!'),
           ),
         );
+        Navigator.pop(context, true);
       } else {
         final errorData = json.decode(response.body);
         print('Upload failed: ${errorData['message']}');

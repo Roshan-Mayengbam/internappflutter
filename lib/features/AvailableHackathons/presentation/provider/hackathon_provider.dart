@@ -9,11 +9,11 @@ import '../../domain/usecases/fetch_similar_hackathons.dart'; // Assumed type fo
 // Define the State enum
 enum HackathonState { initial, loading, loaded, error, empty }
 
-class HackathonProvider with ChangeNotifier {
+class HProvider with ChangeNotifier {
   // 1. Dependency Injection for the Use Case
   final GetSimilarHackathons getSimilarHackathons;
 
-  HackathonProvider({required this.getSimilarHackathons});
+  HProvider({required this.getSimilarHackathons});
 
   // State Management Fields
   HackathonState _state = HackathonState.initial;

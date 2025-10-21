@@ -19,6 +19,8 @@ import 'package:internappflutter/bottomnavbar.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
+import 'package:internappflutter/screens/hackathon.dart';
+import 'package:provider/provider.dart';
 
 // Imports for the NEW provider (JProvider)
 import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
@@ -62,7 +64,7 @@ void main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (_) => HackathonProvider(
+          create: (_) => HProvider(
             getSimilarHackathons: GetSimilarHackathons(
               repository: HackathonRepositoryImpl(
                 remoteDataSource: HackathonRemoteDataSourceImpl(
@@ -75,6 +77,7 @@ void main() async {
         ),
         // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
+        ChangeNotifierProvider(create: (_) => HackathonProvider()),
         ChangeNotifierProvider(
           create: (_) => ExploreViewModel(
             getNewsUseCase: GetTechNewsUseCase(
