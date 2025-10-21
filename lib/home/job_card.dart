@@ -5,6 +5,7 @@ class JobCard extends StatefulWidget {
   final String id;
   final String jobTitle;
   final String companyName;
+  final String about; // ✅ Add this parameter
   final String location;
   final String experienceLevel;
   final List<String> requirements;
@@ -27,6 +28,7 @@ class JobCard extends StatefulWidget {
     super.key,
     required this.jobTitle,
     required this.companyName,
+    required this.about, // ✅ Add this
     required this.location,
     required this.experienceLevel,
     required this.requirements,
@@ -73,11 +75,8 @@ class _JobCardState extends State<JobCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions for responsive sizing
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate responsive values
     final cardPadding = screenWidth * 0.03;
     final borderRadius = screenWidth * 0.05;
 
@@ -85,7 +84,6 @@ class _JobCardState extends State<JobCard> {
       color: Colors.transparent,
       child: Stack(
         children: [
-          // Main card with responsive sizing
           Card(
             elevation: 0,
             shadowColor: Colors.transparent,
@@ -128,8 +126,6 @@ class _JobCardState extends State<JobCard> {
               ),
             ),
           ),
-
-          // Responsive tag
           if (widget.tagLabel != null) _buildTag(screenWidth),
         ],
       ),
@@ -161,10 +157,10 @@ class _JobCardState extends State<JobCard> {
   Widget _buildPosterCard(double screenWidth, double screenHeight) {
     return InkWell(
       onTap: () {
-        // Print all the values before navigation
         print('--- Job Details ---');
         print('Job Title: ${widget.jobTitle}');
         print('Company Name: ${widget.companyName}');
+        print('About: ${widget.about}'); // ✅ Add this
         print('Location: ${widget.location}');
         print('Experience Level: ${widget.experienceLevel}');
         print('Requirements: ${widget.requirements}');
@@ -179,17 +175,8 @@ class _JobCardState extends State<JobCard> {
         print('Mode: ${widget.mode}');
         print('Skills: ${widget.skills}');
         print('ID: ${widget.id}');
-        print('Recruiter Details:');
-        print('Recruiter Details:');
-        print('Recruiter ${widget.recruiter}');
-        if (widget.recruiter != null) {
-          print('Recruiter Name: ${widget.recruiter?['name']}');
-          print('Firebase ID: ${widget.recruiter?['firebaseId']}'); // Add this
-          print('Email: ${widget.recruiter?['email']}');
-          print('Designation: ${widget.recruiter?['designation']}');
-        }
-
         print('Job Type: ${widget.jobType}');
+        print('Recruiter: ${widget.recruiter}');
         print('-------------------');
 
         Navigator.of(context).push(
@@ -197,6 +184,7 @@ class _JobCardState extends State<JobCard> {
             builder: (context) => Carddetails(
               jobTitle: widget.jobTitle,
               companyName: widget.companyName,
+              about: widget.about, // ✅ Pass it here
               location: widget.location,
               experienceLevel: widget.experienceLevel,
               requirements: widget.requirements,
@@ -212,12 +200,11 @@ class _JobCardState extends State<JobCard> {
               skills: widget.skills,
               id: widget.id,
               jobType: widget.jobType,
-              recruiter: widget.recruiter, // ✅ Add this line
+              recruiter: widget.recruiter,
             ),
           ),
         );
       },
-
       child: Container(
         padding: EdgeInsets.all(screenWidth * 0.04),
         decoration: BoxDecoration(
@@ -241,21 +228,16 @@ class _JobCardState extends State<JobCard> {
               overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: screenHeight * 0.015),
-
-            // Scrollable requirements with responsive height
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: screenHeight * 0.25),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Show only first 3 requirements
                     ...widget.requirements
                         .take(3)
                         .map((req) => _buildRequirementRow(req, screenWidth))
                         .toList(),
-
-                    // Show "Show more..." button if there are more than 3 requirements
                     if (widget.requirements.length > 3)
                       GestureDetector(
                         onTap: () {
@@ -264,6 +246,7 @@ class _JobCardState extends State<JobCard> {
                               builder: (context) => Carddetails(
                                 jobTitle: widget.jobTitle,
                                 companyName: widget.companyName,
+                                about: widget.about, // ✅ Pass it here too
                                 location: widget.location,
                                 experienceLevel: widget.experienceLevel,
                                 requirements: widget.requirements,
@@ -273,13 +256,14 @@ class _JobCardState extends State<JobCard> {
                                 rolesAndResponsibilities:
                                     widget.rolesAndResponsibilities,
                                 duration: widget.duration,
-                                stipend: widget.stipend as String,
+                                stipend: widget.stipend,
                                 details: widget.details,
-                                noOfOpenings: widget.noOfOpenings as String,
+                                noOfOpenings: widget.noOfOpenings,
                                 mode: widget.mode,
                                 skills: widget.skills,
                                 id: widget.id,
                                 jobType: widget.jobType,
+                                recruiter: widget.recruiter,
                               ),
                             ),
                           );

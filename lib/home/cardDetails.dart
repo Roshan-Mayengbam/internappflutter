@@ -14,6 +14,7 @@ class AppConstants {
 class Carddetails extends StatefulWidget {
   final String jobTitle;
   final String companyName;
+  final String about; // ✅ Declare as a field
   final String location;
   final String experienceLevel;
   final List<String> requirements;
@@ -29,12 +30,13 @@ class Carddetails extends StatefulWidget {
   final List skills;
   final String id;
   final String jobType;
-  final Map<String, dynamic>? recruiter; // ✅ Add this
+  final Map<String, dynamic>? recruiter;
 
   const Carddetails({
     super.key,
     required this.jobTitle,
     required this.companyName,
+    required this.about, // ✅ Add to constructor parameters
     required this.location,
     required this.experienceLevel,
     required this.requirements,
@@ -50,7 +52,7 @@ class Carddetails extends StatefulWidget {
     required this.skills,
     required this.id,
     required this.jobType,
-    this.recruiter, // ✅ Add this
+    this.recruiter,
   });
 
   @override
@@ -195,22 +197,20 @@ class _CarddetailsState extends State<Carddetails> {
                   // Company Name with Badge
                   Row(
                     children: [
-                      // Expanded(
+                      Expanded(
+                        child: Text(
+                          widget.companyName.isNotEmpty
+                              ? widget.companyName
+                              : 'Company',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow:
+                              TextOverflow.ellipsis, // Adds "..." if too long
+                        ),
+                      ),
 
-                      //   child: Text(
-                      //     widget.companyName.isNotEmpty
-                      //         ? widget.companyName
-                      //         : 'Company',
-                      //     style: const TextStyle(
-                      //       fontSize: 16,
-                      //       fontWeight: FontWeight.w600,
-                      //     ),
-                      //     overflow:
-                      //         TextOverflow.ellipsis, // Adds "..." if too long
-                      //   ),
-                      // ),
-                      // const SizedBox(width: 8),
-                      // Icon(Icons.verified, color: Colors.blue[400], size: 20),
                       const Spacer(),
                       _buildTag(),
                     ],
@@ -1042,7 +1042,7 @@ class _CarddetailsState extends State<Carddetails> {
                       ),
                     ),
                     child: Text(
-                      'Durante seu estágio, você pode aprimorar seu conhecimento e ganhar experiência profissional trabalhando em projetos de clientes. Esta função oferece uma oportunidade excepcional para construir um portfólio atraente, adquirir novas habilidades, obter insights sobre diversos setores e abraçar novos desafios para sua futura carreira.',
+                      widget.about,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[800],

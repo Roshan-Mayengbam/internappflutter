@@ -108,7 +108,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching applied jobs...");
 
       final response = await http.get(
-        Uri.parse('$baseUrl2/student/fetchappliedjobs'),
+        Uri.parse('$baseUrl/student/fetchappliedjobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -210,9 +210,18 @@ class _SavedState extends State<Saved> {
         'jobTitle': job.title,
         'id': job.id,
         'jobType': job.jobType,
-        'companyName': job.recruiterName.isNotEmpty
+        'companyName':
+            job.recruiterDetails?['company']?['name']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['name']
+            : job.recruiterName.isNotEmpty
             ? job.recruiterName
             : 'Company',
+        'about':
+            job.recruiterDetails?['company']?['description']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['description']
+            : job.recruiterName.isNotEmpty
+            ? job.recruiterName
+            : 'description not available',
         'location': job.preferences.location.isNotEmpty
             ? job.preferences.location
             : 'Location not specified',
@@ -379,6 +388,8 @@ class _SavedState extends State<Saved> {
                                   : <String>[],
                               id: job['jobId'] ?? '',
                               jobType: job['jobType'] ?? 'Not specified',
+                              about:
+                                  job['about'] ?? 'description not available',
                             ),
                           ),
                         );
@@ -466,6 +477,9 @@ class _SavedState extends State<Saved> {
                           print(
                             "  Company: ${job['recruiter']['firebaseId'] ?? 'N/A'}",
                           );
+                          print(
+                            "  Email: ${job['recruiter']['company'] ?? 'N/A'}",
+                          );
                         } else {
                           print("Recruiter Info: Not available");
                         }
@@ -478,6 +492,8 @@ class _SavedState extends State<Saved> {
                               jobTitle: job['jobTitle'] ?? 'No Title',
                               companyName:
                                   job['companyName'] ?? 'Unknown Company',
+                              about:
+                                  job['about'] ?? 'description not available',
                               location:
                                   job['location'] ?? 'Location not specified',
                               experienceLevel:

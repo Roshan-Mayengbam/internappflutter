@@ -11,6 +11,7 @@ import 'package:internappflutter/bottomnavbar.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
+import 'package:internappflutter/screens/hackathon.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -31,7 +32,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => JobProvider()),
-        // Add more providers here if needed
+        ChangeNotifierProvider(create: (_) => HackathonProvider()),
       ],
       child: MyApp(),
     ),

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
+import 'package:internappflutter/screens/hackathon_details.dart';
+import 'package:intl/intl.dart';
+
+import 'package:internappflutter/models/hackathon.dart';
+import 'package:internappflutter/screens/hackathon.dart';
 import 'package:provider/provider.dart';
+
 import '../core/components/jobs_page/custom_carousel_section.dart';
 
 class JobPage extends StatefulWidget {
@@ -25,14 +31,15 @@ class _JobPageState extends State<JobPage> {
   String selectedJobFilter = 'Featured';
 
   final List<String> hackathonFilters = [
-    'Featured',
+    'All',
     'Upcoming',
     'Live',
-    'Remote',
-    'In-Person',
+    'Online',
+    'Offline',
+    'Hybrid',
   ];
 
-  String selectedHackathonFilter = 'Upcoming';
+  String selectedHackathonFilter = 'All';
 
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
     return jobs.asMap().entries.map((entry) {
@@ -50,7 +57,7 @@ class _JobPageState extends State<JobPage> {
           'id': job.recruiter,
           'name': 'Unknown',
           'email': 'N/A',
-          'firebaseId': job.recruiter, // Use the ID as fallback
+          'firebaseId': job.recruiter,
           'designation': 'N/A',
           'company': {'name': 'Unknown Company'},
         };
@@ -60,9 +67,18 @@ class _JobPageState extends State<JobPage> {
         'jobTitle': job.title,
         'id': job.id,
         'jobType': job.jobType,
-        'companyName': job.recruiterName.isNotEmpty
+        'companyName':
+            job.recruiterDetails?['company']?['name']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['name']
+            : job.recruiterName.isNotEmpty
             ? job.recruiterName
             : 'Company',
+        'about':
+            job.recruiterDetails?['company']?['description']?.isNotEmpty == true
+            ? job.recruiterDetails?['company']?['description']
+            : job.recruiterName.isNotEmpty
+            ? job.recruiterName
+            : 'description not available',
         'location': job.preferences.location.isNotEmpty
             ? job.preferences.location
             : 'Location not specified',
@@ -106,80 +122,101 @@ class _JobPageState extends State<JobPage> {
         'skills': job.preferences.skills,
         'mode': job.mode.isNotEmpty ? job.mode : 'Not specified',
         'stipend': job.stipend != null ? '₹${job.stipend}' : 'Not specified',
-
-        // Use the recruiterMap we created
         'recruiter': recruiterMap,
       };
     }).toList();
   }
 
-  final List<Map<String, dynamic>> hackathons = const [
-    {
-      'jobTitle': 'AI for Good Challenge',
-      'companyName': 'Tech for Humanity',
-      'location': 'Online',
-      'experienceLevel': 'Undergraduates',
-      'date': 'October 25-27, 2025',
-      'theme': 'Using AI to solve social and environmental problems.',
-      'prizes': ['\$5,000 Cash', 'Mentorship', 'Job Interviews'],
-      'tags': ['AI', 'SOCIAL GOOD', 'VIRTUAL'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Fintech Frontier Hack',
-      'companyName': 'Finnovate Labs',
-      'location': 'London',
-      'date': 'November 1-3, 2025',
-      'experienceLevel': 'Undergraduates',
-      'theme': 'Innovations in financial technology and digital payments.',
-      'prizes': ['\$10,000 Seed Funding', 'Incubator Spot'],
-      'tags': ['FINTECH', 'IN-PERSON', 'LONDON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Health-Tech Innovation Sprint',
-      'companyName': 'Global Health Institute',
-      'location': 'Boston',
-      'date': 'November 8-10, 2025',
-      'experienceLevel': 'Working Professionals',
-      'theme': 'Developing solutions for modern healthcare challenges.',
-      'prizes': ['\$7,500 Grant', 'Partnership with Hospitals'],
-      'tags': ['HEALTHCARE', 'MEDTECH', 'BOSTON'],
-      'applied': false,
-    },
-    {
-      'jobTitle': 'Game Jam 2025',
-      'companyName': 'Indie Game Collective',
-      'location': 'Online',
-      'experienceLevel': 'High School',
-      'date': 'December 6-8, 2025',
-      'theme': 'Create a game from scratch in 48 hours.',
-      'prizes': ['Publishing Deal', 'Console Dev Kits'],
-      'tags': ['GAMING', 'DEVELOPMENT', 'VIRTUAL'],
-      'applied': false,
-    },
-  ];
+  List<Map<String, dynamic>> hackathonsToDisplayFormat(
+    List<Hackathon> hackathons,
+  ) {
+    final now = DateTime.now();
+
+    return hackathons.map((hackathon) {
+      // Determine status
+      String status;
+      if (now.isBefore(hackathon.startDate)) {
+        status = 'Upcoming';
+      } else if (now.isAfter(hackathon.endDate)) {
+        status = 'Ended';
+      } else {
+        status = 'Live';
+      }
+
+      // Format dates
+      final dateFormat = DateFormat('MMM dd, yyyy');
+      final dateRange =
+          '${dateFormat.format(hackathon.startDate)} - ${dateFormat.format(hackathon.endDate)}';
+
+      return {
+        'id': hackathon.id,
+        'jobTitle': hackathon.title,
+        'companyName': hackathon.organizer,
+        'location': hackathon.location,
+        'experienceLevel': hackathon.eligibility,
+        'date': dateRange,
+        'theme': hackathon.description,
+        'prizes': hackathon.prizePool != null
+            ? [hackathon.prizePool!]
+            : ['Prize details not available'],
+        'tags': [hackathon.location.toUpperCase(), status.toUpperCase()],
+        'websiteUrl': hackathon.website ?? 'Apply via app',
+        'applied': false,
+        'status': status,
+        'registrationDeadline': hackathon.registrationDeadline,
+      };
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> filterHackathons(
+    List<Map<String, dynamic>> hackathons,
+  ) {
+    if (selectedHackathonFilter == 'All') {
+      return hackathons;
+    }
+
+    return hackathons.where((hackathon) {
+      switch (selectedHackathonFilter) {
+        case 'Upcoming':
+          return hackathon['status'] == 'Upcoming';
+        case 'Live':
+          return hackathon['status'] == 'Live';
+        case 'Online':
+          return hackathon['location'] == 'Online';
+        case 'Offline':
+          return hackathon['location'] == 'Offline';
+        case 'Hybrid':
+          return hackathon['location'] == 'Hybrid';
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
-    // Fetch jobs when page loads
+    // Fetch jobs and hackathons when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<JobProvider>().fetchJobs();
+      context.read<HackathonProvider>().fetchHackathons();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<JobProvider>(
-        builder: (context, jobProvider, child) {
+      body: Consumer2<JobProvider, HackathonProvider>(
+        builder: (context, jobProvider, hackathonProvider, child) {
           // Show loading indicator
-          if (jobProvider.isLoading && jobProvider.jobs.isEmpty) {
+          if ((jobProvider.isLoading && jobProvider.jobs.isEmpty) ||
+              (hackathonProvider.isLoading &&
+                  hackathonProvider.hackathons.isEmpty)) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Show error message
-          if (jobProvider.errorMessage != null) {
+          // Show error message for jobs
+          if (jobProvider.errorMessage != null && jobProvider.jobs.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -199,8 +236,14 @@ class _JobPageState extends State<JobPage> {
             );
           }
 
-          // Convert Job objects to Map format using the helper function
+          // Convert Job objects to Map format
           final jobsList = jobsToDisplayFormat(jobProvider.jobs);
+
+          // Convert Hackathon objects to Map format
+          final hackathonsList = hackathonsToDisplayFormat(
+            hackathonProvider.hackathons,
+          );
+          final filteredHackathons = filterHackathons(hackathonsList);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 16),
@@ -227,7 +270,6 @@ class _JobPageState extends State<JobPage> {
                   statusPage: true,
                   items: jobsList,
                   onItemTap: (job) {
-                    // Add this callback to handle navigation
                     print("---- Navigating to Carddetails ----");
                     print("Job Title: ${job['jobTitle']}");
                     print("Company Name: ${job['companyName']}");
@@ -271,6 +313,7 @@ class _JobPageState extends State<JobPage> {
                           id: job['jobId'] ?? '',
                           jobType: job['jobType'] ?? '',
                           recruiter: job['recruiter'],
+                          about: job['about'] ?? 'description not available',
                         ),
                       ),
                     );
@@ -278,9 +321,11 @@ class _JobPageState extends State<JobPage> {
                   onCarouselTap: (String) {},
                 ),
                 const SizedBox(height: 30),
+
+                // Hackathon Section
                 CustomCarouselSection(
-                  title: 'Hackathon',
-                  subtitle: 'Based on your profile...',
+                  title: 'Hackathons',
+                  subtitle: 'Compete, innovate, and win amazing prizes',
                   filters: hackathonFilters,
                   selectedFilter: selectedHackathonFilter,
                   onFilterTap: (filter) {
@@ -291,9 +336,63 @@ class _JobPageState extends State<JobPage> {
                   onViewMore: () {
                     print("Pressed View more in hackathons");
                   },
-                  items: hackathons,
-                  onCarouselTap: (String) {}, // Add hackathon data here
+                  items: filteredHackathons,
+                  onItemTap: (hackathon) {
+                    print("---- Navigating to HackathonDetailsScreen ----");
+                    print("Hackathon Title: ${hackathon['jobTitle']}");
+                    print("Organizer: ${hackathon['companyName']}");
+                    print("Website URL: ${hackathon['websiteUrl']}");
+                    print("---------------------------------------------");
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => HackathonDetailsScreen(
+                          title: hackathon['jobTitle'] ?? '',
+                          organizer: hackathon['companyName'] ?? '',
+                          description: hackathon['theme'] ?? '',
+                          location: hackathon['location'] ?? '',
+                          startDate: hackathonProvider.hackathons
+                              .firstWhere((h) => h.id == hackathon['id'])
+                              .startDate,
+                          endDate: hackathonProvider.hackathons
+                              .firstWhere((h) => h.id == hackathon['id'])
+                              .endDate,
+                          registrationDeadline: hackathonProvider.hackathons
+                              .firstWhere((h) => h.id == hackathon['id'])
+                              .registrationDeadline,
+                          prizePool: hackathon['prizes']?.isNotEmpty == true
+                              ? hackathon['prizes']![0]
+                              : null,
+                          eligibility:
+                              hackathon['experienceLevel'] ?? 'Open to all',
+                          website: hackathon['websiteUrl'] ?? 'N/A',
+                          createdAt: hackathonProvider.hackathons
+                              .firstWhere((h) => h.id == hackathon['id'])
+                              .createdAt,
+                          updatedAt: hackathonProvider.hackathons
+                              .firstWhere((h) => h.id == hackathon['id'])
+                              .updatedAt,
+                        ),
+                      ),
+                    );
+                  },
+
+                  onCarouselTap: (hackathonId) {
+                    print("Tapped hackathon: $hackathonId");
+                    // Navigate to hackathon details page if you have one
+                  },
                 ),
+
+                // Show error for hackathons if any
+                if (hackathonProvider.errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Hackathons: ${hackathonProvider.errorMessage}',
+                      style: const TextStyle(color: Colors.orange),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               ],
             ),
           );
@@ -302,20 +401,3 @@ class _JobPageState extends State<JobPage> {
     );
   }
 }
-
-  // You can add hackathons section separately if you have that data
-                // CustomCarouselSection(
-                //   title: 'Hackathon',
-                //   subtitle: 'Based on your profile...',
-                //   filters: hackathonFilters,
-                //   selectedFilter: selectedHackathonFilter,
-                //   onFilterTap: (filter) {
-                //     setState(() {
-                //       selectedHackathonFilter = filter;
-                //     });
-                //   },
-                //   onViewMore: () {
-                //     print("Pressed View more in hackathons");
-                //   },
-                //   items: [], // Add hackathon data here
-                // ),
