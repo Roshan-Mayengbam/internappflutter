@@ -278,8 +278,6 @@ class _SavedState extends State<Saved> {
                         ),
                         Expanded(
                           child: CustomAppBar(
-                            searchController: TextEditingController(),
-                            onSearchSubmit: (value) {},
                             onChatPressed: () {},
                             onNotificationPressed: () {},
                           ),

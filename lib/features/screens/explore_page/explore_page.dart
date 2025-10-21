@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/screens/search_page/search_page.dart';
 import 'package:provider/provider.dart';
 
-import '../common/components/explore_page/article_content_grid.dart';
-import '../common/components/custom_app_bar.dart';
-import '../common/components/explore_page/filter_tag_group.dart';
-import '../features/NewsFeed/domain/entities/article.dart';
-import '../features/presentation/providers/news_provider.dart';
-import 'article_detail_screen.dart';
-// ... other imports ...
+import '../../../common/components/explore_page/article_content_grid.dart';
+import '../../../common/components/custom_app_bar.dart';
+import '../../../common/components/explore_page/filter_tag_group.dart';
+import '../../NewsFeed/domain/entities/article.dart';
+import '../../NewsFeed/presentation/provider/news_provider.dart';
+import '../../../screens/article_detail_screen.dart';
+
+// Assuming ExploreViewModel is an alias for NewsProvider,
+// as is common practice when using NewsProvider for the Explore UI logic.
+// If not, replace ExploreViewModel with NewsProvider throughout the file.
 
 class ExplorePage extends StatelessWidget {
   ExplorePage({super.key});
@@ -15,8 +19,6 @@ class ExplorePage extends StatelessWidget {
 
   // Helper method to build the main content widget tree
   Widget _buildContent(BuildContext context, ExploreViewModel viewModel) {
-    // ... (Your existing _buildContent logic remains the same)
-
     // Show full screen spinner only if NO articles have been loaded yet
     if (viewModel.isLoading && viewModel.articles.isEmpty) {
       return const Center(child: CircularProgressIndicator.adaptive());
@@ -66,45 +68,35 @@ class ExplorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Initial Fetch Management using a Selector (The FIX)
-    // The Selector runs whenever the VM changes, but its builder only runs if the
-    // selected value (initialLoadAttempted) changes.
-    // NOTE: This Selector returns an empty widget, its only job is the side effect.
-    Selector<ExploreViewModel, bool>(
-      selector: (_, vm) => vm.initialLoadAttempted,
-      builder: (ctx, initialLoadAttempted, __) {
-        // Run the fetch only when the flag is false (i.e., the first time).
-        if (!initialLoadAttempted) {
-          // Use Future.microtask to run the side effect *after* the current build finishes.
-          Future.microtask(() {
-            final vm = ctx.read<ExploreViewModel>();
-            if (!vm.initialLoadAttempted) {
-              // Double-check safety
-              debugPrint(
-                '✅ [Selector] Triggering initial data fetch (Guarded).',
-              );
-              vm.fetchNews(isRefresh: true);
-            }
-          });
-        }
-        return const SizedBox.shrink(); // Important: return a minimal, non-visible widget.
-      },
-    );
-
     // 2. Main UI Rendering using a Consumer
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Consumer<ExploreViewModel>(
           builder: (context, viewModel, child) {
-            // The rest of the UI uses the viewModel provided by the Consumer.
+            // 1. Initial Fetch Management using addPostFrameCallback (THE FIX)
+            // This runs the side effect *after* the current frame has been rendered,
+            // which prevents the "setState during build" error and loads the default filter data.
+            if (!viewModel.initialLoadAttempted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Double-check safety
+                if (!viewModel.initialLoadAttempted) {
+                  debugPrint(
+                    '✅ [Consumer] Triggering initial data fetch (PostFrameCallback).',
+                  );
+                  // This loads the initial data, typically for the first filter tag.
+                  viewModel.fetchNews(isRefresh: true);
+                }
+              });
+            }
+
             return Column(
               children: [
-                // Custom App Bar (uses the viewModel methods via reference)
                 CustomAppBar(
-                  searchController: _searchController,
-                  onSearchSubmit: (query) =>
-                      viewModel.fetchNews(isRefresh: true),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchPage()),
+                  ),
                   onChatPressed: () => debugPrint('Chat pressed'),
                   onNotificationPressed: () =>
                       debugPrint('Notification pressed'),

@@ -60,7 +60,7 @@ void main() {
     test('should be a subclass of JobResponse entity', () {
       // assert
       expect(
-        JobResponseModel(jobs: [], totalPages: 1, currentPage: 1),
+        JobResponseModel(jobs: [], totalPages: 1, currentPage: 1, total: 20),
         isA<JobResponse>(),
       );
     });

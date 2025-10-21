@@ -6,6 +6,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/features/AvailableHackathons/data/datasource/hackathon_datasource.dart';
+import 'package:internappflutter/features/AvailableHackathons/data/repository/hackathon_repo_impl.dart';
+import 'package:internappflutter/features/AvailableHackathons/domain/usecases/fetch_similar_hackathons.dart';
+import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,13 +27,13 @@ import 'package:internappflutter/models/jobs.dart';
 // Imports for the NEW provider (JProvider)
 import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
 import 'package:internappflutter/features/AvailableJobs/data/repositories/job_repository_impl.dart';
-import 'package:internappflutter/features/presentation/providers/job_provider.dart';
+import 'package:internappflutter/features/AvailableJobs/presentation/provider/job_provider.dart';
 
 import 'features/AvailableJobs/domain/usecases/get_jobs.dart';
 import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
 import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
 import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
-import 'features/presentation/providers/news_provider.dart';
+import 'features/NewsFeed/presentation/provider/news_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +58,18 @@ void main() async {
             getJobs: GetJobs(
               JobRepositoryImpl(
                 remoteDataSource: JobRemoteDataSourceImpl(
+                  client: http.Client(),
+                  auth: FirebaseAuth.instance,
+                ),
+              ),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HackathonProvider(
+            getSimilarHackathons: GetSimilarHackathons(
+              repository: HackathonRepositoryImpl(
+                remoteDataSource: HackathonRemoteDataSourceImpl(
                   client: http.Client(),
                   auth: FirebaseAuth.instance,
                 ),

@@ -4,7 +4,7 @@ import 'package:internappflutter/home/home_page.dart';
 
 import 'package:internappflutter/screens/job_page.dart';
 import 'package:internappflutter/screens/profile_screen.dart';
-import 'screens/explore_page.dart';
+import 'features/screens/explore_page/explore_page.dart';
 
 class BottomnavbarAlternative extends StatefulWidget {
   const BottomnavbarAlternative({super.key, required userData});

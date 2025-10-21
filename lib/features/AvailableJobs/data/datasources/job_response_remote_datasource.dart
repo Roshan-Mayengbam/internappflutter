@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internappflutter/common/constants/app_constants.dart';
@@ -40,9 +41,9 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
     final queryParameters = {
       'page': page.toString(),
       'limit': limit.toString(),
-      if (query != null && query.isNotEmpty) 'q': query,
-      if (location != null && location.isNotEmpty) 'location': location,
-      if (skills != null && skills.isNotEmpty) 'skills': skills,
+      'q': query ?? '',
+      'location': location ?? '',
+      'skills': skills ?? '',
     };
 
     final uri = Uri.parse(
@@ -58,11 +59,30 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
         },
       );
 
-      if (response.statusCode == 200) {
-        return JobResponseModel.fromJson(json.decode(response.body));
+      debugPrint(
+        '⬅️ REMOTE DATASOURCE: Received response. Status: ${response.statusCode} -\n ${response.body}',
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // 3. Log the successful response body (or part of it)
+        debugPrint(
+          '✅ REMOTE DATASOURCE: Success! Data snippet: ${response.body.substring(0, 30)}...',
+        );
+        return JobResponseModel.fromJson(
+          json.decode(response.body) as Map<String, dynamic>,
+        );
+      } else if (response.statusCode == 500) {
+        // 4. Log the full 500 error body for backend context
+        debugPrint(
+          '🚨 REMOTE DATASOURCE: Server Error 500 received! Full body: ${response.body}',
+        );
+        throw ServerFailure('Internal server error : ${response.statusCode}');
       } else {
-        final errorBody = json.decode(response.body);
-        throw ServerFailure(errorBody['message'] ?? 'Failed to load jobs');
+        // 5. Log other client errors (400, 404, etc.)
+        debugPrint(
+          '⚠️ REMOTE DATASOURCE: Client Error ${response.statusCode}. Body: ${response.body}',
+        );
+        throw ServerFailure('Failed with status ${response.statusCode}');
       }
     } on SocketException {
       throw NetworkFailure();
