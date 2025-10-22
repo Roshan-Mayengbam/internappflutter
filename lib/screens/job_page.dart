@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../common/components/jobs_page/custom_carousel_section.dart';
 import '../models/hackathon.dart';
 import 'hackathon.dart';
+import 'hackathon_details.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
