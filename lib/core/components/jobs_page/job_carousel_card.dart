@@ -8,7 +8,7 @@ class CarouselCard extends StatelessWidget {
   final String tag2;
   final bool statusCard;
   final bool isVerified;
-  final VoidCallback? onTap; // ✅ New parameter
+  final VoidCallback? onTap;
 
   const CarouselCard({
     super.key,
@@ -27,7 +27,7 @@ class CarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap, // ✅ handle tap
+      onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 320,
@@ -60,13 +60,14 @@ class CarouselCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Row with title + tags
+            // Row with two columns
             SizedBox(
               width: double.infinity,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Left: Title + Subtitle
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +87,11 @@ class CarouselCard extends StatelessWidget {
                             ),
                             if (isVerified) ...[
                               const SizedBox(width: 3),
-                              const Icon(Icons.verified, color: Colors.blue),
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.blue,
+                                size: 16,
+                              ),
                             ],
                           ],
                         ),
@@ -94,7 +99,6 @@ class CarouselCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Tags
                   SizedBox(
                     width: 100,
                     child: statusCard

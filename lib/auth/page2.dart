@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:internappflutter/auth/google_signin.dart';
 import 'package:internappflutter/auth/registerpage.dart';
-import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/models/usermodel.dart';
-// Add these imports for the navigation targets
-// import 'package:internappflutter/pages/bottomnavbar_alternative.dart';
-// import 'package:internappflutter/pages/register_page.dart';
-// import 'package:internappflutter/models/user_model.dart';
+
+import '../bottomnavbar.dart';
+import '../models/usermodel.dart';
+import 'google_signin.dart';
 
 class Page2 extends StatefulWidget {
-  // Changed to StatefulWidget
   const Page2({super.key});
 
   @override
@@ -33,19 +28,14 @@ class _Page2State extends State<Page2> {
       if (user != null) {
         print("🔐 User signed in successfully: ${user.email}");
 
-        // Check if user exists in database
+        // Dummy implementation for check, replace with actual logic
+        // This is where you connect to your database (Firestore/Supabase/etc.)
         final checkResult = await _authService.checkIfUserExists();
-
-        print("🔍 CHECK RESULT: $checkResult");
 
         if (checkResult != null) {
           final exists = checkResult['exists'];
-          print("🔍 User exists in database: $exists");
 
           if (exists == true) {
-            // User exists in database - go to home page
-            print("✅ Navigating to HomePage");
-
             if (mounted) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
@@ -53,7 +43,6 @@ class _Page2State extends State<Page2> {
                       BottomnavbarAlternative(userData: checkResult['user']),
                 ),
               );
-
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Welcome back!"),
@@ -63,14 +52,10 @@ class _Page2State extends State<Page2> {
               );
             }
           } else if (exists == false) {
-            // User doesn't exist in database - go to registration
-            print("👤 Navigating to RegisterPage");
-
             final userModel = UserModel(
               name: user.displayName ?? 'Unknown User',
               email: user.email ?? 'No Email',
               phone: '',
-
               uid: user.uid,
               role: 'Student',
             );
@@ -81,7 +66,6 @@ class _Page2State extends State<Page2> {
                   builder: (context) => RegisterPage(userModel: userModel),
                 ),
               );
-
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Please complete your registration"),
@@ -91,19 +75,14 @@ class _Page2State extends State<Page2> {
               );
             }
           } else {
-            // Unexpected value
-            print("❌ Unexpected exists value: $exists");
             await _authService.signOut();
             _showErrorSnackBar("Authentication error. Please try again.");
           }
         } else {
-          // Server error or network issue
-          print("❌ Failed to check user status");
           await _authService.signOut();
           _showErrorSnackBar("Unable to verify account. Please try again.");
         }
       } else {
-        print("❌ Google sign-in failed");
         _showErrorSnackBar("Sign-in failed. Please try again.");
       }
     } catch (e) {
@@ -125,7 +104,7 @@ class _Page2State extends State<Page2> {
         SnackBar(
           content: Text(message),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -133,74 +112,163 @@ class _Page2State extends State<Page2> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions once for cleaner code
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Color.fromARGB(250, 226, 253, 223),
+      backgroundColor: const Color.fromARGB(250, 226, 253, 223),
       body: Stack(
         children: [
+          // --- Decorative Elements (Top Right) ---
           Positioned(
             right: 0,
-            top: 44,
-            child: Image.asset('assets/images/2image1.png'),
-          ),
-          Positioned(
-            top: 79,
-            left: 0,
-            child: Image.asset('assets/images/girl.png'),
-          ),
-          Positioned(
-            top: 100,
-            right: 20,
-            child: Image.asset('assets/images/2text2.png'),
-          ),
-          Positioned(
-            top: 412,
-            left: 16,
-            child: Image.asset('assets/images/JUMP.png'),
-          ),
-          Positioned(
-            top: 496,
-            left: 73,
-            child: Image.asset('assets/images/IN.png'),
-          ),
-          Positioned(
-            top: 562,
-            left: 16,
-            child: Image.asset('assets/images/YOUR.png'),
-          ),
-          Positioned(
-            top: 627,
-            left: 16,
-            child: Image.asset('assets/images/DREAMS.png'),
-          ),
-          Positioned(
-            top: 490,
-            left: 150,
-            child: Image.asset('assets/images/Star2.png'),
-          ),
-          Positioned(
-            top: 487,
-            left: 236,
-            child: Image.asset('assets/images/TO.png'),
-          ),
-          Positioned(
-            top: 737,
-            left: 16,
-            child: Image.asset('assets/images/2image1.png'),
+            // 5% from the top
+            top: screenHeight * 0.1,
+            child: Image.asset(
+              'assets/images/2image1.png',
+              // Constraint max height to 10% of screen
+              height: screenHeight * 0.22,
+            ),
           ),
 
-          // Updated union1 button with Google Sign-In functionality
+          // 🌟 PROMINENT GIRL.PNG 🌟
           Positioned(
-            top: 795,
-            left: 16,
+            // 10% from the top
+            top: screenHeight * 0.2,
+            left: 0,
+            child: Image.asset(
+              'assets/images/girl.png',
+              // Increased height constraint to 50% of screen height
+              height: screenHeight * 0.6,
+              fit: BoxFit.contain,
+            ),
+          ),
+
+          Positioned(
+            top: screenHeight * 0.16,
+            right: screenWidth * 0.05,
+            child: Image.asset(
+              'assets/images/2text2.png',
+              // Constraint max height to 10% of screen
+              height: screenHeight * 0.1,
+            ),
+          ),
+
+          // --- Text Elements (JUMP IN YOUR DREAMS) ---
+          // The text elements are shifted down slightly to accommodate the larger girl image.
+
+          // JUMP - Start at 55% height (moved from 50%)
+          Positioned(
+            top: screenHeight * 0.55,
+            left: screenWidth * 0.04,
+            child: Image.asset(
+              'assets/images/JUMP.png',
+              height:
+                  screenHeight *
+                  0.06, // Slight reduction in size for better fit
+            ),
+          ),
+          // IN
+          Positioned(
+            top: screenHeight * 0.62, // Adjusted
+            left: screenWidth * 0.18,
+            child: Image.asset(
+              'assets/images/IN.png',
+              height:
+                  screenHeight *
+                  0.06, // Slight reduction in size for better fit
+            ),
+          ),
+          // YOUR
+          Positioned(
+            top: screenHeight * 0.69, // Adjusted
+            left: screenWidth * 0.04,
+            child: Image.asset(
+              'assets/images/YOUR.png',
+              height:
+                  screenHeight *
+                  0.06, // Slight reduction in size for better fit
+            ),
+          ),
+          // DREAMS
+          Positioned(
+            top: screenHeight * 0.76, // Adjusted
+            left: screenWidth * 0.04,
+            child: Image.asset(
+              'assets/images/DREAMS.png',
+              height: screenHeight * 0.07,
+            ),
+          ),
+
+          // TO (positioned next to IN)
+          Positioned(
+            top: screenHeight * 0.61, // Adjusted
+            left: screenWidth * 0.55,
+            child: Image.asset(
+              'assets/images/TO.png',
+              height: screenHeight * 0.08,
+            ),
+          ),
+          // Star2
+          Positioned(
+            top: screenHeight * 0.62, // Adjusted
+            left: screenWidth * 0.40,
+            child: Image.asset(
+              'assets/images/Star2.png',
+              height: screenHeight * 0.06, // Slight reduction
+            ),
+          ),
+
+          // --- Sign-In Button (Bottom Area) ---
+          Positioned(
+            // Constraint from the bottom
+            bottom: screenHeight * 0.08,
+            left: screenWidth * 0.04, // 4% padding
+            right: screenWidth * 0.04, // 4% padding
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: _isLoading
-                    ? null
-                    : _handleGoogleSignIn, // Updated onTap handler
+                onTap: _isLoading ? null : _handleGoogleSignIn,
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Image.asset('assets/images/union1.png'),
+                    // Base Image (union1.png) - Scales with width
+                    Image.asset(
+                      'assets/images/union1.png',
+                      fit: BoxFit.fitWidth,
+                    ),
+
+                    // Button Contents (Centered)
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.02,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Google Icon
+                          Image.asset(
+                            'assets/images/google.png',
+                            height: screenHeight * 0.04,
+                          ),
+                          SizedBox(width: screenWidth * 0.03),
+                          // Text 'cwg.png'
+                          Image.asset(
+                            'assets/images/cwg.png',
+                            height: screenHeight * 0.03,
+                          ),
+                          // Arrow - positioned to the right end
+                          const Spacer(),
+                          if (!_isLoading)
+                            Image.asset(
+                              "assets/images/arrow_outward.png",
+                              height: screenHeight * 0.05,
+                            ),
+                        ],
+                      ),
+                    ),
+
                     // Show loading indicator if signing in
                     if (_isLoading)
                       Positioned.fill(
@@ -209,7 +277,7 @@ class _Page2State extends State<Page2> {
                             color: Colors.black.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Center(
+                          child: const Center(
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
@@ -220,35 +288,6 @@ class _Page2State extends State<Page2> {
                   ],
                 ),
               ),
-            ),
-          ),
-
-          Positioned(
-            top: 813,
-            left: 135,
-            child: Image.asset('assets/images/cwg.png'),
-          ),
-          Positioned(
-            top: 813,
-            left: 35,
-            child: InkWell(
-              onTap: _isLoading
-                  ? null
-                  : _handleGoogleSignIn, // Also add Google Sign-In here if this is another sign-in button
-              child: Image.asset('assets/images/google.png'),
-            ),
-          ),
-
-          Positioned(
-            top: 800,
-            left: 340,
-            child: IconButton(
-              iconSize: 100,
-              onPressed: () {
-                print("Arrow pressed!");
-                // You can add navigation logic here if needed
-              },
-              icon: Image.asset("assets/images/arrow_outward.png"),
             ),
           ),
         ],

@@ -196,18 +196,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         children: [
           Stack(
             children: [
-              Positioned(
-                left: 8,
-                top: 8,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
               InkWell(
                 onTap: () {
                   Navigator.push(

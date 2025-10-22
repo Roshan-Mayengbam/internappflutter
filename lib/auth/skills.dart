@@ -508,7 +508,7 @@ class _SkillsState extends State<Skills> {
                       ),
                     );
                   }
-                : null,
+                : () {},
 
             style: ElevatedButton.styleFrom(
               backgroundColor:

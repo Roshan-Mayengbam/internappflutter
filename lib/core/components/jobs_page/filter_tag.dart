@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:internappflutter/core/constants/filter_tag_constants.dart';
 
-class FilterTag extends StatefulWidget {
+class FilterTag extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -14,24 +15,25 @@ class FilterTag extends StatefulWidget {
   });
 
   @override
-  State<FilterTag> createState() => _FilterTagState();
-}
-
-class _FilterTagState extends State<FilterTag> {
-  @override
   Widget build(BuildContext context) {
+    // Apply tap only if applicable
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
-        padding: FilterTagConstants.padding,
         decoration: BoxDecoration(
-          color: widget.isSelected
-              ? FilterTagConstants.selectedBg
-              : FilterTagConstants.unselectedBg,
           border: FilterTagConstants.border,
           borderRadius: FilterTagConstants.borderRadius,
         ),
-        child: Text(widget.label, style: FilterTagConstants.filterText),
+        child: Container(
+          padding: FilterTagConstants.padding,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? FilterTagConstants.selectedBg
+                : FilterTagConstants.unselectedBg,
+            borderRadius: FilterTagConstants.borderRadius,
+          ),
+          child: Text(label, style: FilterTagConstants.filterText),
+        ),
       ),
     );
   }

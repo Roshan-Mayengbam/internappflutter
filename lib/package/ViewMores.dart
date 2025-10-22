@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:internappflutter/core/components/jobs_page/job_carousel_card.dart';
 
 class ViewMores extends StatelessWidget {

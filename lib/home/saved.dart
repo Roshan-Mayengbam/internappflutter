@@ -9,6 +9,8 @@ import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'cardDetails.dart';
+
 class Saved extends StatefulWidget {
   const Saved({super.key});
 
@@ -304,14 +306,13 @@ class _SavedState extends State<Saved> {
                   children: [
                     Row(
                       children: [
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: CustomButton(
                             onPressed: () => Navigator.pop(context),
                             buttonIcon: Icons.arrow_back,
                           ),
                         ),
-                        SizedBox(width: 0),
                         Expanded(
                           child: CustomAppBar(
                             searchController: TextEditingController(),
@@ -426,9 +427,13 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
-                      onCarouselTap: (String p1) {},
                       onItemTap: (job) {
                         print("---- Navigating to Carddetails ----");
+                        print("Job Title: ${job['jobTitle']}");
+                        print("Company Name: ${job['companyName']}");
+                        print("Location: ${job['location']}");
+                        print("Website URL: ${job['websiteUrl']}");
+                        print("Job Type: ${job['jobType']}");
                         print("Job ID: ${job['jobId'] ?? 'N/A'}");
                         print("Job Title: ${job['jobTitle'] ?? 'N/A'}");
                         print("Company Name: ${job['companyName'] ?? 'N/A'}");
@@ -503,8 +508,7 @@ class _SavedState extends State<Saved> {
                                   : <String>[],
                               websiteUrl: job['websiteUrl'] ?? '',
                               tagLabel: job['tagLabel'],
-                              employmentType:
-                                  job['employmentType'] ?? 'Not specified',
+                              employmentType: job['jobType'] ?? 'Not specified',
                               rolesAndResponsibilities:
                                   job['description'] ??
                                   'No description available',
@@ -527,6 +531,7 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
+                      onCarouselTap: (String p1) {},
                     ),
                   ],
                 ),

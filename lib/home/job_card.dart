@@ -236,6 +236,9 @@ class _JobCardState extends State<JobCard> {
                   children: [
                     ...widget.requirements
                         .take(3)
+                        .map((req) => _buildRequirementRow(req, screenWidth)),
+
+                    // Show "Show more..." button if there are more than 3 requirements
                         .map((req) => _buildRequirementRow(req, screenWidth))
                         .toList(),
                     if (widget.requirements.length > 3)

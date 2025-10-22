@@ -67,7 +67,6 @@ class _Explore1State extends State<Explore1> {
                       child: Container(
                         height: 25,
                         width: 25,
-                        child: Icon(Icons.search, size: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
@@ -81,6 +80,7 @@ class _Explore1State extends State<Explore1> {
                             ),
                           ],
                         ),
+                        child: Icon(Icons.search, size: 20),
                       ),
                     ),
                     Positioned(

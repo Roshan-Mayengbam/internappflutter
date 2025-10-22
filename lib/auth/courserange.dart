@@ -17,7 +17,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
   int? selectedOption;
   String? selectedCourseRange;
 
-  final List<String> options = ['2010-2013', '2013-2017', '2017-2020', '2020+'];
+  final List<String> options = ['2026', '2027', '2028', '2029'];
 
   @override
   void initState() {
@@ -71,12 +71,6 @@ class _CourseRangePageState extends State<CourseRangePage> {
             // Progress bar with back button
             Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () {
-                    Navigator.of(context).maybePop();
-                  },
-                ),
                 Expanded(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),

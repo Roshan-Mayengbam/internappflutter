@@ -5,12 +5,27 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
+
+// Imports for the NEW provider (JProvider)
+import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
+import 'package:internappflutter/features/AvailableJobs/data/repositories/job_repository_impl.dart';
+import 'package:internappflutter/features/presentation/providers/job_provider.dart';
+
+import 'features/AvailableJobs/domain/usecases/get_jobs.dart';
+import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
+import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
+import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
+import 'features/presentation/providers/news_provider.dart';
 import 'package:internappflutter/screens/hackathon.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +46,28 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // New provider from the features directory
+        ChangeNotifierProvider(
+          create: (_) => JProvider(
+            getJobs: GetJobs(
+              JobRepositoryImpl(
+                remoteDataSource: JobRemoteDataSourceImpl(
+                  client: http.Client(),
+                  auth: FirebaseAuth.instance,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
+        ChangeNotifierProvider(
+          create: (_) => ExploreViewModel(
+            getNewsUseCase: GetTechNewsUseCase(
+              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
+            ),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => HackathonProvider()),
       ],
       child: MyApp(),

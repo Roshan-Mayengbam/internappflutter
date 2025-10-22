@@ -408,7 +408,8 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-///modified code 
+
+///modified code
 // class ExplorePage extends StatefulWidget {
 //   const ExplorePage({super.key});
 
