@@ -31,8 +31,7 @@ class _TagPageState extends State<TagPage> {
   String _uploadProgress = "Preparing upload...";
 
   // Replace with your actual backend URL
-  final String baseUrl =
-      "https://hyrup-730899264601.asia-south1.run.app/student";
+  final String baseUrl = "http://10.96.91.157:3000/student";
 
   /// Upload file to Firebase Storage and return download URL
   Future<String?> _uploadFileToStorage(
@@ -177,6 +176,8 @@ class _TagPageState extends State<TagPage> {
         "phone": widget.uploadResume.phone ?? "",
         "profile": {
           "FullName": widget.uploadResume.name,
+
+          "resume": resumeFileUrl ?? "", // Firebase Storage URL
           "profilePicture": profileImageUrl ?? "", // Firebase Storage URL
           "bio": widget.uploadResume.description ?? "",
         },
@@ -379,11 +380,12 @@ class _TagPageState extends State<TagPage> {
 
       // Navigate to home page after successful upload
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) =>
                 BottomnavbarAlternative(userData: widget.uploadResume),
           ),
+          (route) => false,
         );
       }
     }

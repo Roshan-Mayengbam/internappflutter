@@ -413,7 +413,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
               print("Updated user model: ${updatedUserModel.toString()}");
 
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>

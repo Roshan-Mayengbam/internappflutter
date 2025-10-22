@@ -137,6 +137,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     }
   }
 
+  // ONLY REPLACE THE BUILD METHOD AND RELATED PARTS
+
+  @override
   Widget build(BuildContext context) {
     // Show loading indicator while fetching data
     if (isLoading || userData == null) {
@@ -151,10 +154,19 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     final profilePic = profile['profilePicture'] ?? '';
     final bio = profile['bio'] ?? '';
     final phone = userData!['phone'] ?? 'N/A';
-
     final email = user?.email ?? 'N/A';
     final education = userData!['education'] ?? {};
-    final userSkills = userData!['user_skills'] as Map<String, dynamic>? ?? {};
+
+    // ✅✅✅ CORRECT WAY TO HANDLE MAP
+    final rawSkills = userData!['user_skills'];
+    List<MapEntry<String, dynamic>> skillsList = [];
+
+    if (rawSkills is Map<String, dynamic>) {
+      // Backend sends Map: {"React.js": {"level": "intermediate"}}
+      skillsList = rawSkills.entries.toList();
+    } else if (rawSkills != null) {
+      print("⚠️ user_skills is not a Map: ${rawSkills.runtimeType}");
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4F5),
@@ -223,9 +235,37 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                               ),
                             ),
                           ),
+                          // ResumeEditPopupUtils.showResumeEditPopup(context);
                           ElevatedButton(
-                            onPressed: () {
-                              ResumeEditPopupUtils.showResumeEditPopup(context);
+                            onPressed: () async {
+                              final resumeUrl = profile['resume'] ?? '';
+                              if (resumeUrl.isNotEmpty) {
+                                try {
+                                  final uri = Uri.parse(resumeUrl);
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.platformDefault,
+                                  );
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Error opening resume: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              } else {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('No resume uploaded yet'),
+                                    ),
+                                  );
+                                }
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFD6F59A),
@@ -322,8 +362,8 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
                       const SizedBox(height: 20),
 
-                      // Skills section
-                      if (userSkills.isNotEmpty) ...[
+                      // ✅✅✅ FIXED Skills section - properly reads Map entries
+                      if (skillsList.isNotEmpty) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -338,11 +378,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                             ),
                             TextButton(
                               onPressed: () {
+                                // Convert entries list back to map for SkillVerification
+                                Map<String, dynamic> skillsMap =
+                                    Map.fromEntries(skillsList);
+
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => SkillVerification(
-                                      userSkills: userSkills,
+                                      userSkills: skillsMap,
                                     ),
                                   ),
                                 );
@@ -363,13 +407,18 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                         Wrap(
                           spacing: 10.0,
                           runSpacing: 10.0,
-                          children: userSkills.entries.map<Widget>((entry) {
+                          children: skillsList.map<Widget>((entry) {
                             String skillName = entry.key;
-                            String level =
-                                entry.value['level']
-                                    ?.toString()
-                                    .toLowerCase() ??
-                                'unverified';
+                            String level = 'unverified';
+
+                            if (entry.value is Map) {
+                              level = (entry.value['level'] ?? 'unverified')
+                                  .toString()
+                                  .toLowerCase();
+                            } else if (entry.value is String) {
+                              level = entry.value.toLowerCase();
+                            }
+
                             return _buildSkillChip(skillName, level);
                           }).toList(),
                         ),
@@ -417,8 +466,6 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             },
           ),
 
-          // Back button
-
           // Edit button
           Positioned(
             top: 40,
@@ -438,8 +485,6 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       builder: (context) => const EditProfileScreen(),
                     ),
                   );
-
-                  // Refresh data if profile was updated
                   if (result == true) {
                     fetchStudentDetails();
                   }

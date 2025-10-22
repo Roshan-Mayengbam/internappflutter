@@ -788,7 +788,7 @@ class _CollegedetailsState extends State<Collegedetails> {
               print("Extended user model with college details:");
               print(extendedUserModel.toString());
 
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>

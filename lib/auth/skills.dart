@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:internappflutter/auth/experience.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
@@ -18,34 +20,9 @@ class _SkillsState extends State<Skills> {
   int filledFields = 0;
   final int totalFields = 2;
 
-  final List<String> allSkills = [
-    "Adobe",
-    "React",
-    "Flutter",
-    "Figma",
-    "Tensor Flow",
-    "Python",
-    "JavaScript",
-    "Java",
-    "Swift",
-    "Kotlin",
-    "HTML/CSS",
-    "Node.js",
-    "MongoDB",
-  ];
-
-  final List<String> allJobs = [
-    "Software Developer",
-    "UI/UX Designer",
-    "Data Scientist",
-    "Mobile App Developer",
-    "Web Developer",
-    "Product Manager",
-    "AI Engineer",
-    "Graphic Designer",
-    "System Analyst",
-    "Database Admin",
-  ];
+  List<String> allSkills = [];
+  List<String> allJobs = [];
+  bool isLoading = true;
 
   List<String> filteredSkills = [];
   List<String> selectedSkills = [];
@@ -60,6 +37,90 @@ class _SkillsState extends State<Skills> {
     filteredJobs = [];
     _skillsController.addListener(updateProgress);
     _jobsController.addListener(updateProgress);
+    _loadJsonData();
+  }
+
+  Future<void> _loadJsonData() async {
+    try {
+      // Load skills from JSON
+      final skillsString = await rootBundle.loadString(
+        'assets/userskills.json',
+      );
+      final skillsJson = json.decode(skillsString);
+
+      // Load job preferences from JSON
+      final jobsString = await rootBundle.loadString(
+        'assets/jobPeference.json',
+      );
+      final jobsJson = json.decode(jobsString);
+
+      setState(() {
+        // Assuming the JSON structure is an array of strings or objects with a 'name' field
+        // Adjust based on your actual JSON structure
+        if (skillsJson is List) {
+          allSkills = skillsJson
+              .map((item) {
+                if (item is String) return item;
+                if (item is Map)
+                  return item['name']?.toString() ??
+                      item['skill']?.toString() ??
+                      '';
+                return '';
+              })
+              .where((item) => item.isNotEmpty)
+              .toList();
+        }
+
+        if (jobsJson is List) {
+          allJobs = jobsJson
+              .map((item) {
+                if (item is String) return item;
+                if (item is Map)
+                  return item['name']?.toString() ??
+                      item['job']?.toString() ??
+                      '';
+                return '';
+              })
+              .where((item) => item.isNotEmpty)
+              .toList();
+        }
+
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading JSON data: $e');
+      setState(() {
+        isLoading = false;
+        // Fallback to default values if JSON loading fails
+        allSkills = [
+          "Adobe",
+          "React",
+          "Flutter",
+          "Figma",
+          "Tensor Flow",
+          "Python",
+          "JavaScript",
+          "Java",
+          "Swift",
+          "Kotlin",
+          "HTML/CSS",
+          "Node.js",
+          "MongoDB",
+        ];
+        allJobs = [
+          "Software Developer",
+          "UI/UX Designer",
+          "Data Scientist",
+          "Mobile App Developer",
+          "Web Developer",
+          "Product Manager",
+          "AI Engineer",
+          "Graphic Designer",
+          "System Analyst",
+          "Database Admin",
+        ];
+      });
+    }
   }
 
   @override
@@ -295,6 +356,17 @@ class _SkillsState extends State<Skills> {
   @override
   Widget build(BuildContext context) {
     double progress = filledFields / totalFields;
+
+    // Show loading indicator while data is being loaded
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: const Color.fromARGB(255, 252, 252, 244),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFFB6A5FE)),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 252, 244),
       body: SafeArea(
@@ -500,7 +572,7 @@ class _SkillsState extends State<Skills> {
                     print("Jobs (inherited): ${userWithSkills.jobs}");
 
                     // Navigate to ExperiencePage
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>

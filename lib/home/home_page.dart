@@ -142,6 +142,24 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const Page2()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
+  }
+
   void _initAnimations() {
     _controllers = List.generate(
       notifications['msg'].length,
@@ -484,7 +502,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: _retryFetchJobs,
+                            onPressed: () {
+                              _signOut(context);
+                            },
                             child: const Text('Retry'),
                           ),
                         ],
