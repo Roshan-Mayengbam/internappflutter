@@ -4,4 +4,7 @@ import 'package:internappflutter/features/core/errors/failiure.dart';
 
 abstract class HackathonRepository {
   Future<Either<Failure, HackathonResponse>> getHackathons();
+  Future<Either<Failure, HackathonResponse>> getSimilarHackathons(
+    String? query,
+  );
 }

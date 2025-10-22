@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
@@ -50,7 +51,10 @@ void main() {
   setUp(() {
     // Instantiate the generated mock class
     mockHttpClient = MockClient();
-    dataSource = HackathonRemoteDataSourceImpl(client: mockHttpClient);
+    dataSource = HackathonRemoteDataSourceImpl(
+      client: mockHttpClient,
+      auth: FirebaseAuth.instance,
+    );
   });
 
   // --- Helper functions for stubbing the mock ---

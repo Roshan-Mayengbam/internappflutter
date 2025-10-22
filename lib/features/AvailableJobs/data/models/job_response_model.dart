@@ -12,11 +12,13 @@ class JobResponseModel {
   final List<JobModel> jobs;
   final int totalPages;
   final int currentPage;
+  final int total;
 
   const JobResponseModel({
     required this.jobs,
     required this.totalPages,
     required this.currentPage,
+    required this.total,
   });
 
   factory JobResponseModel.fromJson(Map<String, dynamic> json) =>
@@ -28,6 +30,7 @@ class JobResponseModel {
         ),
         totalPages: json["pagination"]["pages"] as int,
         currentPage: json["pagination"]["page"] as int,
+        total: json["pagination"]["total"] as int,
       );
 }
 
@@ -39,6 +42,7 @@ extension JobResponseMapper on JobResponseModel {
       jobs: jobs,
       totalPages: totalPages,
       currentPage: currentPage,
+      total: total,
     );
   }
 }

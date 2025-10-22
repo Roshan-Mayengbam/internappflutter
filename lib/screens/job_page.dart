@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
-import 'package:internappflutter/screens/hackathon_details.dart';
 import 'package:intl/intl.dart';
-
-import 'package:internappflutter/models/hackathon.dart';
-import 'package:internappflutter/screens/hackathon.dart';
 import 'package:provider/provider.dart';
 
-import '../core/components/jobs_page/custom_carousel_section.dart';
+import '../common/components/jobs_page/custom_carousel_section.dart';
+import '../models/hackathon.dart';
+import 'hackathon.dart';
+import 'hackathon_details.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
@@ -122,6 +121,8 @@ class _JobPageState extends State<JobPage> {
         'skills': job.preferences.skills,
         'mode': job.mode.isNotEmpty ? job.mode : 'Not specified',
         'stipend': job.stipend != null ? '₹${job.stipend}' : 'Not specified',
+
+        // Use the recruiterMap we created
         'recruiter': recruiterMap,
       };
     }).toList();

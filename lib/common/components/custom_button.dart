@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/core/constants/button_constants.dart';
+import 'package:internappflutter/common/constants/button_constants.dart';
 
 // Use expanded if you want to occupy max space horizontally
 class CustomButton extends StatelessWidget {

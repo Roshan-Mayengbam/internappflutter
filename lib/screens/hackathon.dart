@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/models/hackathon.dart';
 import 'dart:convert';
-import 'hackathon.dart';
 
 class HackathonProvider extends ChangeNotifier {
   List<Hackathon> _hackathons = [];

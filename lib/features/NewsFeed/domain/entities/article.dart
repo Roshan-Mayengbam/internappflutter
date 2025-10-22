@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-/// The core data structure for a news article, isolated from API and UI concerns.
+/// The common data structure for a news article, isolated from API and UI concerns.
 class Article {
   final String id;
   final String webTitle;

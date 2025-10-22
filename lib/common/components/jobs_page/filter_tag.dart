@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/core/constants/filter_tag_constants.dart';
+import 'package:internappflutter/common/constants/filter_tag_constants.dart';
 
 class FilterTag extends StatelessWidget {
   final String label;

@@ -5,8 +5,10 @@ class JobResponse extends Equatable {
   final List<Job> jobs;
   final int totalPages;
   final int currentPage;
+  final int total;
 
   const JobResponse({
+    required this.total,
     required this.jobs,
     required this.totalPages,
     required this.currentPage,

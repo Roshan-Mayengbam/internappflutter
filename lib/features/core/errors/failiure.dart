@@ -20,13 +20,22 @@ class ServerFailure extends Failure {
 
 /// Represents a failure to connect to the network.
 class NetworkFailure extends Failure {
-  final String message = "Network connection failed. Please check your connection.";
+  final String message =
+      "Network connection failed. Please check your connection.";
 }
 
 /// Represents a failure during authentication (e.g., invalid token).
 class AuthFailure extends Failure {
   final String message;
   const AuthFailure(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class NotFoundFailure extends Failure {
+  final String message;
+  const NotFoundFailure(this.message);
 
   @override
   List<Object> get props => [message];
