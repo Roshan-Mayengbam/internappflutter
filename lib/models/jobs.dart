@@ -8,10 +8,10 @@ import 'package:http/http.dart' as http;
 class Job {
   final String id;
   final String title;
-  final String description;
-  final String recruiter;
-  final String? college;
   final String jobType;
+  final dynamic recruiter; // Can be String (ID) or Map (populated object)
+  final String description;
+  final String? applicationLink;
   final String employmentType;
   final String? rolesAndResponsibilities;
   final String? perks;
@@ -19,10 +19,10 @@ class Job {
   final int noOfOpenings;
   final String? duration;
   final String mode;
-  final int? stipend;
+  final double? stipend;
+  final String? college;
+  final JobPreferences preferences;
   final SalaryRange salaryRange;
-  final Preferences preferences;
-  final String? applicationLink;
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool applied;
@@ -31,10 +31,10 @@ class Job {
   Job({
     required this.id,
     required this.title,
-    required this.description,
-    required this.recruiter,
-    this.college,
     required this.jobType,
+    required this.recruiter,
+    required this.description,
+    this.applicationLink,
     required this.employmentType,
     this.rolesAndResponsibilities,
     this.perks,
@@ -43,9 +43,9 @@ class Job {
     this.duration,
     required this.mode,
     this.stipend,
-    required this.salaryRange,
+    this.college,
     required this.preferences,
-    this.applicationLink,
+    required this.salaryRange,
     required this.createdAt,
     required this.updatedAt,
     this.applied = false,
@@ -53,7 +53,6 @@ class Job {
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
-    // Safely extract skills list
     List<String> extractedSkills = [];
     if (json['preferences']?['skills'] != null) {
       extractedSkills = (json['preferences']['skills'] as List)
@@ -65,12 +64,12 @@ class Job {
     }
 
     return Job(
-      id: json['_id'] ?? '',
+      id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
+      jobType: json['jobType'] ?? 'company',
+      recruiter: json['recruiter'],
       description: json['description'] ?? '',
-      recruiter: json['recruiter']?.toString() ?? '',
-      college: json['college'],
-      jobType: json['jobType'] ?? 'company', // ✅ explicitly mapped
+      applicationLink: json['applicationLink'],
       employmentType: json['employmentType'] ?? 'full-time',
       rolesAndResponsibilities: json['rolesAndResponsibilities'],
       perks: json['perks'],
@@ -81,11 +80,13 @@ class Job {
       duration: json['duration'],
       mode: json['mode'] ?? 'on-site',
       stipend: json['stipend'] != null
-          ? int.tryParse(json['stipend'].toString())
+          ? (json['stipend'] is int
+                ? (json['stipend'] as int).toDouble()
+                : double.tryParse(json['stipend'].toString()))
           : null,
+      college: json['college'],
+      preferences: JobPreferences.fromJson(json['preferences'] ?? {}),
       salaryRange: SalaryRange.fromJson(json['salaryRange'] ?? {}),
-      preferences: Preferences.fromJson(json['preferences'] ?? {}),
-      applicationLink: json['applicationLink'],
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       applied: json['applied'] ?? false,
@@ -97,10 +98,10 @@ class Job {
     return {
       '_id': id,
       'title': title,
-      'description': description,
+      'jobType': jobType,
       'recruiter': recruiter,
-      'college': college,
-      'jobType': jobType, // ✅ included explicitly
+      'description': description,
+      'applicationLink': applicationLink,
       'employmentType': employmentType,
       'rolesAndResponsibilities': rolesAndResponsibilities,
       'perks': perks,
@@ -109,32 +110,144 @@ class Job {
       'duration': duration,
       'mode': mode,
       'stipend': stipend,
-      'salaryRange': salaryRange.toJson(),
+      'college': college,
       'preferences': preferences.toJson(),
-      'applicationLink': applicationLink,
+      'salaryRange': salaryRange.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'applied': applied,
       'skills': skills,
     };
   }
+
+  // ===== EXISTING HELPER METHODS =====
+
+  bool get isRecruiterPopulated => recruiter is Map<String, dynamic>;
+
+  Map<String, dynamic>? get recruiterDetails {
+    if (recruiter is Map<String, dynamic>) {
+      return recruiter as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  String get recruiterId {
+    if (recruiter is String) {
+      return recruiter as String;
+    } else if (recruiter is Map<String, dynamic>) {
+      return recruiter['_id'] ?? recruiter['id'] ?? '';
+    }
+    return '';
+  }
+
+  String get recruiterName {
+    if (recruiter is Map<String, dynamic>) {
+      return recruiter['name'] ?? 'Unknown';
+    }
+    return 'Unknown';
+  }
+
+  // ===== NEW COMPANY HELPER METHODS =====
+
+  /// Get company information from recruiter data
+  Map<String, dynamic>? get companyInfo {
+    if (recruiter is Map<String, dynamic>) {
+      final rec = recruiter as Map<String, dynamic>;
+      // Check if company exists as a nested object (common structure)
+      if (rec.containsKey('company') && rec['company'] is Map) {
+        return rec['company'] as Map<String, dynamic>;
+      }
+      // If recruiter object itself contains company fields
+      return rec;
+    }
+    return null;
+  }
+
+  /// Get company name with fallback
+  String get companyName {
+    final company = companyInfo;
+    if (company != null) {
+      return company['name']?.toString() ?? recruiterName;
+    }
+    return recruiterName;
+  }
+
+  /// Get company description
+  String get companyDescription {
+    final company = companyInfo;
+    if (company != null) {
+      return company['description']?.toString() ?? 'No description available';
+    }
+    return 'No description available';
+  }
+
+  /// Get company website
+  String? get companyWebsite {
+    final company = companyInfo;
+    return company?['website']?.toString();
+  }
+
+  /// Get company location
+  Map<String, dynamic>? get companyLocation {
+    final company = companyInfo;
+    if (company != null && company['location'] is Map) {
+      return company['location'] as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  /// Get formatted company location string
+  String get companyLocationString {
+    final location = companyLocation;
+    if (location != null) {
+      final parts = <String>[];
+      if (location['city'] != null) parts.add(location['city'].toString());
+      if (location['state'] != null) parts.add(location['state'].toString());
+      if (location['country'] != null)
+        parts.add(location['country'].toString());
+      return parts.join(', ');
+    }
+    return 'Location not specified';
+  }
+
+  /// Get company type (e.g., Startup, Enterprise)
+  String? get companyType {
+    final company = companyInfo;
+    return company?['companyType']?.toString();
+  }
+
+  /// Get company founded year
+  int? get companyFoundedYear {
+    final company = companyInfo;
+    if (company?['founded'] != null) {
+      if (company!['founded'] is int) return company['founded'];
+      return int.tryParse(company['founded'].toString());
+    }
+    return null;
+  }
+
+  /// Get company logo URL
+  String? get companyLogo {
+    final company = companyInfo;
+    final logo = company?['logo']?.toString();
+    return (logo != null && logo.isNotEmpty) ? logo : null;
+  }
 }
 
-class Preferences {
+class JobPreferences {
   final List<String> skills;
+  final String location;
   final int minExperience;
   final String education;
-  final String location;
 
-  Preferences({
+  JobPreferences({
     required this.skills,
+    required this.location,
     required this.minExperience,
     required this.education,
-    required this.location,
   });
 
-  factory Preferences.fromJson(Map<String, dynamic> json) {
-    // Extract skills array safely
+  factory JobPreferences.fromJson(Map<String, dynamic> json) {
     List<String> extractedSkills = [];
     if (json['skills'] != null) {
       extractedSkills = (json['skills'] as List)
@@ -145,22 +258,22 @@ class Preferences {
           .toList();
     }
 
-    return Preferences(
+    return JobPreferences(
       skills: extractedSkills,
+      location: json['location'] ?? '',
       minExperience: (json['minExperience'] is int)
           ? json['minExperience']
           : int.tryParse(json['minExperience']?.toString() ?? '0') ?? 0,
       education: json['education'] ?? '',
-      location: json['location'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'skills': skills.map((s) => {'type': s}).toList(),
+      'location': location,
       'minExperience': minExperience,
       'education': education,
-      'location': location,
     };
   }
 }
@@ -193,6 +306,7 @@ class SalaryRange {
 class JobProvider with ChangeNotifier {
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
+  static const String baseUrl2 = 'http://10.196.234.157:3000';
 
   List<Job> _jobs = [];
   bool _isLoading = false;

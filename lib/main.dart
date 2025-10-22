@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,10 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
-import 'package:internappflutter/auth/signup.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-
-import 'package:internappflutter/screens/job_page.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
@@ -30,6 +26,8 @@ import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
 import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
 import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
 import 'features/presentation/providers/news_provider.dart';
+import 'package:internappflutter/screens/hackathon.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +68,7 @@ void main() async {
             ),
           ),
         ),
+        ChangeNotifierProvider(create: (_) => HackathonProvider()),
       ],
       child: MyApp(),
     ),
@@ -105,8 +104,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
@@ -125,9 +122,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(builder: (context) => const Page2()),
       );
-      setState(() {
-        _errorMessage = "User not logged in";
-      });
+      setState(() {});
     } else {
       Navigator.pushReplacement(
         context,

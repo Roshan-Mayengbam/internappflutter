@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/home/notification.dart';
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -166,17 +166,17 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                   ],
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.notifications_none_outlined, size: 30),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NotificationScreen(),
-                      ),
-                    );
-                  },
-                ),
+                // child: IconButton(
+                //   icon: Icon(Icons.notifications_none_outlined, size: 30),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => NotificationScreen(),
+                //       ),
+                //     );
+                //   },
+                // ),
               ),
             ],
           ),

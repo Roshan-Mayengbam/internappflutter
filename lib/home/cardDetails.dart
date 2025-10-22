@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:internappflutter/chat/chatscreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppConstants {
@@ -13,6 +14,7 @@ class AppConstants {
 class Carddetails extends StatefulWidget {
   final String jobTitle;
   final String companyName;
+  final String about; // ✅ Declare as a field
   final String location;
   final String experienceLevel;
   final List<String> requirements;
@@ -28,11 +30,13 @@ class Carddetails extends StatefulWidget {
   final List skills;
   final String id;
   final String jobType;
+  final Map<String, dynamic>? recruiter;
 
   const Carddetails({
     super.key,
     required this.jobTitle,
     required this.companyName,
+    required this.about, // ✅ Add to constructor parameters
     required this.location,
     required this.experienceLevel,
     required this.requirements,
@@ -48,6 +52,7 @@ class Carddetails extends StatefulWidget {
     required this.skills,
     required this.id,
     required this.jobType,
+    this.recruiter,
   });
 
   @override
@@ -61,6 +66,13 @@ class _CarddetailsState extends State<Carddetails> {
   bool _isLoading = false; // Add this
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
+  String get recruiterFirebaseId => widget.recruiter?['firebaseId'] ?? '';
+  String get recruiterName => widget.recruiter?['name'] ?? 'Un Recruiter';
+
+  String get currentUserId {
+    return FirebaseAuth.instance.currentUser?.uid ?? '';
+  }
+
   Future<void> applyJob(String jobId, String jobType) async {
     print("🔄 Starting job application...");
     print("📋 Job ID: $jobId");
@@ -185,22 +197,20 @@ class _CarddetailsState extends State<Carddetails> {
                   // Company Name with Badge
                   Row(
                     children: [
-                      // Expanded(
+                      Expanded(
+                        child: Text(
+                          widget.companyName.isNotEmpty
+                              ? widget.companyName
+                              : 'Company',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow:
+                              TextOverflow.ellipsis, // Adds "..." if too long
+                        ),
+                      ),
 
-                      //   child: Text(
-                      //     widget.companyName.isNotEmpty
-                      //         ? widget.companyName
-                      //         : 'Company',
-                      //     style: const TextStyle(
-                      //       fontSize: 16,
-                      //       fontWeight: FontWeight.w600,
-                      //     ),
-                      //     overflow:
-                      //         TextOverflow.ellipsis, // Adds "..." if too long
-                      //   ),
-                      // ),
-                      // const SizedBox(width: 8),
-                      // Icon(Icons.verified, color: Colors.blue[400], size: 20),
                       const Spacer(),
                       _buildTag(),
                     ],
@@ -283,81 +293,83 @@ class _CarddetailsState extends State<Carddetails> {
                         ),
                       ),
                       const Spacer(),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                          color: Colors.pink[200],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.black, width: 1),
-                        ),
-                        child: const Icon(
-                          Icons.favorite,
-                          color: Colors.pink,
-                          size: 24,
-                        ),
-                      ),
+
                       const Spacer(),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            // Bottom shadow
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 5),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            // Right shadow
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(5, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            // Bottom-right corner shadow (to make it symmetric)
-                            const BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(5, 5),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                          color: AppConstants.backgroundColor,
-                          borderRadius: BorderRadius.circular(10),
-                          border: const Border(
-                            top: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            left: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ), // thin
-                            right: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
-                            bottom: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ), // thick
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.comment,
-                          color: const Color.fromARGB(255, 7, 8, 9),
-                        ),
-                      ),
+                      widget.tagLabel == 'In House'
+                          ? Container(
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  // Bottom shadow
+                                  const BoxShadow(
+                                    color: Colors.black,
+                                    offset: Offset(0, 5),
+                                    blurRadius: 0,
+                                    spreadRadius: -2,
+                                  ),
+                                  // Right shadow
+                                  const BoxShadow(
+                                    color: Colors.black,
+                                    offset: Offset(5, 0),
+                                    blurRadius: 0,
+                                    spreadRadius: -2,
+                                  ),
+                                  // Bottom-right corner shadow (to make it symmetric)
+                                  const BoxShadow(
+                                    color: Colors.black,
+                                    offset: Offset(5, 5),
+                                    blurRadius: 0,
+                                    spreadRadius: -2,
+                                  ),
+                                ],
+                                color: AppConstants.backgroundColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: const Border(
+                                  top: BorderSide(
+                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    width: 1,
+                                  ), // thin
+                                  left: BorderSide(
+                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    width: 1,
+                                  ), // thin
+                                  right: BorderSide(
+                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    width: 2,
+                                  ), // thick
+                                  bottom: BorderSide(
+                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    width: 2,
+                                  ), // thick
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: InkWell(
+                                onTap: () {
+                                  // ✅ Pass the recruiter details to ChatScreen
+                                  print('🔍 Current User ID: $currentUserId');
+                                  print(
+                                    'Recruiter Firebase ID: $recruiterFirebaseId',
+                                  );
+                                  print('🔍 Recruiter Name: $recruiterName');
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        currentUserId: currentUserId,
+                                        otherUserId: recruiterFirebaseId,
+                                        otherUserName: recruiterName,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.comment,
+                                  color: const Color.fromARGB(255, 7, 8, 9),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1030,7 +1042,7 @@ class _CarddetailsState extends State<Carddetails> {
                       ),
                     ),
                     child: Text(
-                      'Durante seu estágio, você pode aprimorar seu conhecimento e ganhar experiência profissional trabalhando em projetos de clientes. Esta função oferece uma oportunidade excepcional para construir um portfólio atraente, adquirir novas habilidades, obter insights sobre diversos setores e abraçar novos desafios para sua futura carreira.',
+                      widget.about,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[800],
