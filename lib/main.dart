@@ -5,6 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:internappflutter/features/AvailableHackathons/data/datasource/hackathon_datasource.dart';
 import 'package:internappflutter/features/AvailableHackathons/data/repository/hackathon_repo_impl.dart';
 import 'package:internappflutter/features/AvailableHackathons/domain/usecases/fetch_similar_hackathons.dart';
@@ -77,6 +81,13 @@ void main() async {
         ),
         // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
+        ChangeNotifierProvider(
+          create: (_) => ExploreViewModel(
+            getNewsUseCase: GetTechNewsUseCase(
+              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
+            ),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => HackathonProvider()),
         ChangeNotifierProvider(
           create: (_) => ExploreViewModel(

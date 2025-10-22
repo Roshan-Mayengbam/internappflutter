@@ -5,6 +5,7 @@ class JobCard extends StatefulWidget {
   final String id;
   final String jobTitle;
   final String companyName;
+  final String about; // ✅ Add this parameter
   final String location;
   final String experienceLevel;
   final List<String> requirements;
@@ -22,7 +23,6 @@ class JobCard extends StatefulWidget {
   final String mode;
   final String jobType;
   final Map<String, dynamic>? recruiter;
-  final String about;
 
   const JobCard({
     super.key,
@@ -157,7 +157,6 @@ class _JobCardState extends State<JobCard> {
   Widget _buildPosterCard(double screenWidth, double screenHeight) {
     return InkWell(
       onTap: () {
-        // Print all the values before navigation
         print('--- Job Details ---');
         print('Job Title: ${widget.jobTitle}');
         print('Company Name: ${widget.companyName}');
