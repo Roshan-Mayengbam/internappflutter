@@ -459,7 +459,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _removeSkill(int index) {
-    final skillToRemove = skills[index];
     setState(() {
       skills.removeAt(index);
     });
@@ -761,51 +760,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 30),
 
                       // Job Preference input
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: jobController,
-                          decoration: InputDecoration(
-                            hintText: 'Select Your Job Preference',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
+                      // Job Preference input - REMOVE Expanded wrapper
+                      SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(0, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 0),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 6),
+                                blurRadius: 0,
+                                spreadRadius: -2,
+                              ),
+                            ],
                           ),
-                          onSubmitted: (value) {
-                            if (value.trim().isNotEmpty) {
-                              setState(() {
-                                jobPreferences.add(value.trim());
-                                jobController.clear();
-                              });
-                            }
-                          },
+                          child: TextField(
+                            controller: jobController,
+                            decoration: InputDecoration(
+                              hintText: 'Select Your Job Preference',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
+                              ),
+                            ),
+                            onSubmitted: (value) {
+                              if (value.trim().isNotEmpty) {
+                                setState(() {
+                                  jobPreferences.add(value.trim());
+                                  jobController.clear();
+                                });
+                              }
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -836,21 +839,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Experience',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Jost',
+                          const Flexible(
+                            child: Text(
+                              'Experience',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Jost',
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: _addExperience,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
+                                horizontal: 16, // Reduced from 20
+                                vertical: 10, // Reduced from 12
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -889,21 +895,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Projects',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Jost',
+                          const Flexible(
+                            child: Text(
+                              'Projects',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Jost',
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: _addProject,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
+                                horizontal: 16, // Reduced from 20
+                                vertical: 10, // Reduced from 12
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -1109,13 +1118,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 15,
-              fontFamily: GoogleFonts.jost().fontFamily,
-              color: const Color(0xFF1FA7E3),
-              fontWeight: FontWeight.bold,
+          Flexible(
+            child: Text(
+              label.toUpperCase(),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15,
+                fontFamily: GoogleFonts.jost().fontFamily,
+                color: const Color(0xFF1FA7E3),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 5),

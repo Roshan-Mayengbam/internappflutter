@@ -475,8 +475,9 @@ class _SkillsState extends State<Skills> {
                             selectedItems: selectedSkills,
                             filteredItems: filteredSkills,
                             onChanged: _filterSkills,
-                            onAdd: _addSkill,
+
                             onRemove: _removeSkill,
+                            onAdd: (String) {},
                           ),
 
                           const SizedBox(height: 32),

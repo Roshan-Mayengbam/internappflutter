@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -104,6 +105,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  static const String baseUrl =
+      'https://hyrup-730899264601.asia-south1.run.app/student';
+
   @override
   void initState() {
     super.initState();
@@ -111,24 +115,110 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _startDelay() {
-    // Wait for 3 seconds before checking user
     Timer(const Duration(seconds: 3), _checkUser);
   }
 
-  void _checkUser() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
+  Future<Map<String, dynamic>?> _checkIfUserExists() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        print("❌ No authenticated user found");
+        return null;
+      }
+
+      print("🔑 Getting ID token...");
+      final idToken = await currentUser.getIdToken();
+      print("✅ ID token obtained");
+
+      final response = await http
+          .get(
+            Uri.parse("$baseUrl/check"),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $idToken",
+            },
+          )
+          .timeout(Duration(seconds: 30));
+
+      print("📡 Backend response status: ${response.statusCode}");
+      print("📄 Backend response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['exists'] == true &&
+            responseData.containsKey('user')) {
+          print("✅ User exists in database");
+          return {"exists": true, "user": responseData['user']};
+        } else if (responseData['exists'] == false) {
+          print("👤 User does not exist in database");
+          return {"exists": false};
+        }
+      } else if (response.statusCode == 404) {
+        print("👤 User not found in database (404)");
+        return {"exists": false};
+      }
+
+      return null;
+    } catch (e) {
+      print("❌ Error checking user: $e");
+      return null;
+    }
+  }
+
+  Future<void> _checkUser() async {
+    try {
+      // Check Firebase authentication
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("❌ No Firebase user - redirecting to login");
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Page2()),
+        );
+        return;
+      }
+
+      print("✅ Firebase user found: ${user.uid}");
+
+      // Check backend database
+      final userCheckResult = await _checkIfUserExists();
+
+      if (userCheckResult == null) {
+        print("❌ Error checking backend - redirecting to login");
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Page2()),
+        );
+        return;
+      }
+
+      if (!mounted) return;
+
+      if (userCheckResult['exists'] == true) {
+        print("✅ User exists - going to main app");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                BottomnavbarAlternative(userData: userCheckResult['user']),
+          ),
+        );
+      } else {
+        print("⚠️ User needs registration");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Page2()),
+        );
+      }
+    } catch (e) {
+      print("❌ Error: $e");
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Page2()),
-      );
-      setState(() {});
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const BottomnavbarAlternative(userData: null),
-        ),
       );
     }
   }
@@ -136,12 +226,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F4EF), // light cream background
+      backgroundColor: const Color(0xFFF7F4EF),
       body: Center(
         child: Text(
           'hyrup',
           style: GoogleFonts.pacifico(
-            // similar to the image font
             fontSize: 84,
             color: Colors.black,
             fontWeight: FontWeight.w400,
