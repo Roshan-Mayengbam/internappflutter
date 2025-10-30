@@ -67,7 +67,7 @@ class _CarddetailsState extends State<Carddetails> {
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
   String get recruiterFirebaseId => widget.recruiter?['firebaseId'] ?? '';
-  String get recruiterName => widget.recruiter?['name'] ?? 'Un Recruiter';
+  String get recruiterName => widget.recruiter?['name'] ?? 'Unknown Recruiter';
 
   String get currentUserId {
     return FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -358,7 +358,7 @@ class _CarddetailsState extends State<Carddetails> {
                                       builder: (context) => ChatScreen(
                                         currentUserId: currentUserId,
                                         otherUserId: recruiterFirebaseId,
-                                        otherUserName: recruiterName,
+                                        otherUserName: widget.companyName,
                                       ),
                                     ),
                                   );

@@ -133,6 +133,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   void _navigateToNext() {
+    if (savedProjects.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least one project before continuing.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     // If form is started but not complete, show dialog
     if (_isFormStarted && !isFormComplete) {
       _showIncompleteFormDialog();
@@ -150,6 +160,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
           projectName: latestProject['projectName']!,
           projectLink: latestProject['link']!,
           projectDescription: latestProject['desc']!,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UploadScreen(userProject: userProject),
+          ),
         );
       } else {
         // Create a UserProject with empty project fields
@@ -185,13 +201,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
       print("Project Link: ${userProject.projectLink}");
       print("Project Description: ${userProject.projectDescription}");
     }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UploadScreen(userProject: userProject),
-      ),
-    );
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   Map<String, dynamic>? userData;
   final User? user = FirebaseAuth.instance.currentUser;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+
   bool isLoading = false;
   String errorMessage = '';
 
@@ -156,6 +158,8 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     final phone = userData!['phone'] ?? 'N/A';
     final email = user?.email ?? 'N/A';
     final education = userData!['education'] ?? {};
+    final resume = profile['resume'] ?? '';
+    final resumeName = profile['resumeName'] ?? '';
 
     // ✅✅✅ CORRECT WAY TO HANDLE MAP
     final rawSkills = userData!['user_skills'];
@@ -178,10 +182,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             width: double.infinity,
             color: Colors.black,
             child: profilePic.isNotEmpty
-                ? Image.network(
-                    profilePic,
+                ? CachedNetworkImage(
+                    imageUrl: profilePic,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error, color: Colors.red, size: 100),
                   )
                 : const Icon(Icons.person, size: 100, color: Colors.white),
           ),
@@ -221,6 +230,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       const SizedBox(height: 20),
 
                       // Name and Resume button
+                      // Replace the "Name and Resume button" section in your build method with this:
+
+                      // Name and Resume button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -235,51 +247,32 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                               ),
                             ),
                           ),
-                          // ResumeEditPopupUtils.showResumeEditPopup(context);
-                          ElevatedButton(
-                            onPressed: () async {
-                              final resumeUrl = profile['resume'] ?? '';
-                              if (resumeUrl.isNotEmpty) {
-                                try {
-                                  final uri = Uri.parse(resumeUrl);
-                                  await launchUrl(
-                                    uri,
-                                    mode: LaunchMode.platformDefault,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  ResumeEditPopupUtils.showResumeEditPopup(
+                                    context,
+                                    resumelink: resumeName,
+                                    resume: resume,
                                   );
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Error opening resume: $e',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              } else {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('No resume uploaded yet'),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFD6F59A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD6F59A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Resume',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: GoogleFonts.jost().fontFamily,
+                                  ),
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              'Resume',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: GoogleFonts.jost().fontFamily,
-                              ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -1163,6 +1156,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   }
 
   void _showResumeDialog(BuildContext context) {
+    final profile = userData!['profile'] ?? {};
+    final resumeName = profile['resumeName'] ?? '';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1172,7 +1168,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildResumeFileItem('Harish_Resume', false),
+                _buildResumeFileItem(resumeName, true),
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,

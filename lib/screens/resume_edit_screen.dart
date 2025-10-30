@@ -1,19 +1,36 @@
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class ResumeEditPopupUtils {
-  static void showResumeEditPopup(BuildContext context) {
+  static void showResumeEditPopup(
+    BuildContext context, {
+    required resumelink,
+    required resume,
+  }) {
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext context) {
-        return const ResumeEditPopup();
+        return ResumeEditPopup(resumelink: resumelink, resume: resume);
       },
     );
   }
 }
 
 class ResumeEditPopup extends StatefulWidget {
-  const ResumeEditPopup({super.key});
+  final String resumelink;
+  final String resume;
+  const ResumeEditPopup({
+    super.key,
+    required this.resumelink,
+    required this.resume,
+  });
 
   @override
   State<ResumeEditPopup> createState() => _ResumeEditPopupState();
@@ -22,12 +39,238 @@ class ResumeEditPopup extends StatefulWidget {
 class _ResumeEditPopupState extends State<ResumeEditPopup> {
   bool _isResumeSelected = false;
   String? _selectedFileName;
+  File? _selectedFile;
+  bool _isUploading = false;
+  double _uploadProgress = 0.0;
+  final String baseUrl2 = "https://hyrup-730899264601.asia-south1.run.app";
+  bool isLoading = false;
+  String errorMessage = '';
 
   final List<String> _dummyFiles = [
     'Harish_Resume.pdf',
     'John_CV.docx',
     'My_Resume.pdf',
   ];
+
+  // Open resume in browser
+  Future<void> _openResumeInBrowser() async {
+    final resumeUrl = widget.resume;
+    if (resumeUrl.isNotEmpty) {
+      try {
+        final uri = Uri.parse(resumeUrl);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error opening resume: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No resume uploaded yet'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+  }
+
+  // Pick file from device
+  Future<void> _pickFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'docx', 'doc'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        File file = File(result.files.single.path!);
+
+        // Check file size (1.2 MB = 1.2 * 1024 * 1024 bytes)
+        int fileSizeInBytes = await file.length();
+        double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+        if (fileSizeInMB > 1.2) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('File size exceeds 1.2 MB limit'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        setState(() {
+          _selectedFile = file;
+          _selectedFileName = result.files.single.name;
+          _isResumeSelected = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Upload file to Firebase Storage
+  Future<String?> _uploadToFirebase(File file, String fileName) async {
+    try {
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.0;
+      });
+
+      // Create a reference to Firebase Storage
+      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      String path = 'resumes/${timestamp}_$fileName';
+
+      Reference storageRef = FirebaseStorage.instance.ref().child(path);
+
+      // Upload file with progress tracking
+      UploadTask uploadTask = storageRef.putFile(file);
+
+      // Listen to upload progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        setState(() {
+          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+      });
+
+      // Wait for upload to complete
+      TaskSnapshot snapshot = await uploadTask;
+
+      // Get download URL
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        _isUploading = false;
+      });
+
+      return downloadUrl;
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Upload failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return null;
+    }
+  }
+
+  // Send resume data to backend
+  Future<void> _updateResumeOnBackend(
+    String resumeUrl,
+    String resumeName,
+  ) async {
+    try {
+      final String apiUrl = '$baseUrl2/student/update-resume';
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          errorMessage = "User not logged in";
+          isLoading = false;
+        });
+        Navigator.of(context).pushReplacementNamed('/signup');
+        return;
+      }
+
+      String uid = user.uid;
+      String? idToken = await user.getIdToken();
+
+      if (idToken == null) {
+        setState(() {
+          errorMessage = "Could not get authentication token";
+          isLoading = false;
+        });
+        return;
+      }
+
+      final response = await http.put(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: jsonEncode({'resume': resumeUrl, 'resumeName': resumeName}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Resume updated successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          }
+        } else {
+          throw Exception(data['message'] ?? 'Update failed');
+        }
+      } else {
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Backend update failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Handle submit button
+  Future<void> _handleSubmit() async {
+    if (_selectedFile != null && _selectedFileName != null) {
+      // Upload new file to Firebase
+      String? firebaseUrl = await _uploadToFirebase(
+        _selectedFile!,
+        _selectedFileName!,
+      );
+
+      if (firebaseUrl != null) {
+        // Update backend with new resume URL
+        await _updateResumeOnBackend(firebaseUrl, _selectedFileName!);
+      }
+    } else if (_isResumeSelected && _selectedFileName != null) {
+      // Using existing file from dummy list
+      await _updateResumeOnBackend(widget.resumelink, _selectedFileName!);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a resume'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
 
   void _showFileOptions(BuildContext context) {
     showModalBottomSheet(
@@ -52,6 +295,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                     setState(() {
                       _selectedFileName = fileName;
                       _isResumeSelected = true;
+                      _selectedFile = null;
                     });
                     Navigator.pop(context);
                   },
@@ -62,11 +306,8 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      _selectedFileName = 'uploaded_resume.pdf';
-                      _isResumeSelected = true;
-                    });
                     Navigator.pop(context);
+                    _pickFile();
                   },
                   child: const Text('Upload New File'),
                 ),
@@ -114,9 +355,6 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
               ),
               const SizedBox(height: 16),
 
-              // Name section
-              const SizedBox(height: 8),
-
               // Resume title
               const Text(
                 'Resume',
@@ -144,6 +382,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                           _isResumeSelected = !_isResumeSelected;
                           if (!_isResumeSelected) {
                             _selectedFileName = null;
+                            _selectedFile = null;
                           }
                         });
                       },
@@ -178,7 +417,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                       child: GestureDetector(
                         onTap: () => _showFileOptions(context),
                         child: Text(
-                          _selectedFileName ?? 'Harish_Resume',
+                          _selectedFileName ?? widget.resumelink,
                           style: TextStyle(
                             fontSize: 16,
                             color: _selectedFileName != null
@@ -199,9 +438,29 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
               ),
               const SizedBox(height: 16),
 
+              // View Resume Button
+              if (widget.resume.isNotEmpty)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _openResumeInBrowser,
+                    icon: const Icon(Icons.open_in_browser),
+                    label: const Text('View Current Resume'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: Colors.blue),
+                      foregroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+
               // Upload section
               GestureDetector(
-                onTap: () => _showFileOptions(context),
+                onTap: _isUploading ? null : _pickFile,
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -213,34 +472,52 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                     borderRadius: BorderRadius.circular(8),
                     color: Colors.grey.shade50,
                   ),
-                  child: const Column(
-                    children: [
-                      Icon(Icons.cloud_upload, size: 40, color: Colors.grey),
-                      SizedBox(height: 8),
-                      Text(
-                        'Click to Upload or drag and drop',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                  child: _isUploading
+                      ? Column(
+                          children: [
+                            CircularProgressIndicator(value: _uploadProgress),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Uploading... ${(_uploadProgress * 100).toStringAsFixed(0)}%',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        )
+                      : const Column(
+                          children: [
+                            Icon(
+                              Icons.cloud_upload,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Click to Upload or drag and drop',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '(Max. File size: 1.2 MB)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'PDF | DOCX | < 1.2 MB',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '(Max. File size: 1.2 MB)',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'PDF | DOCX | > 3 MB',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -260,12 +537,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Resume Submitted!')),
-                    );
-                    Navigator.pop(context);
-                  },
+                  onPressed: _isUploading ? null : _handleSubmit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -273,19 +545,29 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    disabledBackgroundColor: Colors.grey,
                   ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  child: _isUploading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Tool section
-              const SizedBox(height: 12),
-
-              // Tool items
             ],
           ),
         ),

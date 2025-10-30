@@ -18,14 +18,14 @@ class Collegedetails extends StatefulWidget {
 
 class _CollegedetailsState extends State<Collegedetails> {
   int filledFields = 0;
-  final int totalFields = 3; // Reduced from 4 since email is optional
+  final int totalFields = 3;
 
   String? selectedCollege;
   String? selectedUniversity;
   String? selectedDegree;
+  final _formKey = GlobalKey<FormState>();
   String? selectedEmailId;
 
-  // Controllers for search functionality
   final TextEditingController _collegeSearchController =
       TextEditingController();
   final TextEditingController _degreeSearchController = TextEditingController();
@@ -40,7 +40,6 @@ class _CollegedetailsState extends State<Collegedetails> {
   bool _showDegreeDropdown = false;
   bool _isLoadingDegrees = true;
 
-  // Static data for university dropdown
   final List<String> universities = [
     'Deemed University',
     'State University',
@@ -70,16 +69,13 @@ class _CollegedetailsState extends State<Collegedetails> {
     super.dispose();
   }
 
-  // Load degrees from JSON file
   Future<void> _loadDegreesFromJson() async {
     try {
-      // Load the JSON file from assets
       String jsonString = await rootBundle.loadString('assets/degree.json');
       Map<String, dynamic> jsonData = json.decode(jsonString);
 
       List<String> allDegrees = [];
 
-      // Combine all degree types
       if (jsonData['undergraduate_degrees'] != null) {
         allDegrees.addAll(List<String>.from(jsonData['undergraduate_degrees']));
       }
@@ -93,7 +89,6 @@ class _CollegedetailsState extends State<Collegedetails> {
         allDegrees.addAll(List<String>.from(jsonData['diploma_degrees']));
       }
 
-      // Sort alphabetically
       allDegrees.sort();
 
       setState(() {
@@ -103,7 +98,6 @@ class _CollegedetailsState extends State<Collegedetails> {
       });
     } catch (e) {
       print('Error loading degrees from JSON: $e');
-      // Fallback to hardcoded degrees
       setState(() {
         _allDegrees = [
           'Bachelor of Engineering (B.E)',
@@ -124,7 +118,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     }
   }
 
-  // Filter degrees based on search query
   void _filterDegrees(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -153,7 +146,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     updateProgress();
   }
 
-  // API call to search colleges using Universities API
   Future<void> _searchColleges(String query) async {
     if (query.length < 2) {
       setState(() {
@@ -169,7 +161,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     });
 
     try {
-      // Using Universities API - free API for educational institutions
       final response = await http
           .get(
             Uri.parse(
@@ -196,7 +187,6 @@ class _CollegedetailsState extends State<Collegedetails> {
               .toList();
         });
       } else {
-        // Fallback to some popular Indian colleges if API fails
         _setFallbackColleges(query);
       }
     } catch (e) {
@@ -278,7 +268,6 @@ class _CollegedetailsState extends State<Collegedetails> {
       _collegeSearchController.text = college['name'];
       _showCollegeDropdown = false;
 
-      // Auto-suggest email domain if available
       if (college['domain'] != null && selectedEmailId == null) {
         selectedEmailId = 'student@${college['domain']}';
       }
@@ -291,7 +280,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege != null) count++;
     if (selectedUniversity != null) count++;
     if (selectedDegree != null) count++;
-    // Email is optional, so not counted in required fields
     setState(() {
       filledFields = count;
     });
@@ -301,7 +289,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     return selectedCollege != null &&
         selectedUniversity != null &&
         selectedDegree != null;
-    // Email is optional
   }
 
   void showValidationMessage() {
@@ -331,7 +318,6 @@ class _CollegedetailsState extends State<Collegedetails> {
       backgroundColor: Colors.grey[50],
       body: GestureDetector(
         onTap: () {
-          // Hide dropdowns when tapping outside
           setState(() {
             _showCollegeDropdown = false;
             _showDegreeDropdown = false;
@@ -412,334 +398,348 @@ class _CollegedetailsState extends State<Collegedetails> {
               // Form fields
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // College Name Search
-                      Text(
-                        'College Name *',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // College Name Search
+                        Text(
+                          'College Name *',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: selectedCollege == null
-                              ? Border.all(color: Colors.grey[300]!)
-                              : Border.all(color: Colors.green, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              controller: _collegeSearchController,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: selectedCollege == null
+                                ? Border.all(color: Colors.grey[300]!)
+                                : Border.all(color: Colors.green, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _collegeSearchController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                  hintText: 'Search for your college...',
+                                  hintStyle: TextStyle(color: Colors.grey[500]),
+                                  suffixIcon: _isSearching
+                                      ? Padding(
+                                          padding: EdgeInsets.all(12),
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.grey,
+                                                  ),
+                                            ),
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.search,
+                                          color: Colors.grey[400],
+                                        ),
                                 ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                hintText: 'Search for your college...',
-                                hintStyle: TextStyle(color: Colors.grey[500]),
-                                suffixIcon: _isSearching
-                                    ? Padding(
-                                        padding: EdgeInsets.all(12),
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  Colors.grey,
-                                                ),
+                                onChanged: _onCollegeSearchChanged,
+                                onTap: () {
+                                  if (_collegeSearchResults.isNotEmpty) {
+                                    setState(() {
+                                      _showCollegeDropdown = true;
+                                    });
+                                  }
+                                },
+                              ),
+                              if (_showCollegeDropdown &&
+                                  _collegeSearchResults.isNotEmpty)
+                                Container(
+                                  constraints: BoxConstraints(maxHeight: 200),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border(
+                                      top: BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: _collegeSearchResults.length,
+                                    itemBuilder: (context, index) {
+                                      final college =
+                                          _collegeSearchResults[index];
+                                      return ListTile(
+                                        dense: true,
+                                        title: Text(
+                                          college['name'],
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                        subtitle: Text(
+                                          college['state'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                      )
-                                    : Icon(
-                                        Icons.search,
-                                        color: Colors.grey[400],
-                                      ),
-                              ),
-                              onChanged: _onCollegeSearchChanged,
-                              onTap: () {
-                                if (_collegeSearchResults.isNotEmpty) {
-                                  setState(() {
-                                    _showCollegeDropdown = true;
-                                  });
-                                }
-                              },
-                            ),
-                            if (_showCollegeDropdown &&
-                                _collegeSearchResults.isNotEmpty)
-                              Container(
-                                constraints: BoxConstraints(maxHeight: 200),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border(
-                                    top: BorderSide(color: Colors.grey[300]!),
+                                        onTap: () => _selectCollege(college),
+                                      );
+                                    },
                                   ),
                                 ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _collegeSearchResults.length,
-                                  itemBuilder: (context, index) {
-                                    final college =
-                                        _collegeSearchResults[index];
-                                    return ListTile(
-                                      dense: true,
-                                      title: Text(
-                                        college['name'],
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      subtitle: Text(
-                                        college['state'],
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      onTap: () => _selectCollege(college),
-                                    );
-                                  },
-                                ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 24),
+
+                        // University
+                        Text(
+                          'University Type *',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: selectedUniversity == null
+                                ? Border.all(color: Colors.grey[300]!)
+                                : Border.all(color: Colors.green, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
                               ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // University
-                      Text(
-                        'University Type *',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: selectedUniversity == null
-                              ? Border.all(color: Colors.grey[300]!)
-                              : Border.all(color: Colors.green, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: DropdownButtonFormField<String>(
-                          value: selectedUniversity,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
+                            ],
                           ),
-                          hint: Text(
-                            'Select University Type',
-                            style: TextStyle(color: Colors.grey[500]),
-                          ),
-                          items: universities.map((String university) {
-                            return DropdownMenuItem<String>(
-                              value: university,
-                              child: Text(university),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedUniversity = newValue;
-                            });
-                            updateProgress();
-                          },
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Degree (Searchable)
-                      Text(
-                        'Degree *',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: selectedDegree == null
-                              ? Border.all(color: Colors.grey[300]!)
-                              : Border.all(color: Colors.green, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
+                          child: DropdownButtonFormField<String>(
+                            value: selectedUniversity,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
                             ),
-                          ],
+                            hint: Text(
+                              'Select University Type',
+                              style: TextStyle(color: Colors.grey[500]),
+                            ),
+                            items: universities.map((String university) {
+                              return DropdownMenuItem<String>(
+                                value: university,
+                                child: Text(university),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedUniversity = newValue;
+                              });
+                              updateProgress();
+                            },
+                          ),
                         ),
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              controller: _degreeSearchController,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                hintText: _isLoadingDegrees
-                                    ? 'Loading degrees...'
-                                    : 'Search for your degree...',
-                                hintStyle: TextStyle(color: Colors.grey[500]),
-                                suffixIcon: _isLoadingDegrees
-                                    ? Padding(
-                                        padding: EdgeInsets.all(12),
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  Colors.grey,
-                                                ),
+
+                        SizedBox(height: 24),
+
+                        // Degree (Searchable)
+                        Text(
+                          'Degree *',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: selectedDegree == null
+                                ? Border.all(color: Colors.grey[300]!)
+                                : Border.all(color: Colors.green, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _degreeSearchController,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                  hintText: _isLoadingDegrees
+                                      ? 'Loading degrees...'
+                                      : 'Search for your degree...',
+                                  hintStyle: TextStyle(color: Colors.grey[500]),
+                                  suffixIcon: _isLoadingDegrees
+                                      ? Padding(
+                                          padding: EdgeInsets.all(12),
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.grey,
+                                                  ),
+                                            ),
                                           ),
+                                        )
+                                      : Icon(
+                                          Icons.search,
+                                          color: Colors.grey[400],
                                         ),
-                                      )
-                                    : Icon(
-                                        Icons.search,
-                                        color: Colors.grey[400],
-                                      ),
+                                ),
+                                enabled: !_isLoadingDegrees,
+                                onChanged: _onDegreeSearchChanged,
+                                onTap: () {
+                                  if (!_isLoadingDegrees &&
+                                      _filteredDegrees.isNotEmpty) {
+                                    setState(() {
+                                      _showDegreeDropdown = true;
+                                    });
+                                  }
+                                },
                               ),
-                              enabled: !_isLoadingDegrees,
-                              onChanged: _onDegreeSearchChanged,
-                              onTap: () {
-                                if (!_isLoadingDegrees &&
-                                    _filteredDegrees.isNotEmpty) {
-                                  setState(() {
-                                    _showDegreeDropdown = true;
-                                  });
-                                }
-                              },
-                            ),
-                            if (_showDegreeDropdown &&
-                                _filteredDegrees.isNotEmpty)
-                              Container(
-                                constraints: BoxConstraints(maxHeight: 200),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border(
-                                    top: BorderSide(color: Colors.grey[300]!),
+                              if (_showDegreeDropdown &&
+                                  _filteredDegrees.isNotEmpty)
+                                Container(
+                                  constraints: BoxConstraints(maxHeight: 200),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border(
+                                      top: BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: _filteredDegrees.length,
+                                    itemBuilder: (context, index) {
+                                      final degree = _filteredDegrees[index];
+                                      return ListTile(
+                                        dense: true,
+                                        title: Text(
+                                          degree,
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                        onTap: () => _selectDegree(degree),
+                                      );
+                                    },
                                   ),
                                 ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _filteredDegrees.length,
-                                  itemBuilder: (context, index) {
-                                    final degree = _filteredDegrees[index];
-                                    return ListTile(
-                                      dense: true,
-                                      title: Text(
-                                        degree,
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      onTap: () => _selectDegree(degree),
-                                    );
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // College Email ID (Optional)
-                      Text(
-                        'College Email ID (Optional)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[300]!),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            hintText: 'Enter your college email (optional)',
-                            hintStyle: TextStyle(color: Colors.grey[500]),
+                            ],
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedEmailId = value.isEmpty ? null : value;
-                            });
-                          },
                         ),
-                      ),
-                    ],
+
+                        SizedBox(height: 24),
+
+                        // College Email ID (Optional)
+                        Text(
+                          'College Email ID (Optional)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey[300]!),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              hintText: 'Enter your college email (optional)',
+                              hintStyle: TextStyle(color: Colors.grey[500]),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedEmailId = value.isEmpty ? null : value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty)
+                                return null; // optional field
+                              if (!value.contains('@') ||
+                                  !value.contains('.')) {
+                                return 'Enter a valid email address';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+
+                        SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -766,6 +766,11 @@ class _CollegedetailsState extends State<Collegedetails> {
           ),
           child: ElevatedButton(
             onPressed: () {
+              if (!_formKey.currentState!.validate()) {
+                // ⚡ Runs all validators
+                return; // Stop if invalid email
+              }
+
               if (!isFormComplete) {
                 showValidationMessage();
                 return;
@@ -782,7 +787,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                 collegeName: selectedCollege!,
                 university: selectedUniversity!,
                 degree: selectedDegree!,
-                collegeEmailId: selectedEmailId as String, // Can be null
+                collegeEmailId: selectedEmailId ?? '',
               );
 
               print("Extended user model with college details:");
@@ -814,411 +819,3 @@ class _CollegedetailsState extends State<Collegedetails> {
     );
   }
 }
-// ✅ Extended UserModel class to include college details
-
-// modified code
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key, required this.title});
-
-//   // This widget is the home page of your application. It is stateful, meaning
-//   // that it has a State object (defined below) that contains fields that affect
-//   // how it looks.
-
-//   // This class is the configuration for the state. It holds the values (in this
-//   // case the title) provided by the parent (in this case the App widget) and
-//   // used by the build method of the State. Fields in a Widget subclass are
-//   // always marked "final".
-
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int filledFields = 0;
-//   final int totalFields = 4;
-//   final TextEditingController nameController = TextEditingController();
-//   final TextEditingController emailController = TextEditingController();
-//   final TextEditingController phoneController1 = TextEditingController();
-//   final TextEditingController phoneController = TextEditingController();
-
-//   void updateProgress() {
-//     int count = 0;
-//     if (nameController.text.isNotEmpty) count++;
-//     if (emailController.text.isNotEmpty) count++;
-//     if (phoneController.text.isNotEmpty) count++;
-//     if (phoneController1.text.isNotEmpty) count++;
-//     setState(() {
-//       filledFields = count;
-//     });
-//   }
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     nameController.addListener(
-//       updateProgress,
-//     ); //addListener → means: “Hey, whenever something inside this object changes, call this function.”
-//     emailController.addListener(updateProgress);
-//     phoneController.addListener(updateProgress);
-//     phoneController1.addListener(updateProgress);
-//   }
-
-//   @override
-//   void dispose() {
-//     nameController.dispose();
-//     emailController.dispose();
-//     phoneController.dispose();
-//     phoneController1.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     double progress = filledFields / totalFields;
-//     return Scaffold(
-//       backgroundColor: Color.fromARGB(255, 252, 252, 244),
-//       body: Padding(
-//         padding: const EdgeInsets.all(8.0),
-//         child: Column(
-//           children: [
-//             Row(
-//               children: [
-//                 IconButton(
-//                   icon: Icon(Icons.arrow_back),
-//                   onPressed: () {
-//                     // Navigator.push(
-//                     //   context,
-//                     //   MaterialPageRoute(builder: (context) => RegisterPage()),
-//                     // );
-//                   },
-//                 ),
-//                 Expanded(
-//                   child: ClipRRect(
-//                     borderRadius: BorderRadius.circular(8.0),
-//                     child: LinearProgressIndicator(
-//                       value: progress,
-//                       minHeight: 10,
-//                       backgroundColor: Colors.grey[300],
-//                       color: Colors.greenAccent,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 24),
-//             // GIF widget inserted here
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.start,
-//               children: [
-//                 SizedBox(
-//                   width: 164,
-//                   height: 205,
-//                   child: Opacity(
-//                     opacity: 1, // Use your opacity value
-//                     child: Transform.rotate(
-//                       angle: 0, // Use your angle value in radians if needed
-//                       child: Image.asset(
-//                         'assets/aa.gif', // Replace with your actual GIF path
-//                         fit: BoxFit.fill,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-
-//                 Stack(
-//                   children: [
-//                     SizedBox(
-//                       height: 62,
-//                       width: 215,
-//                       child: Image.asset('assets/Union.png'),
-//                     ),
-//                     Positioned(
-//                       top: 16,
-//                       left: 16,
-
-//                       child: SizedBox(
-//                         width: 215,
-//                         child: Text(
-//                           'Awesome! Tell Us About Your College.',
-//                           style: TextStyle(
-//                             fontSize: 14,
-//                             fontWeight: FontWeight.w500,
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 24),
-//             Stack(
-//               children: [
-//                 Container(height: 475, width: 400),
-//                 Positioned(
-//                   right: 0,
-//                   bottom: 0,
-//                   child: Container(child: Image.asset('assets/puzzle.png')),
-//                 ),
-//                 Column(
-//                   children: [
-//                     Container(
-//                       width: 390,
-//                       height: 54,
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.black, width: 1),
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: Colors.black, // shadow color
-//                             offset: Offset(4, 4), // x = right, y = down
-//                             blurRadius: 0, // softens the shadow
-//                             spreadRadius: 1, // optional, how much it spreads
-//                           ),
-//                         ],
-//                         borderRadius: BorderRadius.circular(
-//                           8,
-//                         ), // same as button radius
-//                       ),
-//                       child: Material(
-//                         elevation: 4,
-//                         borderRadius: BorderRadius.circular(12),
-//                         child: TextField(
-//                           controller: nameController,
-//                           decoration: InputDecoration(
-//                             labelText: 'collage',
-//                             labelStyle: const TextStyle(
-//                               color: Colors.black54,
-//                               fontSize: 16,
-//                             ),
-//                             filled: true,
-//                             fillColor: Colors.white,
-//                             contentPadding: const EdgeInsets.symmetric(
-//                               horizontal: 12,
-//                               vertical: 14,
-//                             ),
-//                             enabledBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1,
-//                               ),
-//                             ),
-//                             focusedBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1.5,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     SizedBox(height: 50),
-//                     Container(
-//                       width: 390,
-//                       height: 54,
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.black, width: 1),
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: Colors.black, // shadow color
-//                             offset: Offset(2, 2), // x = right, y = down
-//                             blurRadius: 0, // softens the shadow
-//                             spreadRadius: 1, // optional, how much it spreads
-//                           ),
-//                         ],
-//                         borderRadius: BorderRadius.circular(
-//                           8,
-//                         ), // same as button radius
-//                       ),
-//                       child: Material(
-//                         elevation: 4,
-//                         borderRadius: BorderRadius.circular(12),
-//                         child: TextField(
-//                           controller: emailController,
-//                           decoration: InputDecoration(
-//                             labelText: 'university Name',
-//                             labelStyle: const TextStyle(
-//                               color: Colors.black54,
-//                               fontSize: 16,
-//                             ),
-//                             filled: true,
-//                             fillColor: Colors.white,
-//                             contentPadding: const EdgeInsets.symmetric(
-//                               horizontal: 12,
-//                               vertical: 14,
-//                             ),
-//                             enabledBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1,
-//                               ),
-//                             ),
-//                             focusedBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1.5,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     SizedBox(height: 50),
-//                     Container(
-//                       width: 390,
-//                       height: 54,
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.black, width: 1),
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: Colors.black, // shadow color
-//                             offset: Offset(4, 4), // x = right, y = down
-//                             blurRadius: 0, // softens the shadow
-//                             spreadRadius: 1, // optional, how much it spreads
-//                           ),
-//                         ],
-//                         borderRadius: BorderRadius.circular(
-//                           8,
-//                         ), // same as button radius
-//                       ),
-//                       child: Material(
-//                         elevation: 4,
-//                         borderRadius: BorderRadius.circular(12),
-//                         child: TextField(
-//                           controller: phoneController,
-//                           decoration: InputDecoration(
-//                             labelText: 'degree',
-//                             labelStyle: const TextStyle(
-//                               color: Colors.black54,
-//                               fontSize: 16,
-//                             ),
-//                             filled: true,
-//                             fillColor: Colors.white,
-//                             contentPadding: const EdgeInsets.symmetric(
-//                               horizontal: 12,
-//                               vertical: 14,
-//                             ),
-//                             enabledBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1,
-//                               ),
-//                             ),
-//                             focusedBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1.5,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     SizedBox(height: 50),
-//                     Container(
-//                       width: 390,
-//                       height: 54,
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.black, width: 1),
-//                         boxShadow: [
-//                           BoxShadow(
-//                             color: Colors.black, // shadow color
-//                             offset: Offset(4, 4), // x = right, y = down
-//                             blurRadius: 0, // softens the shadow
-//                             spreadRadius: 1, // optional, how much it spreads
-//                           ),
-//                         ],
-//                         borderRadius: BorderRadius.circular(
-//                           8,
-//                         ), // same as button radius
-//                       ),
-//                       child: Material(
-//                         elevation: 4,
-//                         borderRadius: BorderRadius.circular(12),
-//                         child: TextField(
-//                           controller: phoneController1,
-//                           decoration: InputDecoration(
-//                             labelText: 'collage email id ',
-//                             labelStyle: const TextStyle(
-//                               color: Colors.black54,
-//                               fontSize: 16,
-//                             ),
-//                             filled: true,
-//                             fillColor: Colors.white,
-//                             contentPadding: const EdgeInsets.symmetric(
-//                               horizontal: 12,
-//                               vertical: 14,
-//                             ),
-//                             enabledBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1,
-//                               ),
-//                             ),
-//                             focusedBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(12),
-//                               borderSide: const BorderSide(
-//                                 color: Colors.black,
-//                                 width: 1.5,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 50),
-//             Spacer(),
-//             Container(
-//               width: 390,
-//               height: 54,
-//               decoration: BoxDecoration(
-//                 border: Border.all(color: Colors.black, width: 1),
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black, // shadow color
-//                     offset: Offset(4, 4), // x = right, y = down
-//                     blurRadius: 0, // softens the shadow
-//                     spreadRadius: 1, // optional, how much it spreads
-//                   ),
-//                 ],
-//                 borderRadius: BorderRadius.circular(8), // same as button radius
-//               ),
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(builder: (context) => Skills()),
-//                   );
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Color(0xFFB6A5FE),
-//                   foregroundColor: Colors.white,
-//                   elevation: 4,
-//                   padding: EdgeInsets.symmetric(vertical: 16),
-//                   textStyle: TextStyle(fontSize: 16),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                   ),
-//                 ),
-//                 child: Text('next'),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

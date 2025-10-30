@@ -354,40 +354,43 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 12),
             Text(
               widget.otherUserName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis, // or fade, clip
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 20,
+
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.search, color: Colors.black),
-              onPressed: () {},
-              padding: EdgeInsets.zero,
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {},
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ],
+        // actions: [
+        //   Container(
+        //     margin: const EdgeInsets.all(8),
+        //     decoration: BoxDecoration(
+        //       border: Border.all(color: Colors.black, width: 2),
+        //       borderRadius: BorderRadius.circular(12),
+        //     ),
+        //     child: IconButton(
+        //       icon: const Icon(Icons.search, color: Colors.black),
+        //       onPressed: () {},
+        //       padding: EdgeInsets.zero,
+        //     ),
+        //   ),
+        //   Container(
+        //     margin: const EdgeInsets.all(8),
+        //     decoration: BoxDecoration(
+        //       border: Border.all(color: Colors.black, width: 2),
+        //       borderRadius: BorderRadius.circular(12),
+        //     ),
+        //     child: IconButton(
+        //       icon: const Icon(Icons.more_vert, color: Colors.black),
+        //       onPressed: () {},
+        //       padding: EdgeInsets.zero,
+        //     ),
+        //   ),
+        // ],
       ),
       body: Column(
         children: [

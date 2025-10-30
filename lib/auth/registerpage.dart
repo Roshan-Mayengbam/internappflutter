@@ -380,33 +380,81 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           child: ElevatedButton(
             onPressed: () {
+              // Validate Full Name
               if (fullNameController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Full Name is required")),
+                  SnackBar(
+                    content: Text("Full Name is required"),
+                    backgroundColor: Colors.red[600],
+                  ),
                 );
                 return;
               }
+
+              // Validate Phone Number
               if (phoneController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Phone Number is required")),
+                  SnackBar(
+                    content: Text("Phone Number is required"),
+                    backgroundColor: Colors.red[600],
+                  ),
                 );
                 return;
               }
+
+              // ✅ Validate phone number is exactly 10 digits
+              final phoneNumber = phoneController.text.trim();
+              if (phoneNumber.length != 10) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Phone Number must be exactly 10 digits"),
+                    backgroundColor: Colors.red[600],
+                  ),
+                );
+                return;
+              }
+
+              // ✅ Validate phone number contains only digits
+              if (!RegExp(r'^[0-9]+$').hasMatch(phoneNumber)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Phone Number must contain only digits"),
+                    backgroundColor: Colors.red[600],
+                  ),
+                );
+                return;
+              }
+
+              // Validate Email
               if (emailController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text("Email is required")));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Email is required"),
+                    backgroundColor: Colors.red[600],
+                  ),
+                );
+                return;
+              }
+
+              // ✅ Validate email format
+              final email = emailController.text.trim();
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(email)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Please enter a valid email address"),
+                    backgroundColor: Colors.red[600],
+                  ),
+                );
                 return;
               }
 
               // ✅ Create updated user model
               final updatedUserModel = UserModel(
                 name: fullNameController.text.trim(),
-                email: emailController.text.trim(),
-                phone: phoneController.text.trim().isNotEmpty
-                    ? '+91${phoneController.text.trim()}'
-                    : null,
-
+                email: email,
+                phone: '+91$phoneNumber',
                 uid: widget.userModel?.uid ?? '',
                 role: widget.userModel?.role ?? 'Student',
               );
@@ -421,7 +469,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               );
             },
-
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFB6A5FE),
               foregroundColor: Colors.white,
@@ -433,10 +480,9 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: Colors.black), // 👈 border added
+                side: const BorderSide(color: Colors.black),
               ),
             ),
-
             child: Text(
               'Next',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),

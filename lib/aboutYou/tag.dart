@@ -179,6 +179,7 @@ class _TagPageState extends State<TagPage> {
           "FullName": widget.uploadResume.name,
 
           "resume": resumeFileUrl ?? "", // Firebase Storage URL
+          "resumeName": widget.resumeFile!.path.split('/').last,
           "profilePicture": profileImageUrl ?? "", // Firebase Storage URL
           "bio": widget.uploadResume.description ?? "",
         },
