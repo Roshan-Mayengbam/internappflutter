@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,18 +38,26 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
       throw AuthFailure("No user is currently signed in.");
     }
     final idToken = await currentUser.getIdToken();
-
-    final queryParameters = {
+    final Map<String, String> queryParameters = {
       'page': page.toString(),
       'limit': limit.toString(),
-      'q': query ?? '',
-      'location': location ?? '',
-      'skills': skills ?? '',
     };
+
+    if (query != null && query.isNotEmpty) {
+      queryParameters['q'] = query;
+    }
+    if (location != null && location.isNotEmpty) {
+      queryParameters['location'] = location;
+    }
+    if (skills != null && skills.isNotEmpty) {
+      queryParameters['skills'] = skills;
+    }
 
     final uri = Uri.parse(
       "$_baseUrl/jobs",
     ).replace(queryParameters: queryParameters);
+
+    print("$uri");
 
     try {
       final response = await client.get(

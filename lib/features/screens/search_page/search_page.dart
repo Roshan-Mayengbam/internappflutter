@@ -330,6 +330,15 @@ class _JobListItem extends StatelessWidget {
     //     content: Text('Tapped on Job: ${job.title} - Mode: ${job.mode}'),
     //   ),
     // );
+
+    final String tagLabel = (job.jobType == 'on-campus')
+        ? 'On Campus'
+        : job.jobType == 'external'
+        ? 'External'
+        : 'In House';
+
+    print(job.duration);
+    print(job.stipend);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -337,21 +346,26 @@ class _JobListItem extends StatelessWidget {
           jobTitle: job.title,
           companyName: job.recruiter.company.name,
           location: job.preferences.location ?? job.mode,
-          experienceLevel: job.preferences.minExperience?.toString() ?? 'N/A',
-          requirements: job.preferences.skills,
-          websiteUrl: job.applicationLink ?? "",
-          tagLabel: job.perks,
+          experienceLevel: ((job.preferences.minExperience ?? 0) > 0)
+              ? '${job.preferences.minExperience}+ years'
+              : 'Entry level',
+          requirements: job.preferences.skills.isNotEmpty
+              ? job.preferences.skills
+              : ['Skills not specified'],
+          websiteUrl: job.applicationLink ?? 'Apply via app',
+          tagLabel: tagLabel,
           employmentType: job.employmentType,
-          rolesAndResponsibilities: job.rolesAndResponsibilities ?? "N/A",
-          duration: job.duration ?? "N/A",
-          stipend: job.stipend?.toString() ?? 'N/A',
-          details: job.details ?? "",
+          rolesAndResponsibilities:
+              job.rolesAndResponsibilities ?? 'Not specified',
+          duration: job.duration ?? 'Not specified',
+          stipend: (job.stipend != null) ? "${job.stipend}" : "Not Specified",
+          details: job.description,
           noOfOpenings: job.noOfOpenings.toString(),
-          mode: job.mode,
+          mode: job.mode.isNotEmpty ? job.mode : 'Not specified',
           skills: job.preferences.skills,
           id: job.id,
           jobType: job.jobType,
-          about: job.description,
+          about: job.recruiter.company.description ?? "Description Not found",
         ),
       ),
     );
