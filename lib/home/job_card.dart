@@ -18,6 +18,7 @@ class JobCard extends StatefulWidget {
   final String rolesAndResponsibilities;
   final String duration;
   final String stipend;
+  final String salaryRange;
   final String details;
   final String noOfOpenings;
   final String mode;
@@ -47,6 +48,7 @@ class JobCard extends StatefulWidget {
     required this.id,
     required this.jobType,
     this.recruiter,
+    required this.salaryRange,
   });
 
   @override
@@ -177,6 +179,7 @@ class _JobCardState extends State<JobCard> {
         print('ID: ${widget.id}');
         print('Job Type: ${widget.jobType}');
         print('Recruiter: ${widget.recruiter}');
+        print('Salary Range: ${widget.salaryRange}');
         print('-------------------');
 
         Navigator.of(context).push(
@@ -201,6 +204,7 @@ class _JobCardState extends State<JobCard> {
               id: widget.id,
               jobType: widget.jobType,
               recruiter: widget.recruiter,
+              salaryRange: widget.salaryRange,
             ),
           ),
         );
@@ -266,6 +270,7 @@ class _JobCardState extends State<JobCard> {
                                 id: widget.id,
                                 jobType: widget.jobType,
                                 recruiter: widget.recruiter,
+                                salaryRange: widget.salaryRange,
                               ),
                             ),
                           );

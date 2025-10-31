@@ -31,6 +31,7 @@ class Carddetails extends StatefulWidget {
   final String id;
   final String jobType;
   final Map<String, dynamic>? recruiter;
+  final String salaryRange;
 
   const Carddetails({
     super.key,
@@ -53,6 +54,7 @@ class Carddetails extends StatefulWidget {
     required this.id,
     required this.jobType,
     this.recruiter,
+    required this.salaryRange,
   });
 
   @override
@@ -794,7 +796,10 @@ class _CarddetailsState extends State<Carddetails> {
                             Expanded(child: _buildInfoCard('Mode', 'Online')),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _buildInfoCard('Stipend', widget.stipend),
+                              child: _buildInfoCard(
+                                'Stipend',
+                                widget.salaryRange,
+                              ),
                             ),
                           ],
                         ),
@@ -1117,11 +1122,15 @@ class _CarddetailsState extends State<Carddetails> {
         children: [
           Text(
             title,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
             value,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],

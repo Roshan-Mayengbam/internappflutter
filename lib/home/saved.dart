@@ -330,6 +330,7 @@ class _SavedState extends State<Saved> {
                       title: 'Your saved jobs',
                       filters: ['all', 'company', 'on-campus', 'external'],
                       selectedFilter: 'all',
+                      isAppliedSection: false,
                       onFilterTap: (filter) {
                         // Implement filter logic here
                       },
@@ -384,6 +385,8 @@ class _SavedState extends State<Saved> {
                               jobType: job['jobType'] ?? 'Not specified',
                               about:
                                   job['about'] ?? 'description not available',
+                              salaryRange:
+                                  job['salaryRange'] ?? 'Not specified',
                             ),
                           ),
                         );
@@ -405,6 +408,8 @@ class _SavedState extends State<Saved> {
                       selectedFilter: 'all',
                       onFilterTap: (filter) {},
                       items: jobsToDisplayFormat(appliedJobs, isApplied: true),
+                      isAppliedSection: true,
+                      statusPage: true,
                       onViewMore: () {
                         Navigator.push(
                           context,
@@ -415,6 +420,7 @@ class _SavedState extends State<Saved> {
                                 isApplied: true,
                               ),
                               statusPage: true,
+                              isAppliedSection: true,
                             ),
                           ),
                         );
@@ -456,6 +462,8 @@ class _SavedState extends State<Saved> {
                               id: job['jobId'] ?? '',
                               jobType: job['jobType'] ?? 'Not specified',
                               recruiter: job["recruiter"],
+                              salaryRange:
+                                  job['salaryRange'] ?? 'Not specified',
                             ),
                           ),
                         );

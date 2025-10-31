@@ -53,7 +53,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
   ];
 
   // Open resume in browser
-  Future<void> _openResumeInBrowser() async {
+  Future<void> _openResumeInBrowser(BuildContext context) async {
     final resumeUrl = widget.resume;
     if (resumeUrl.isNotEmpty) {
       try {
@@ -415,7 +415,7 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                     // File name
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => _showFileOptions(context),
+                        onTap: () => _openResumeInBrowser(context),
                         child: Text(
                           _selectedFileName ?? widget.resumelink,
                           style: TextStyle(
@@ -429,33 +429,11 @@ class _ResumeEditPopupState extends State<ResumeEditPopup> {
                     ),
 
                     // More options button
-                    IconButton(
-                      onPressed: () => _showFileOptions(context),
-                      icon: Icon(Icons.more_vert, color: Colors.grey.shade600),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // View Resume Button
-              if (widget.resume.isNotEmpty)
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _openResumeInBrowser,
-                    icon: const Icon(Icons.open_in_browser),
-                    label: const Text('View Current Resume'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: Colors.blue),
-                      foregroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
               const SizedBox(height: 16),
 
               // Upload section

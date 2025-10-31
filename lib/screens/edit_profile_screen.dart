@@ -20,7 +20,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  final String baseUrl2 = "http://10.96.91.157:3000";
+  // final String baseUrl2 = "http://10.96.91.157:3000";
 
   String profilePicUrl = '';
 
@@ -169,7 +169,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       print("6. Firebase Storage URL: $downloadURL");
 
       // Send to backend
-      print("7. Sending to backend: $baseUrl2/student/profile-photo");
+      print("7. Sending to backend: $baseUrl/student/profile-photo");
       final response = await http.put(
         Uri.parse('$baseUrl/student/profile-photo'),
         headers: {
@@ -265,7 +265,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     aboutCtrl.text = 'Write about yourself'; // Default value
     phoneCtrl.text = _userData!['phone'] ?? '+91 72645-05924';
     emailCtrl.text =
-        _userData!['email'] ?? _auth.currentUser?.email ?? 'john@gmail.com';
+        _userData!['email'] ?? _auth.currentUser?.email ?? 'No Email';
 
     // Education data
     collegeCtrl.text = education['college'] ?? 'Sastra College';
@@ -316,7 +316,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final Map<String, dynamic> formattedSkills = {};
       for (var skill in skills) {
         formattedSkills[skill] = {
-          "level": "mid",
+          "level": "unverified",
         }; // you can change "mid" dynamically
       }
 
@@ -345,7 +345,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final updateData = {
         "FullName": fullNameCtrl.text.trim(),
         "firebaseId": uid, // this ties student to Firebase
-        "email": emailCtrl.text.trim(),
+        // "email": emailCtrl.text.trim(),
         "phone": phoneCtrl.text.trim(),
         "profile": profileData,
         "education": educationData,
@@ -668,7 +668,70 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 15),
                       _buildTextField('Phone Number', phoneCtrl),
                       const SizedBox(height: 15),
-                      _buildTextField('Email', emailCtrl),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Email',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                              fontFamily: 'Jost',
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(0, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: emailCtrl,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 12,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                              ),
+                              style: const TextStyle(color: Colors.black54),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 15),
                       _buildTextField('Bio', bioCtrl),
                       const SizedBox(height: 15),
@@ -677,6 +740,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _buildTextField('College Name', collegeCtrl),
                       const SizedBox(height: 15),
                       _buildTextField('Degree', degreeCtrl),
+                      const SizedBox(height: 15),
+                      _buildTextField(
+                        'Year of graduation',
+                        TextEditingController(
+                          text:
+                              _userData?['education']?['yearOfPassing']
+                                  ?.toString() ??
+                              '2024',
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      _buildTextField(
+                        'College Email ID',
+                        TextEditingController(
+                          text:
+                              _userData?['education']?['collegeEmail']
+                                  ?.toString() ??
+                              'example@college.com',
+                        ),
+                      ),
 
                       // const SizedBox(height: 15),
                       // _buildTextField('College Email ID', collegeEmailCtrl),

@@ -259,6 +259,7 @@ class _JobPageState extends State<JobPage> {
                       'Based on your profile, preference and activity like applies, searches and saves',
                   filters: jobFilters,
                   selectedFilter: selectedJobFilter,
+                  isAppliedSection: false,
                   onFilterTap: (filter) {
                     setState(() {
                       selectedJobFilter = filter;
@@ -267,7 +268,7 @@ class _JobPageState extends State<JobPage> {
                   onViewMore: () {
                     print("Pressed View more in jobs display");
                   },
-                  statusPage: true,
+                  statusPage: false,
                   items: jobsList,
                   onItemTap: (job) {
                     print("---- Navigating to Carddetails ----");
@@ -314,6 +315,8 @@ class _JobPageState extends State<JobPage> {
                           jobType: job['jobType'] ?? '',
                           recruiter: job['recruiter'],
                           about: job['about'] ?? 'description not available',
+                          salaryRange:
+                              job['salaryRange'] ?? 'salary not available',
                         ),
                       ),
                     );
@@ -328,6 +331,7 @@ class _JobPageState extends State<JobPage> {
                   subtitle: 'Compete, innovate, and win amazing prizes',
                   filters: hackathonFilters,
                   selectedFilter: selectedHackathonFilter,
+                  isAppliedSection: false,
                   onFilterTap: (filter) {
                     setState(() {
                       selectedHackathonFilter = filter;

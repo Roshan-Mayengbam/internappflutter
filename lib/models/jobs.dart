@@ -42,7 +42,8 @@ class Job {
     required this.noOfOpenings,
     this.duration,
     required this.mode,
-    this.stipend,
+
+    required this.stipend,
     this.college,
     required this.preferences,
     required this.salaryRange,

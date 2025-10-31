@@ -18,7 +18,7 @@ class Collegedetails extends StatefulWidget {
 
 class _CollegedetailsState extends State<Collegedetails> {
   int filledFields = 0;
-  final int totalFields = 3;
+  final int totalFields = 4; // Changed from 3 to 4
 
   String? selectedCollege;
   String? selectedUniversity;
@@ -29,6 +29,8 @@ class _CollegedetailsState extends State<Collegedetails> {
   final TextEditingController _collegeSearchController =
       TextEditingController();
   final TextEditingController _degreeSearchController = TextEditingController();
+  final TextEditingController _emailController =
+      TextEditingController(); // Added controller
 
   Timer? _debounce;
   List<Map<String, dynamic>> _collegeSearchResults = [];
@@ -66,6 +68,7 @@ class _CollegedetailsState extends State<Collegedetails> {
     _debounce?.cancel();
     _collegeSearchController.dispose();
     _degreeSearchController.dispose();
+    _emailController.dispose(); // Dispose email controller
     super.dispose();
   }
 
@@ -268,8 +271,9 @@ class _CollegedetailsState extends State<Collegedetails> {
       _collegeSearchController.text = college['name'];
       _showCollegeDropdown = false;
 
-      if (college['domain'] != null && selectedEmailId == null) {
-        selectedEmailId = 'student@${college['domain']}';
+      if (college['domain'] != null && _emailController.text.isEmpty) {
+        _emailController.text = 'student@${college['domain']}';
+        selectedEmailId = _emailController.text;
       }
     });
     updateProgress();
@@ -280,6 +284,8 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege != null) count++;
     if (selectedUniversity != null) count++;
     if (selectedDegree != null) count++;
+    if (selectedEmailId != null && selectedEmailId!.isNotEmpty)
+      count++; // Added email check
     setState(() {
       filledFields = count;
     });
@@ -288,7 +294,9 @@ class _CollegedetailsState extends State<Collegedetails> {
   bool get isFormComplete {
     return selectedCollege != null &&
         selectedUniversity != null &&
-        selectedDegree != null;
+        selectedDegree != null &&
+        selectedEmailId != null &&
+        selectedEmailId!.isNotEmpty; // Added email check
   }
 
   void showValidationMessage() {
@@ -296,11 +304,13 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege == null) missingFields.add('College Name');
     if (selectedUniversity == null) missingFields.add('University');
     if (selectedDegree == null) missingFields.add('Degree');
+    if (selectedEmailId == null || selectedEmailId!.isEmpty)
+      missingFields.add('College Email'); // Added email
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Please select: ${missingFields.join(', ')}',
+          'Please provide: ${missingFields.join(', ')}',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red[600],
@@ -681,9 +691,9 @@ class _CollegedetailsState extends State<Collegedetails> {
 
                         SizedBox(height: 24),
 
-                        // College Email ID (Optional)
+                        // College Email ID (Now Required)
                         Text(
-                          'College Email ID (Optional)',
+                          'College Email ID *',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -695,7 +705,11 @@ class _CollegedetailsState extends State<Collegedetails> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[300]!),
+                            border:
+                                (selectedEmailId == null ||
+                                    selectedEmailId!.isEmpty)
+                                ? Border.all(color: Colors.grey[300]!)
+                                : Border.all(color: Colors.green, width: 2),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.05),
@@ -705,6 +719,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                             ],
                           ),
                           child: TextFormField(
+                            controller: _emailController,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -716,7 +731,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                                 horizontal: 16,
                                 vertical: 16,
                               ),
-                              hintText: 'Enter your college email (optional)',
+                              hintText: 'Enter your college email',
                               hintStyle: TextStyle(color: Colors.grey[500]),
                             ),
                             keyboardType: TextInputType.emailAddress,
@@ -724,10 +739,12 @@ class _CollegedetailsState extends State<Collegedetails> {
                               setState(() {
                                 selectedEmailId = value.isEmpty ? null : value;
                               });
+                              updateProgress();
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty)
-                                return null; // optional field
+                              if (value == null || value.isEmpty) {
+                                return 'College email is required';
+                              }
                               if (!value.contains('@') ||
                                   !value.contains('.')) {
                                 return 'Enter a valid email address';
@@ -767,8 +784,7 @@ class _CollegedetailsState extends State<Collegedetails> {
           child: ElevatedButton(
             onPressed: () {
               if (!_formKey.currentState!.validate()) {
-                // ⚡ Runs all validators
-                return; // Stop if invalid email
+                return;
               }
 
               if (!isFormComplete) {
@@ -787,7 +803,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                 collegeName: selectedCollege!,
                 university: selectedUniversity!,
                 degree: selectedDegree!,
-                collegeEmailId: selectedEmailId ?? '',
+                collegeEmailId: selectedEmailId!,
               );
 
               print("Extended user model with college details:");
