@@ -1052,6 +1052,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       recruiter: job['recruiter'] as Map<String, dynamic>?,
       about: job['about'] ?? 'description not available',
       salaryRange: job['salaryRange'] ?? 'salary not available',
+      perks: job['perks'] ?? 'perks not available',
     );
   }
 }

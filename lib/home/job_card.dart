@@ -19,6 +19,7 @@ class JobCard extends StatefulWidget {
   final String duration;
   final String stipend;
   final String salaryRange;
+  final String perks;
   final String details;
   final String noOfOpenings;
   final String mode;
@@ -49,6 +50,7 @@ class JobCard extends StatefulWidget {
     required this.jobType,
     this.recruiter,
     required this.salaryRange,
+    required this.perks,
   });
 
   @override

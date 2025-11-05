@@ -342,7 +342,8 @@ class _SavedState extends State<Saved> {
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
                               items: jobsToDisplayFormat(savedJobs),
-                              statusPage: true,
+                              isAppliedSection: true,
+                              statusPage: false,
                             ),
                           ),
                         );

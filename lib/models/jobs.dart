@@ -307,7 +307,7 @@ class SalaryRange {
 class JobProvider with ChangeNotifier {
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
-  static const String baseUrl2 = 'http://10.196.234.157:3000';
+  static const String baseUrl2 = 'http://10.129.135.157:3000';
 
   List<Job> _jobs = [];
   bool _isLoading = false;
