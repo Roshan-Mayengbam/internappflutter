@@ -19,7 +19,7 @@ class JobCard extends StatefulWidget {
   final String duration;
   final String stipend;
   final String salaryRange;
-  final String perks;
+  final List<String> perks;
   final String details;
   final String noOfOpenings;
   final String mode;
@@ -182,6 +182,7 @@ class _JobCardState extends State<JobCard> {
         print('Job Type: ${widget.jobType}');
         print('Recruiter: ${widget.recruiter}');
         print('Salary Range: ${widget.salaryRange}');
+        print('Perks: ${widget.perks}');
         print('-------------------');
 
         Navigator.of(context).push(
@@ -207,6 +208,7 @@ class _JobCardState extends State<JobCard> {
               jobType: widget.jobType,
               recruiter: widget.recruiter,
               salaryRange: widget.salaryRange,
+              perks: [...widget.perks],
             ),
           ),
         );
@@ -273,6 +275,7 @@ class _JobCardState extends State<JobCard> {
                                 jobType: widget.jobType,
                                 recruiter: widget.recruiter,
                                 salaryRange: widget.salaryRange,
+                                perks: [...widget.perks],
                               ),
                             ),
                           );

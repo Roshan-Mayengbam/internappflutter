@@ -26,6 +26,7 @@ class Carddetails extends StatefulWidget {
   final String stipend;
   final String details;
   final String noOfOpenings;
+  final List<String> perks; // ✅ Changed from String? to List<String>
   final String mode;
   final List skills;
   final String id;
@@ -55,6 +56,7 @@ class Carddetails extends StatefulWidget {
     required this.jobType,
     this.recruiter,
     required this.salaryRange,
+    required this.perks,
   });
 
   @override
@@ -923,12 +925,12 @@ class _CarddetailsState extends State<Carddetails> {
                     'Perks:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+
                   const SizedBox(height: 12),
-                  _buildPerkButton('Certificate'),
-                  const SizedBox(height: 8),
-                  _buildPerkButton('Letter of recommendation'),
-                  const SizedBox(height: 8),
-                  _buildPerkButton('Stipend'),
+                  for (var perk in widget.perks) ...[
+                    _buildPerkButton(perk),
+                    const SizedBox(height: 8),
+                  ],
 
                   const SizedBox(height: 20),
 

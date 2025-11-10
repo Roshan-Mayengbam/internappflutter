@@ -160,6 +160,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     final education = userData!['education'] ?? {};
     final resume = profile['resume'] ?? '';
     final resumeName = profile['resumeName'] ?? '';
+    final collegeEmail = education['collegeEmail'] ?? '';
 
     // ✅✅✅ CORRECT WAY TO HANDLE MAP
     final rawSkills = userData!['user_skills'];
@@ -343,10 +344,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       const SizedBox(height: 15),
                       _buildInputField('Degree', education['degree'] ?? ''),
                       const SizedBox(height: 15),
-                      _buildInputField(
-                        'College Email ID',
-                        education['collegeEmail'] ?? '',
-                      ),
+                      _buildInputField('College Email ID', collegeEmail),
                       const SizedBox(height: 15),
                       _buildInputField(
                         'Year of Graduation',

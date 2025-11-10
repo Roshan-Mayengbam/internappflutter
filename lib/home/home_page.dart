@@ -1028,10 +1028,28 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // ✅ Helper method to reduce code duplication
   Widget _buildJobCard(List<Map<String, dynamic>> jobs, int index) {
     final job = jobs[index];
+
+    // ✅ Convert perks to List<String>
+    List<String> perksList = [];
+    if (job['perks'] != null) {
+      if (job['perks'] is List) {
+        perksList = List<String>.from(job['perks']);
+      } else if (job['perks'] is String) {
+        // If it's a string, split by newlines or commas
+        String perksString = job['perks'];
+        perksList = perksString
+            .split('\n')
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .map((line) => line.replaceFirst(RegExp(r'^[•\-\*]\s*'), ''))
+            .where((line) => line.isNotEmpty)
+            .toList();
+      }
+    }
+
     return JobCard(
       jobTitle: job['jobTitle'],
       companyName: job['companyName'],
-
       location: job['location'],
       experienceLevel: job['experienceLevel'],
       requirements: List<String>.from(job['requirements']),
@@ -1052,7 +1070,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       recruiter: job['recruiter'] as Map<String, dynamic>?,
       about: job['about'] ?? 'description not available',
       salaryRange: job['salaryRange'] ?? 'salary not available',
-      perks: job['perks'] ?? 'perks not available',
+      perks: perksList, // ✅ Pass as List<String>
     );
   }
 }

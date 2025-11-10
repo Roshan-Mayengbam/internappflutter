@@ -19,6 +19,8 @@ class Saved extends StatefulWidget {
 class _SavedState extends State<Saved> {
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
 
+  // final String baseUrl3 = "http://10.168.89.157:3000";
+
   List<Job> savedJobs = []; // ✅ Changed to List<Job>
   List<Job> appliedJobs = []; // ✅ Changed to List<Job>
   List<dynamic> appliedApplications = []; // Store full application data
@@ -67,11 +69,13 @@ class _SavedState extends State<Saved> {
         final data = json.decode(response.body);
         setState(() {
           print("✅ Saved jobs: $data");
-          // ✅ Convert JSON to Job objects
           List<dynamic> savesData = data['saves'] ?? [];
           savedJobs = savesData
               .map((jobJson) => Job.fromJson(jobJson))
               .toList();
+
+          // ✅ REMOVED ALL SORTING - backend already sorted by savedAt
+          print("✅ Loaded ${savedJobs.length} saved jobs");
         });
       } else {
         print("❌ Failed to load saved jobs: ${response.statusCode}");
@@ -119,11 +123,13 @@ class _SavedState extends State<Saved> {
         final data = json.decode(response.body);
         setState(() {
           print("✅ Applied jobs: $data");
+
           // Store full applications data
           appliedApplications = data['applications'] ?? [];
 
-          // ✅ Extract and convert job details from applications to Job objects
-          appliedJobs = (data['applications'] as List)
+          // ✅ Applications are already sorted by backend (createdAt descending)
+          // No need to sort again since backend does it
+          appliedJobs = (appliedApplications)
               .map((app) => app['job'])
               .where((job) => job != null)
               .map((jobJson) => Job.fromJson(jobJson))
@@ -342,8 +348,8 @@ class _SavedState extends State<Saved> {
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
                               items: jobsToDisplayFormat(savedJobs),
-                              isAppliedSection: true,
-                              statusPage: false,
+                              isAppliedSection: false,
+                              statusPage: true,
                             ),
                           ),
                         );
@@ -388,6 +394,7 @@ class _SavedState extends State<Saved> {
                                   job['about'] ?? 'description not available',
                               salaryRange:
                                   job['salaryRange'] ?? 'Not specified',
+                              perks: [],
                             ),
                           ),
                         );
@@ -465,6 +472,7 @@ class _SavedState extends State<Saved> {
                               recruiter: job["recruiter"],
                               salaryRange:
                                   job['salaryRange'] ?? 'Not specified',
+                              perks: [],
                             ),
                           ),
                         );
