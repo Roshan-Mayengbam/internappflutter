@@ -18,7 +18,7 @@ class GuardianApiDataSource {
       '$_baseUrl?'
       'api-key=$_apiKey&'
       'show-fields=$fields&'
-      'tag=$tags&'
+      'q=${Uri.encodeQueryComponent(tags)}&'
       'page-size=$pageSize&'
       'page=$page&'
       'order-by=newest',

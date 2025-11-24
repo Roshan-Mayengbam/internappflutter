@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/features/screens/search_page/search_page.dart';
+import 'package:internappflutter/features/Search/presentation/search_page.dart';
 import 'package:provider/provider.dart';
 
-import '../../../common/components/explore_page/article_content_grid.dart';
-import '../../../common/components/custom_app_bar.dart';
-import '../../../common/components/explore_page/filter_tag_group.dart';
-import '../../NewsFeed/domain/entities/article.dart';
-import '../../NewsFeed/presentation/provider/news_provider.dart';
-import '../../../screens/article_detail_screen.dart';
-
-// Assuming ExploreViewModel is an alias for NewsProvider,
-// as is common practice when using NewsProvider for the Explore UI logic.
-// If not, replace ExploreViewModel with NewsProvider throughout the file.
+import 'package:internappflutter/common/components/explore_page/article_content_grid.dart';
+import 'package:internappflutter/common/components/custom_app_bar.dart';
+import 'package:internappflutter/common/components/explore_page/filter_tag_group.dart';
+import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
+import 'package:internappflutter/features/NewsFeed/presentation/provider/news_provider.dart';
+import 'package:internappflutter/screens/article_detail_screen.dart';
 
 class ExplorePage extends StatelessWidget {
   ExplorePage({super.key});
   final TextEditingController _searchController = TextEditingController();
 
-  // Helper method to build the main content widget tree
   Widget _buildContent(BuildContext context, ExploreViewModel viewModel) {
     // Show full screen spinner only if NO articles have been loaded yet
     if (viewModel.isLoading && viewModel.articles.isEmpty) {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
-    // Show error message if fetch failed and no articles are present
     if (viewModel.errorMessage != null && viewModel.articles.isEmpty) {
       return Center(
         child: Padding(
@@ -38,7 +32,6 @@ class ExplorePage extends StatelessWidget {
       );
     }
 
-    // --- INFINITE SCROLLING IMPLEMENTATION ---
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
         if (scrollInfo.metrics.pixels >=
@@ -74,9 +67,6 @@ class ExplorePage extends StatelessWidget {
       body: SafeArea(
         child: Consumer<ExploreViewModel>(
           builder: (context, viewModel, child) {
-            // 1. Initial Fetch Management using addPostFrameCallback (THE FIX)
-            // This runs the side effect *after* the current frame has been rendered,
-            // which prevents the "setState during build" error and loads the default filter data.
             if (!viewModel.initialLoadAttempted) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 // Double-check safety
@@ -112,10 +102,8 @@ class ExplorePage extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Content Area (Grid + Loading/Error)
                 Expanded(child: _buildContent(context, viewModel)),
 
-                // Optional: Loading indicator
                 if (viewModel.isLoading && viewModel.articles.isNotEmpty)
                   const Padding(
                     padding: EdgeInsets.only(bottom: 8.0, top: 4.0),

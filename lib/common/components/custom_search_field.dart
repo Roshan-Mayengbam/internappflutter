@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/common/constants/search_field_constants.dart';
 
-import '../../features/screens/search_page/search_page.dart';
+import 'package:internappflutter/features/Search/presentation/search_page.dart';
 // Note: Assuming GlobalSearchPage is the target page for navigation
 
 class CustomSearchField extends StatelessWidget {

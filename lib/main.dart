@@ -36,6 +36,9 @@ import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
 import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
 import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
 import 'features/NewsFeed/presentation/provider/news_provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'features/NewsFeed/domain/entities/article.dart';
+import 'features/NewsFeed/data/datasources/news_local_datasource.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +53,10 @@ void main() async {
       print('Error initializing Firebase: $e');
     }
   }
+
+  // Initialize Hive
+  await Hive.initFlutter();
+  Hive.registerAdapter(ArticleAdapter());
 
   runApp(
     MultiProvider(
@@ -84,18 +91,14 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => ExploreViewModel(
             getNewsUseCase: GetTechNewsUseCase(
-              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
+              NewsRepositoryImpl(
+                remoteDataSource: GuardianApiDataSource(),
+                localDataSource: NewsLocalDataSourceImpl(),
+              ),
             ),
           ),
         ),
         ChangeNotifierProvider(create: (_) => HackathonProvider()),
-        ChangeNotifierProvider(
-          create: (_) => ExploreViewModel(
-            getNewsUseCase: GetTechNewsUseCase(
-              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
-            ),
-          ),
-        ),
       ],
       child: MyApp(),
     ),

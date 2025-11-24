@@ -30,37 +30,62 @@ class ExploreFilter {
 List<ExploreFilter> kVisibleExploreFilters = [
   ExploreFilter(
     label: 'Software Development',
-    searchFilter: 'technology/software', // New: Developer-focused search
+    searchFilter: 'software OR development',
     icon: Icons.code,
   ),
   ExploreFilter(
     label: 'All Technology',
-    searchFilter: 'technology/technology',
+    searchFilter: 'technology',
     icon: Icons.public,
   ),
   ExploreFilter(
     label: 'Science & Research',
-    searchFilter: 'science',
+    searchFilter: 'science OR research',
     icon: Icons.biotech,
   ),
   ExploreFilter(
     label: 'Business & Jobs',
-    searchFilter: 'business|careers|jobs', // Job Market
+    searchFilter: 'business OR careers OR jobs',
     icon: Icons.work,
   ),
   ExploreFilter(
     label: 'Internet & Web',
-    searchFilter: 'technology/internet', // New: Specific section tag
+    searchFilter: 'internet OR web',
     icon: Icons.language,
   ),
   ExploreFilter(
-    label: 'Social Media',
-    searchFilter: 'technology/social', // New: Specific section tag
-    icon: Icons.people,
+    label: 'AI & ML',
+    searchFilter: 'ai OR ml OR "machine learning"',
+    icon: Icons.smart_toy,
   ),
   ExploreFilter(
-    label: 'AI & ML',
-    searchFilter: 'technology/artificial-intelligence',
-    icon: Icons.smart_toy,
+    label: 'Programming Languages',
+    searchFilter: 'python OR javascript OR rust OR go',
+    icon: Icons.data_object,
+  ),
+  ExploreFilter(
+    label: 'Data Science & Analytics',
+    searchFilter: '"data science" OR "big data" OR analytics',
+    icon: Icons.query_stats,
+  ),
+  ExploreFilter(
+    label: 'Cybersecurity',
+    searchFilter: 'cybersecurity OR hacking OR "data breach"',
+    icon: Icons.security,
+  ),
+  ExploreFilter(
+    label: 'Startup Ecosystem',
+    searchFilter: 'startup OR "venture capital" OR entrepreneurship',
+    icon: Icons.rocket_launch,
+  ),
+  ExploreFilter(
+    label: 'Remote Work',
+    searchFilter: '"remote work" OR wfh OR "work from home"',
+    icon: Icons.wifi,
+  ),
+  ExploreFilter(
+    label: 'Future of Work',
+    searchFilter: '"future of work" OR automation OR upskilling',
+    icon: Icons.trending_up,
   ),
 ];
