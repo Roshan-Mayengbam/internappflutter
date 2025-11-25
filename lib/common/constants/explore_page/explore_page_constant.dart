@@ -30,7 +30,7 @@ class ExploreFilter {
 List<ExploreFilter> kVisibleExploreFilters = [
   ExploreFilter(
     label: 'Software Development',
-    searchFilter: 'software OR development',
+    searchFilter: '"software development" OR "apps" OR "application"',
     icon: Icons.code,
   ),
   ExploreFilter(
@@ -50,7 +50,7 @@ List<ExploreFilter> kVisibleExploreFilters = [
   ),
   ExploreFilter(
     label: 'Internet & Web',
-    searchFilter: 'internet OR web',
+    searchFilter: 'internet OR instagram OR meta OR X OR twitter OR facebook',
     icon: Icons.language,
   ),
   ExploreFilter(
