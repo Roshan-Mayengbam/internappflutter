@@ -9,12 +9,12 @@ class Job {
   final String id;
   final String title;
   final String jobType;
-  final dynamic recruiter; // Can be String (ID) or Map (populated object)
+  final dynamic recruiter;
   final String description;
   final String? applicationLink;
   final String employmentType;
   final String? rolesAndResponsibilities;
-  final String? perks;
+  final List<String> perks; // ✅ Changed from String? to List<String>
   final String? details;
   final int noOfOpenings;
   final String? duration;
@@ -37,12 +37,12 @@ class Job {
     this.applicationLink,
     required this.employmentType,
     this.rolesAndResponsibilities,
-    this.perks,
+    this.perks = const [], // ✅ Changed default value
     this.details,
     required this.noOfOpenings,
     this.duration,
     required this.mode,
-    this.stipend,
+    required this.stipend,
     this.college,
     required this.preferences,
     required this.salaryRange,
@@ -63,6 +63,31 @@ class Job {
           .toList();
     }
 
+    // ✅ Parse perks as list
+    List<String> extractedPerks = [];
+    if (json['perks'] != null) {
+      if (json['perks'] is List) {
+        // If perks is already a list
+        extractedPerks = (json['perks'] as List)
+            .map((perk) => perk.toString())
+            .where((perk) => perk.isNotEmpty)
+            .toList();
+      } else if (json['perks'] is String) {
+        // If perks is a string with bullet points, split it
+        String perksString = json['perks'] as String;
+        extractedPerks = perksString
+            .split('\n')
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .map((line) {
+              // Remove bullet points (•, -, *, etc.)
+              return line.replaceFirst(RegExp(r'^[•\-\*]\s*'), '');
+            })
+            .where((line) => line.isNotEmpty)
+            .toList();
+      }
+    }
+
     return Job(
       id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
@@ -72,7 +97,7 @@ class Job {
       applicationLink: json['applicationLink'],
       employmentType: json['employmentType'] ?? 'full-time',
       rolesAndResponsibilities: json['rolesAndResponsibilities'],
-      perks: json['perks'],
+      perks: extractedPerks, // ✅ Use extracted perks list
       details: json['details'],
       noOfOpenings: (json['noOfOpenings'] is int)
           ? json['noOfOpenings']
@@ -104,7 +129,7 @@ class Job {
       'applicationLink': applicationLink,
       'employmentType': employmentType,
       'rolesAndResponsibilities': rolesAndResponsibilities,
-      'perks': perks,
+      'perks': perks, // ✅ Send as list
       'details': details,
       'noOfOpenings': noOfOpenings,
       'duration': duration,
@@ -118,6 +143,12 @@ class Job {
       'applied': applied,
       'skills': skills,
     };
+  }
+
+  // ✅ Helper method to get formatted perks string
+  String get perksFormatted {
+    if (perks.isEmpty) return 'No perks listed';
+    return perks.map((perk) => '• $perk').join('\n');
   }
 
   // ===== EXISTING HELPER METHODS =====
@@ -147,23 +178,19 @@ class Job {
     return 'Unknown';
   }
 
-  // ===== NEW COMPANY HELPER METHODS =====
+  // ===== COMPANY HELPER METHODS =====
 
-  /// Get company information from recruiter data
   Map<String, dynamic>? get companyInfo {
     if (recruiter is Map<String, dynamic>) {
       final rec = recruiter as Map<String, dynamic>;
-      // Check if company exists as a nested object (common structure)
       if (rec.containsKey('company') && rec['company'] is Map) {
         return rec['company'] as Map<String, dynamic>;
       }
-      // If recruiter object itself contains company fields
       return rec;
     }
     return null;
   }
 
-  /// Get company name with fallback
   String get companyName {
     final company = companyInfo;
     if (company != null) {
@@ -172,7 +199,6 @@ class Job {
     return recruiterName;
   }
 
-  /// Get company description
   String get companyDescription {
     final company = companyInfo;
     if (company != null) {
@@ -181,13 +207,11 @@ class Job {
     return 'No description available';
   }
 
-  /// Get company website
   String? get companyWebsite {
     final company = companyInfo;
     return company?['website']?.toString();
   }
 
-  /// Get company location
   Map<String, dynamic>? get companyLocation {
     final company = companyInfo;
     if (company != null && company['location'] is Map) {
@@ -196,7 +220,6 @@ class Job {
     return null;
   }
 
-  /// Get formatted company location string
   String get companyLocationString {
     final location = companyLocation;
     if (location != null) {
@@ -210,13 +233,11 @@ class Job {
     return 'Location not specified';
   }
 
-  /// Get company type (e.g., Startup, Enterprise)
   String? get companyType {
     final company = companyInfo;
     return company?['companyType']?.toString();
   }
 
-  /// Get company founded year
   int? get companyFoundedYear {
     final company = companyInfo;
     if (company?['founded'] != null) {
@@ -226,7 +247,6 @@ class Job {
     return null;
   }
 
-  /// Get company logo URL
   String? get companyLogo {
     final company = companyInfo;
     final logo = company?['logo']?.toString();
@@ -304,9 +324,9 @@ class SalaryRange {
 }
 
 class JobProvider with ChangeNotifier {
-  static const String baseUrl =
+  static const String baseUrl2 =
       'https://hyrup-730899264601.asia-south1.run.app';
-  static const String baseUrl2 = 'http://10.196.234.157:3000';
+  // final String baseUrl2 = "http://10.168.89.157:3000";
 
   List<Job> _jobs = [];
   bool _isLoading = false;
@@ -357,14 +377,14 @@ class JobProvider with ChangeNotifier {
       // Fetch both opportunities and recruiter jobs in parallel
       final responses = await Future.wait([
         http.get(
-          Uri.parse('$baseUrl/college/opportunities'),
+          Uri.parse('$baseUrl2/college/opportunities'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $idToken',
           },
         ),
         http.get(
-          Uri.parse('$baseUrl/recruiter/jobs'),
+          Uri.parse('$baseUrl2/recruiter/jobs'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $idToken',
@@ -463,7 +483,7 @@ class JobProvider with ChangeNotifier {
       }
 
       // Updated URL to include jobType
-      final url = '$baseUrl/student/jobs/$jobId/$jobType/apply';
+      final url = '$baseUrl2/student/jobs/$jobId/$jobType/apply';
 
       print("🌐 API URL: $url");
 
@@ -513,7 +533,7 @@ class JobProvider with ChangeNotifier {
       }
 
       final response = await http.post(
-        Uri.parse('$baseUrl/jobs'),
+        Uri.parse('$baseUrl2/jobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',

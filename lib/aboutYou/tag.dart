@@ -177,6 +177,9 @@ class _TagPageState extends State<TagPage> {
         "phone": widget.uploadResume.phone ?? "",
         "profile": {
           "FullName": widget.uploadResume.name,
+
+          "resume": resumeFileUrl ?? "", // Firebase Storage URL
+          "resumeName": widget.resumeFile!.path.split('/').last,
           "profilePicture": profileImageUrl ?? "", // Firebase Storage URL
           "bio": widget.uploadResume.description ?? "",
         },
@@ -379,11 +382,12 @@ class _TagPageState extends State<TagPage> {
 
       // Navigate to home page after successful upload
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) =>
                 BottomnavbarAlternative(userData: widget.uploadResume),
           ),
+          (route) => false,
         );
       }
     }

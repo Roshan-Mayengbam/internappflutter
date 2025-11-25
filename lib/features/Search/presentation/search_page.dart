@@ -337,8 +337,8 @@ class _JobListItem extends StatelessWidget {
         ? 'External'
         : 'In House';
 
-    print(job.duration);
-    print(job.stipend);
+    print(job.perks);
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -366,6 +366,8 @@ class _JobListItem extends StatelessWidget {
           id: job.id,
           jobType: job.jobType,
           about: job.recruiter.company.description ?? "Description Not found",
+          salaryRange: "${job.salaryRange.max} - ${job.salaryRange.min}",
+          perks: job.perks!.split(" "),
         ),
       ),
     );

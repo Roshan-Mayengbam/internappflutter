@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  final String baseUrl2 = "http://10.96.91.157:3000";
+  // final String baseUrl2 = "http://10.129.135.157:3000";
 
   String profilePicUrl = '';
 
@@ -32,15 +33,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController aboutCtrl = TextEditingController();
   final TextEditingController collegeCtrl = TextEditingController();
   final TextEditingController degreeCtrl = TextEditingController();
-  // final TextEditingController collegeEmailCtrl = TextEditingController();
+  final TextEditingController collegeEmailCtrl = TextEditingController();
   final TextEditingController skillController = TextEditingController();
   final TextEditingController jobController = TextEditingController();
+  final TextEditingController yearOfPassingCtrl = TextEditingController();
+  final TextEditingController aboutController = TextEditingController();
 
   List<String> skills = [];
   List<String> jobPreferences = [];
   List<Map<String, dynamic>> experiences = [];
   List<Map<String, dynamic>> projects = [];
   final ImagePicker _picker = ImagePicker();
+
+  // Skills related
+  List<String> _allSkills = [];
+  bool _skillsLoaded = false;
+  final TextEditingController _skillsController = TextEditingController();
+  List<String> selectedSkills = [];
+  List<String> filteredSkills = [];
+
+  // Add these for Job Preferences
+  List<String> _allJobs = [];
+  bool _jobsLoaded = false;
+  final TextEditingController _jobsController = TextEditingController();
+  List<String> selectedJobs = [];
+  List<String> filteredJobs = [];
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -50,6 +67,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+    _loadSkillsFromJson();
+    _loadJobsFromJson();
   }
 
   /// Alternative: Pick from camera
@@ -104,6 +123,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
+  }
+
+  // Add this method
+  Future<List<String>> _loadSkillsFromJson() async {
+    if (_skillsLoaded) return _allSkills;
+
+    try {
+      final String response = await rootBundle.loadString(
+        'assets/userskills.json',
+      );
+      final List<dynamic> data = json.decode(response);
+      _allSkills = data.cast<String>();
+      _skillsLoaded = true;
+      return _allSkills;
+    } catch (e) {
+      print('Error loading skills: $e');
+      return [];
+    }
+  }
+
+  // Add this method after _loadSkillsFromJson
+  Future<List<String>> _loadJobsFromJson() async {
+    if (_jobsLoaded) return _allJobs;
+
+    try {
+      final String response = await rootBundle.loadString(
+        'assets/jobPeference.json', // Note: Check your spelling - it's "Peference" not "Preference"
+      );
+      final List<dynamic> data = json.decode(response);
+      _allJobs = data.cast<String>();
+      _jobsLoaded = true;
+      return _allJobs;
+    } catch (e) {
+      print('Error loading jobs: $e');
+      return [];
+    }
   }
 
   /// Pick and upload image from specified source
@@ -169,7 +224,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       print("6. Firebase Storage URL: $downloadURL");
 
       // Send to backend
-      print("7. Sending to backend: $baseUrl2/student/profile-photo");
+      print("7. Sending to backend: $baseUrl/student/profile-photo");
       final response = await http.put(
         Uri.parse('$baseUrl/student/profile-photo'),
         headers: {
@@ -261,15 +316,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     fullNameCtrl.text = profile['FullName'] ?? '';
 
     bioCtrl.text = profile['bio'] ?? 'Write about your bio';
+    aboutController.text = profile['about'] ?? '';
     profilePicUrl = profile['profilePicture'];
     aboutCtrl.text = 'Write about yourself'; // Default value
     phoneCtrl.text = _userData!['phone'] ?? '+91 72645-05924';
     emailCtrl.text =
-        _userData!['email'] ?? _auth.currentUser?.email ?? 'john@gmail.com';
+        _userData!['email'] ?? _auth.currentUser?.email ?? 'No Email';
 
     // Education data
-    collegeCtrl.text = education['college'] ?? 'Sastra College';
-    degreeCtrl.text = education['degree'] ?? 'Bachelor of Engineering';
+    collegeCtrl.text = education['college'] ?? '';
+    degreeCtrl.text = education['degree'] ?? '';
+    collegeEmailCtrl.text = education['collegeEmail'] ?? '';
+    yearOfPassingCtrl.text = education['yearOfPassing']?.toString() ?? '';
 
     // Lists data
     skills = List<String>.from(
@@ -293,34 +351,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? idToken = await user.getIdToken();
       if (idToken == null) return;
 
-      // ✅ Profile data
-
-      final profileData = {
+      // ✅ Profile data - ONLY include fields we want to update
+      final Map<String, dynamic> profileData = {
         "FullName": fullNameCtrl.text.trim(),
         "bio": bioCtrl.text.trim(),
-        "profilePicture": profilePicUrl.trim(),
-        "about": aboutCtrl.text.trim(),
+        "about": aboutController.text.trim(),
       };
 
+      // Only add profilePicture if it exists
+      if (profilePicUrl.trim().isNotEmpty) {
+        profileData["profilePicture"] = profilePicUrl.trim();
+      }
+      // DON'T send resume and resumeName here
+
       // ✅ Education data
-      final educationData = {
+      final Map<String, dynamic> educationData = {
         "college": collegeCtrl.text.trim(),
-        // "universityType": universityTypeCtrl.text
-        //     .trim(), // public/private/deemed
         "degree": degreeCtrl.text.trim(),
-        // "collegeEmail": collegeEmailCtrl.text.trim(),
-        // "yearOfPassing": int.tryParse(yearOfPassingCtrl.text.trim()) ?? 0,
       };
+
+      if (collegeEmailCtrl.text.trim().isNotEmpty) {
+        educationData["collegeEmail"] = collegeEmailCtrl.text.trim();
+      }
+
+      final yearText = yearOfPassingCtrl.text.trim();
+      if (yearText.isNotEmpty) {
+        final year = int.tryParse(yearText);
+        if (year != null) {
+          educationData["yearOfPassing"] = year; // Send as int, not string
+        }
+      }
 
       // ✅ Skills → Map
       final Map<String, dynamic> formattedSkills = {};
       for (var skill in skills) {
-        formattedSkills[skill] = {
-          "level": "mid",
-        }; // you can change "mid" dynamically
+        formattedSkills[skill] = {"level": "unverified"};
       }
 
-      // ✅ Experience (List of Maps)
+      // ✅ Experience
       final List<Map<String, dynamic>> formattedExperience = experiences.map((
         exp,
       ) {
@@ -332,7 +400,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         };
       }).toList();
 
-      // ✅ Projects (List of Maps)
+      // ✅ Projects
       final List<Map<String, dynamic>> formattedProjects = projects.map((proj) {
         return {
           "projectName": proj["projectName"],
@@ -343,14 +411,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       // ✅ Final update body
       final updateData = {
-        "FullName": fullNameCtrl.text.trim(),
-        "firebaseId": uid, // this ties student to Firebase
-        "email": emailCtrl.text.trim(),
         "phone": phoneCtrl.text.trim(),
         "profile": profileData,
         "education": educationData,
         "user_skills": formattedSkills,
-        "job_preference": jobPreferences, // must be List<String>
+        "job_preference": jobPreferences,
         "experience": formattedExperience,
         "projects": formattedProjects,
       };
@@ -392,7 +457,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => _isSaving = false);
     }
   }
-
   // Future<void> _saveSkills() async {
   //   try {
   //     User? user = _auth.currentUser;
@@ -458,10 +522,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _removeSkill(int index) {
-    final skillToRemove = skills[index];
+  void _removeSkill(String skill) {
     setState(() {
-      skills.removeAt(index);
+      skills.remove(skill);
     });
     // Note: You might want to implement a removeSkill endpoint in your backend
   }
@@ -534,6 +597,82 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _deleteProject(int index) {
     setState(() {
       projects.removeAt(index);
+    });
+  }
+
+  // Add this method to load skills from JSON
+
+  // Add this method to filter skills
+  void _filterSkills(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredSkills = [];
+      });
+      return;
+    }
+
+    setState(() {
+      filteredSkills = _allSkills
+          .where(
+            (skill) =>
+                skill.toLowerCase().contains(query.toLowerCase()) &&
+                !skills.contains(skill),
+          )
+          .toList();
+    });
+  }
+
+  // Update your _addSkill method to work with the new system
+  void _addSkillFromSearch(String skillName) {
+    _addSkill(skillName);
+    _skillsController.clear();
+    setState(() {
+      filteredSkills = [];
+    });
+  }
+
+  // Update your _removeSkill to accept String instead of int
+  void _removeSkillByName(String skillName) {
+    setState(() {
+      skills.remove(skillName);
+    });
+  }
+
+  // Add this method to filter jobs
+  void _filterJobs(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredJobs = [];
+      });
+      return;
+    }
+
+    setState(() {
+      filteredJobs = _allJobs
+          .where(
+            (job) =>
+                job.toLowerCase().contains(query.toLowerCase()) &&
+                !jobPreferences.contains(job),
+          )
+          .toList();
+    });
+  }
+
+  // Method to add job from search
+  void _addJob(String jobName) {
+    setState(() {
+      jobPreferences.add(jobName);
+    });
+    _jobsController.clear();
+    setState(() {
+      filteredJobs = [];
+    });
+  }
+
+  // Method to remove job
+  void _removeJob(String jobName) {
+    setState(() {
+      jobPreferences.remove(jobName);
     });
   }
 
@@ -669,15 +808,82 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 15),
                       _buildTextField('Phone Number', phoneCtrl),
                       const SizedBox(height: 15),
-                      _buildTextField('Email', emailCtrl),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Email',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                              fontFamily: 'Jost',
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(0, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(6, 6),
+                                  blurRadius: 0,
+                                  spreadRadius: -2,
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: emailCtrl,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 12,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                              ),
+                              style: const TextStyle(color: Colors.black54),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 15),
                       _buildTextField('Bio', bioCtrl),
                       const SizedBox(height: 15),
-                      _buildTextField('About', aboutCtrl),
+                      _buildTextField('About', aboutController),
                       const SizedBox(height: 15),
                       _buildTextField('College Name', collegeCtrl),
                       const SizedBox(height: 15),
                       _buildTextField('Degree', degreeCtrl),
+                      const SizedBox(height: 15),
+                      _buildTextField('Year of graduation', yearOfPassingCtrl),
+                      const SizedBox(height: 15),
+                      _buildTextField('College Email ID', collegeEmailCtrl),
 
                       // const SizedBox(height: 15),
                       // _buildTextField('College Email ID', collegeEmailCtrl),
@@ -694,51 +900,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       const SizedBox(height: 10),
 
-                      // big input box for skill
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: skillController,
-                          decoration: InputDecoration(
-                            hintText: 'Add Your Skills',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
-                          onSubmitted: (value) {
-                            if (value.trim().isNotEmpty) {
-                              _addSkill(value.trim());
-                              skillController.clear();
-                            }
-                          },
-                        ),
+                      _buildSearchSection(
+                        hintText: "Add your skills",
+                        controller: _skillsController,
+                        // selectedItems: skills, //
+                        filteredItems: filteredSkills,
+                        onChanged: _filterSkills,
+                        onRemove: _removeSkill,
+                        onAdd: _addSkillFromSearch,
+                        selectedItems: [],
                       ),
                       const SizedBox(height: 10),
 
@@ -752,7 +922,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             .map(
                               (entry) => _buildChip(
                                 entry.value,
-                                onDelete: () => _removeSkill(entry.key),
+                                onDelete: () =>
+                                    _removeSkill(entry.key as String),
                                 deleteColor: Colors.red,
                               ),
                             )
@@ -761,52 +932,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 30),
 
                       // Job Preference input
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: jobController,
-                          decoration: InputDecoration(
-                            hintText: 'Select Your Job Preference',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
-                          onSubmitted: (value) {
-                            if (value.trim().isNotEmpty) {
-                              setState(() {
-                                jobPreferences.add(value.trim());
-                                jobController.clear();
-                              });
-                            }
-                          },
-                        ),
+                      // Job Preference input - REMOVE Expanded wrapper
+                      _buildSearchSection(
+                        hintText: "Select your job preference",
+                        controller: _jobsController,
+                        selectedItems: selectedJobs,
+                        filteredItems: filteredJobs,
+                        onChanged: _filterJobs,
+                        onAdd: _addJob,
+                        onRemove: _removeJob,
                       ),
                       const SizedBox(height: 10),
 
@@ -836,21 +970,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Experience',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Jost',
+                          const Flexible(
+                            child: Text(
+                              'Experience',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Jost',
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: _addExperience,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
+                                horizontal: 16, // Reduced from 20
+                                vertical: 10, // Reduced from 12
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -889,21 +1026,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Projects',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Jost',
+                          const Flexible(
+                            child: Text(
+                              'Projects',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Jost',
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: _addProject,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF5B967),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
+                                horizontal: 16, // Reduced from 20
+                                vertical: 10, // Reduced from 12
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -1109,13 +1249,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 15,
-              fontFamily: GoogleFonts.jost().fontFamily,
-              color: const Color(0xFF1FA7E3),
-              fontWeight: FontWeight.bold,
+          Flexible(
+            child: Text(
+              label.toUpperCase(),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15,
+                fontFamily: GoogleFonts.jost().fontFamily,
+                color: const Color(0xFF1FA7E3),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 5),
@@ -1289,6 +1432,151 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSearchSection({
+    required String hintText,
+    required TextEditingController controller,
+    required List<String> selectedItems,
+    required List<String> filteredItems,
+    required Function(String) onChanged,
+    required Function(String) onAdd,
+    required Function(String) onRemove,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// Search Field
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 390),
+          height: 54,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.black, width: 1),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(4, 4),
+                blurRadius: 0,
+                spreadRadius: 1,
+              ),
+            ],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hintText,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
+              border: InputBorder.none,
+            ),
+            onChanged: onChanged,
+            onSubmitted: (value) {
+              if (value.trim().isNotEmpty) {
+                onAdd(value.trim());
+              }
+            },
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        /// Selected Items (Pinned Chips)
+        if (selectedItems.isNotEmpty)
+          Container(
+            constraints: const BoxConstraints(maxHeight: 120, maxWidth: 390),
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: selectedItems.map((item) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black, width: 1),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(2, 2),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            item.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () => onRemove(item),
+                          child: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+
+        /// Filtered Results Dropdown
+        if (filteredItems.isNotEmpty)
+          Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 390, maxHeight: 200),
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.black, width: 1),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: filteredItems.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    filteredItems[index],
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  onTap: () => onAdd(filteredItems[index]),
+                  dense: true,
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }

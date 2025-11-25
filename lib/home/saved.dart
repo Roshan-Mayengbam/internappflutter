@@ -70,11 +70,13 @@ class _SavedState extends State<Saved> {
         final data = json.decode(response.body);
         setState(() {
           print("✅ Saved jobs: $data");
-          // ✅ Convert JSON to Job objects
           List<dynamic> savesData = data['saves'] ?? [];
           savedJobs = savesData
               .map((jobJson) => Job.fromJson(jobJson))
               .toList();
+
+          // ✅ REMOVED ALL SORTING - backend already sorted by savedAt
+          print("✅ Loaded ${savedJobs.length} saved jobs");
         });
       } else {
         print("❌ Failed to load saved jobs: ${response.statusCode}");
@@ -125,8 +127,9 @@ class _SavedState extends State<Saved> {
           // Store full applications data
           appliedApplications = data['applications'] ?? [];
 
-          // ✅ Extract and convert job details from applications to Job objects
-          appliedJobs = (data['applications'] as List)
+          // ✅ Applications are already sorted by backend (createdAt descending)
+          // No need to sort again since backend does it
+          appliedJobs = (appliedApplications)
               .map((app) => app['job'])
               .where((job) => job != null)
               .map((jobJson) => Job.fromJson(jobJson))
@@ -324,12 +327,15 @@ class _SavedState extends State<Saved> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
+
+                    // else
                     CustomCarouselSection(
                       subtitle: 'Saved Jobs',
                       title: 'Your saved jobs',
                       filters: ['all', 'company', 'on-campus', 'external'],
                       selectedFilter: 'all',
+                      isAppliedSection: false,
                       onFilterTap: (filter) {
                         // Implement filter logic here
                       },
@@ -340,6 +346,7 @@ class _SavedState extends State<Saved> {
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
                               items: jobsToDisplayFormat(savedJobs),
+                              isAppliedSection: false,
                               statusPage: true,
                             ),
                           ),
@@ -347,15 +354,6 @@ class _SavedState extends State<Saved> {
                       },
                       onCarouselTap: (String p1) {},
                       onItemTap: (job) {
-                        print("---- Navigating to Carddetails ----");
-                        print("Job Title: ${job['jobTitle']}");
-                        print("Company Name: ${job['companyName']}");
-                        print("Location: ${job['location']}");
-                        print("Website URL: ${job['websiteUrl']}");
-                        print("Job Type: ${job['jobType']}");
-                        print("tagLabel: ${job['tagLabel']}");
-                        print("-----------------------------------");
-
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => Carddetails(
@@ -392,14 +390,19 @@ class _SavedState extends State<Saved> {
                               jobType: job['jobType'] ?? 'Not specified',
                               about:
                                   job['about'] ?? 'description not available',
+                              salaryRange:
+                                  job['salaryRange'] ?? 'Not specified',
+                              perks: [],
                             ),
                           ),
                         );
                       },
                     ),
-                    SizedBox(height: 20),
+
+                    const SizedBox(height: 20),
+
                     CustomCarouselSection(
-                      subtitle: 'applied jobs',
+                      subtitle: 'Applied Jobs',
                       title: 'Your applied jobs',
                       filters: [
                         'all',
@@ -409,11 +412,10 @@ class _SavedState extends State<Saved> {
                         'hired',
                       ],
                       selectedFilter: 'all',
-                      onFilterTap: (filter) => {},
-                      items: jobsToDisplayFormat(
-                        appliedJobs,
-                        isApplied: true,
-                      ), // ✅ Now works correctly
+                      onFilterTap: (filter) {},
+                      items: jobsToDisplayFormat(appliedJobs, isApplied: true),
+                      isAppliedSection: true,
+                      statusPage: true,
                       onViewMore: () {
                         Navigator.push(
                           context,
@@ -424,74 +426,12 @@ class _SavedState extends State<Saved> {
                                 isApplied: true,
                               ),
                               statusPage: true,
+                              isAppliedSection: true,
                             ),
                           ),
                         );
                       },
                       onItemTap: (job) {
-                        print("---- Navigating to Carddetails ----");
-                        print("Job Title: ${job['jobTitle']}");
-                        print("Company Name: ${job['companyName']}");
-                        print("Location: ${job['location']}");
-                        print("Website URL: ${job['websiteUrl']}");
-                        print("Job Type: ${job['jobType']}");
-                        print("Job ID: ${job['jobId'] ?? 'N/A'}");
-                        print("Job Title: ${job['jobTitle'] ?? 'N/A'}");
-                        print("Company Name: ${job['companyName'] ?? 'N/A'}");
-                        print("Location: ${job['location'] ?? 'N/A'}");
-                        print(
-                          "Experience Level: ${job['experienceLevel'] ?? 'N/A'}",
-                        );
-                        print(
-                          "Employment Type: ${job['employmentType'] ?? 'N/A'}",
-                        );
-                        print("Mode: ${job['mode'] ?? 'N/A'}");
-                        print("Job Type: ${job['jobType'] ?? 'N/A'}");
-                        print("Tag Label: ${job['tagLabel'] ?? 'N/A'}");
-                        print("Website URL: ${job['websiteUrl'] ?? 'N/A'}");
-                        print("Duration: ${job['duration'] ?? 'N/A'}");
-                        print("Stipend: ${job['stipend'] ?? 'N/A'}");
-                        print(
-                          "No of Openings: ${job['noOfOpenings'] ?? 'N/A'}",
-                        );
-                        print("Match Score: ${job['matchScore'] ?? 'N/A'}");
-                        print(
-                          "Application Status: ${job['applicationStatus'] ?? 'N/A'}",
-                        );
-                        print(
-                          "Roles & Responsibilities: ${job['description'] ?? 'N/A'}",
-                        );
-                        print(
-                          "Details: ${job['details'] ?? job['description'] ?? 'N/A'}",
-                        );
-
-                        // Safely print requirements and skills as lists
-                        print(
-                          "Requirements: ${job['requirements'] != null ? job['requirements'].join(', ') : 'None'}",
-                        );
-                        print(
-                          "Skills: ${job['skills'] != null ? job['skills'].join(', ') : 'None'}",
-                        );
-
-                        // Print recruiter info if available
-                        if (job['recruiter'] != null) {
-                          print("Recruiter Info:");
-                          print("  Name: ${job['recruiter']['name'] ?? 'N/A'}");
-                          print(
-                            "  Email: ${job['recruiter']['email'] ?? 'N/A'}",
-                          );
-                          print(
-                            "  Company: ${job['recruiter']['firebaseId'] ?? 'N/A'}",
-                          );
-                          print(
-                            "  Email: ${job['recruiter']['company'] ?? 'N/A'}",
-                          );
-                        } else {
-                          print("Recruiter Info: Not available");
-                        }
-
-                        print("-----------------------------------");
-
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => Carddetails(
@@ -528,6 +468,9 @@ class _SavedState extends State<Saved> {
                               id: job['jobId'] ?? '',
                               jobType: job['jobType'] ?? 'Not specified',
                               recruiter: job["recruiter"],
+                              salaryRange:
+                                  job['salaryRange'] ?? 'Not specified',
+                              perks: [],
                             ),
                           ),
                         );

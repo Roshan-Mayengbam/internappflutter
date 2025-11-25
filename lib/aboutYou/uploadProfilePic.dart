@@ -23,11 +23,31 @@ class _UploadScreenState extends State<UploadScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'png'],
+      withData: true, // ensures file size info is available
     );
+
     if (result != null) {
-      setState(() {
-        pickedPhotoFile = File(result.files.single.path!);
-      });
+      final fileBytes = result.files.single.bytes;
+      final filePath = result.files.single.path;
+
+      // 5 MB = 5 * 1024 * 1024 bytes
+      const maxFileSize = 5 * 1024 * 1024;
+
+      if (fileBytes != null && fileBytes.length > maxFileSize) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('File size must be less than 5 MB'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+
+      if (filePath != null) {
+        setState(() {
+          pickedPhotoFile = File(filePath);
+        });
+      }
     }
   }
 
@@ -35,11 +55,31 @@ class _UploadScreenState extends State<UploadScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'docx'],
+      withData: true, // Needed to check file size
     );
+
     if (result != null) {
-      setState(() {
-        pickedResumeFile = File(result.files.single.path!);
-      });
+      final fileBytes = result.files.single.bytes;
+      final filePath = result.files.single.path;
+
+      // 5 MB = 5 * 1024 * 1024 bytes
+      const maxFileSize = 5 * 1024 * 1024;
+
+      if (fileBytes != null && fileBytes.length > maxFileSize) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('File size must be less than 5 MB'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+
+      if (filePath != null) {
+        setState(() {
+          pickedResumeFile = File(filePath);
+        });
+      }
     }
   }
 
@@ -199,7 +239,7 @@ class _UploadScreenState extends State<UploadScreen> {
               print('Preferences: ${uploadResume.preferences}');
               print('---------------------------');
 
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
                     return TagPage(
@@ -348,7 +388,7 @@ class FileUploadWidget extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          '(Max. File size: 1.2 MB)',
+          '(Max. File size: 5 MB)',
           style: TextStyle(color: Colors.grey, fontSize: 14),
         ),
         const SizedBox(height: 28),

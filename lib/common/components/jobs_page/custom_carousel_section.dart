@@ -10,6 +10,7 @@ class CustomCarouselSection extends StatelessWidget {
   final String selectedFilter;
   final Function(String) onFilterTap;
   final bool statusPage;
+  final bool isAppliedSection; // NEW: Flag to identify Applied Jobs section
   final List<Map<String, dynamic>> items;
   final VoidCallback? onViewMore;
   final Function(Map<String, dynamic>)? onItemTap;
@@ -23,6 +24,7 @@ class CustomCarouselSection extends StatelessWidget {
     required this.onFilterTap,
     required this.items,
     this.statusPage = false,
+    this.isAppliedSection = false,
     this.onViewMore,
     this.onItemTap,
     required Null Function(String p1) onCarouselTap,
@@ -56,7 +58,7 @@ class CustomCarouselSection extends StatelessWidget {
             ),
           ),
 
-          if (onViewMore != null)
+          if (onViewMore != null && items.isNotEmpty)
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -96,43 +98,77 @@ class CustomCarouselSection extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Carousel
-          SizedBox(
-            height: 300,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (onItemTap != null) {
-                        onItemTap!(item);
-                      }
-                    },
-                    child: (statusPage)
-                        ? CarouselCard(
-                            title: item["jobTitle"],
-                            subtitle: item["companyName"],
-                            tag1: (item["applied"] ?? false)
-                                ? "Applied"
-                                : "Not Applied", // ✅ FIXED: Added null check
-                            statusCard: statusPage,
-                          )
-                        : CarouselCard(
-                            title: item["jobTitle"],
-                            subtitle: item["companyName"],
-                            tag1: item["location"],
-                            tag2: item['experienceLevel'],
-                            statusCard: statusPage,
+          // Carousel or Empty State
+          items.isEmpty
+              ? Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 80,
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          subtitle.toLowerCase().contains('saved')
+                              ? Icons.bookmark_border
+                              : Icons.work_outline,
+                          size: 80,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          subtitle.toLowerCase().contains('saved')
+                              ? 'No saved jobs yet'
+                              : 'No applied jobs yet',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                            fontFamily: 'jost',
                           ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
+                )
+              : SizedBox(
+                  height: 300,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (onItemTap != null) {
+                              onItemTap!(item);
+                            }
+                          },
+                          child: CarouselCard(
+                            title: item["jobTitle"],
+                            subtitle: item["companyName"],
+                            tag1: statusPage
+                                ? (isAppliedSection
+                                      ? (item["applicationStatus"] ?? "Applied")
+                                      : (item["applied"] ?? false)
+                                      ? "Applied"
+                                      : "Not Applied")
+                                : item["location"], // For Job/Hackathon pages, show location
+                            tag2: isAppliedSection
+                                ? null // No second tag for Applied section
+                                : item['experienceLevel'],
+                            statusCard:
+                                isAppliedSection, // Single tag mode for applied
+                            location: item["location"],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
         ],
       ),
     );

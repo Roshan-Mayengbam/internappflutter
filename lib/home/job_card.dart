@@ -18,6 +18,8 @@ class JobCard extends StatefulWidget {
   final String rolesAndResponsibilities;
   final String duration;
   final String stipend;
+  final String salaryRange;
+  final List<String> perks;
   final String details;
   final String noOfOpenings;
   final String mode;
@@ -47,6 +49,8 @@ class JobCard extends StatefulWidget {
     required this.id,
     required this.jobType,
     this.recruiter,
+    required this.salaryRange,
+    required this.perks,
   });
 
   @override
@@ -177,6 +181,8 @@ class _JobCardState extends State<JobCard> {
         print('ID: ${widget.id}');
         print('Job Type: ${widget.jobType}');
         print('Recruiter: ${widget.recruiter}');
+        print('Salary Range: ${widget.salaryRange}');
+        print('Perks: ${widget.perks}');
         print('-------------------');
 
         Navigator.of(context).push(
@@ -201,6 +207,8 @@ class _JobCardState extends State<JobCard> {
               id: widget.id,
               jobType: widget.jobType,
               recruiter: widget.recruiter,
+              salaryRange: widget.salaryRange,
+              perks: [...widget.perks],
             ),
           ),
         );
@@ -238,6 +246,8 @@ class _JobCardState extends State<JobCard> {
                         .take(3)
                         .map((req) => _buildRequirementRow(req, screenWidth))
                         .toList(),
+
+                    // Show "Show more..." button if there are more than 3 requirements
                     if (widget.requirements.length > 3)
                       GestureDetector(
                         onTap: () {
@@ -264,6 +274,8 @@ class _JobCardState extends State<JobCard> {
                                 id: widget.id,
                                 jobType: widget.jobType,
                                 recruiter: widget.recruiter,
+                                salaryRange: widget.salaryRange,
+                                perks: [...widget.perks],
                               ),
                             ),
                           );

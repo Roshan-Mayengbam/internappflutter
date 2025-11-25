@@ -1,38 +1,132 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/common/components/jobs_page/job_carousel_card.dart';
 
 class ViewMores extends StatelessWidget {
   final List<Map<String, dynamic>> items;
   final bool statusPage;
-  const ViewMores({super.key, required this.items, required this.statusPage});
+  final bool isAppliedSection;
+
+  const ViewMores({
+    super.key,
+    required this.items,
+    required this.statusPage,
+    this.isAppliedSection = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Take only 10 items if list is longer
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          isAppliedSection
+              ? 'Applied Jobs'
+              : statusPage
+              ? 'Saved Jobs'
+              : 'All Jobs',
+          style: const TextStyle(fontFamily: 'jost'),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
-        child: ListView.builder(
-          scrollDirection: Axis.vertical,
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
-            return Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: (statusPage)
-                  ? CarouselCard(
-                      title: item["jobTitle"],
-                      subtitle: item["companyName"],
-                      tag1: statusPage ? "Applied" : "Not Applied",
-                      statusCard: statusPage,
-                    )
-                  : CarouselCard(
-                      title: item["jobTitle"],
-                      subtitle: item["companyName"],
-                      tag1: item["location"],
-                      tag2: item['experienceLevel'],
-                      statusCard: statusPage,
-                    ),
-            );
-          },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: items.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.work_outline,
+                        size: 80,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'No jobs found',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                          fontFamily: 'jost',
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 1.4,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Carddetails(
+                              jobTitle: item['jobTitle'] ?? '',
+                              companyName: item['companyName'] ?? '',
+                              location: item['location'] ?? '',
+                              experienceLevel: item['experienceLevel'] ?? '',
+                              requirements: List<String>.from(
+                                item['requirements'] ?? [],
+                              ),
+                              websiteUrl: item['websiteUrl'] ?? '',
+                              tagLabel: item['tagLabel'],
+                              employmentType: item['jobType'] ?? '',
+                              rolesAndResponsibilities:
+                                  item['description'] ?? '',
+                              duration: item['duration'] ?? 'Not specified',
+                              stipend:
+                                  item['stipend']?.toString() ??
+                                  'Not specified',
+                              details: item['description'] ?? '',
+                              noOfOpenings:
+                                  item['noOfOpenings']?.toString() ?? '0',
+                              mode: item['mode'] ?? 'N/A',
+                              skills: List<String>.from(
+                                item['requirements'] ?? [],
+                              ),
+                              id: item['jobId'] ?? '',
+                              jobType: item['jobType'] ?? '',
+                              recruiter: item['recruiter'],
+                              about:
+                                  item['about'] ?? 'Description not available',
+                              salaryRange:
+                                  item['salaryRange'] ?? 'Salary not available',
+                              perks: List<String>.from(item['perks'] ?? []),
+                            ),
+                          ),
+                        );
+                      },
+                      child: CarouselCard(
+                        title: item["jobTitle"] ?? "Unknown Job",
+                        subtitle: item["companyName"] ?? "Unknown Company",
+                        location: item["location"],
+                        tag1: isAppliedSection
+                            ? (item["applicationStatus"] ?? "Applied")
+                            : statusPage
+                            ? (item["applied"] == true
+                                  ? "Applied"
+                                  : "Not Applied")
+                            : (item["location"] ?? "Location N/A"),
+                        tag2: isAppliedSection
+                            ? null
+                            : item['experienceLevel'] ?? "Entry level",
+                        statusCard: isAppliedSection,
+                      ),
+                    );
+                  },
+                ),
         ),
       ),
     );

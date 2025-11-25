@@ -142,6 +142,24 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // Sign out from Google and Firebase
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to SignUpScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const Page2()),
+        (route) => false, // remove all previous routes
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
+    }
+  }
+
   void _initAnimations() {
     _controllers = List.generate(
       notifications['msg'].length,
@@ -484,7 +502,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: _retryFetchJobs,
+                            onPressed: () {
+                              _signOut(context);
+                            },
                             child: const Text('Retry'),
                           ),
                         ],
@@ -501,45 +521,231 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         if (jobProvider.isLoading && displayJobs.isEmpty) {
           return Scaffold(
             backgroundColor: Colors.white,
+
+            // In your HomePage, wrap the body content with RefreshIndicator
+            // Replace the body: SafeArea( section with this:
             body: SafeArea(
-              child: Column(
-                children: [
-                  _buildTopBar(jobProvider),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "SWIPE AND PICK YOUR JOB",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
-                          Text(
-                            'Finding the best jobs for you...',
-                            style: TextStyle(color: Colors.grey),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  // ✅ Refresh jobs when user pulls down
+                  await context.read<JobProvider>().fetchJobs();
+                },
+                color: Colors.black, // Customize spinner color
+                backgroundColor: const Color(0xFFD9FFCB), // Match your theme
+                child: SingleChildScrollView(
+                  physics:
+                      const AlwaysScrollableScrollPhysics(), // ✅ Enable pull even when content doesn't scroll
+                  child: SizedBox(
+                    height:
+                        MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top,
+                    child: Column(
+                      children: [
+                        _buildTopBar(jobProvider),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 8,
                           ),
-                        ],
-                      ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "SWIPE AND PICK YOUR JOB",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // ✅ Card stack with ValueListenableBuilder
+                        Expanded(
+                          child: Center(
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: cardHeight,
+                              child: displayJobs.length >= 3
+                                  ? ValueListenableBuilder<double>(
+                                      valueListenable: _dragProgress,
+                                      builder: (context, progress, _) {
+                                        return ValueListenableBuilder<
+                                          DismissDirection?
+                                        >(
+                                          valueListenable: _dragDirection,
+                                          builder: (context, direction, _) {
+                                            // ✅ Calculate transforms once
+                                            final nextScale =
+                                                0.95 + (0.03 * progress);
+                                            final nextTranslateY =
+                                                24 - (8 * progress);
+                                            final thirdScale =
+                                                0.90 + (0.03 * progress * 0.5);
+                                            final thirdTranslateY =
+                                                48 - (8 * progress * 0.5);
+                                            final topAngle =
+                                                (direction ==
+                                                        DismissDirection
+                                                            .startToEnd
+                                                    ? 1
+                                                    : direction ==
+                                                          DismissDirection
+                                                              .endToStart
+                                                    ? -1
+                                                    : 0) *
+                                                (0.20 * progress);
+
+                                            return Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                // 3rd card (back)
+                                                Transform.scale(
+                                                  scale: thirdScale,
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: Transform.translate(
+                                                    offset: Offset(
+                                                      0,
+                                                      thirdTranslateY,
+                                                    ),
+                                                    child: Transform.rotate(
+                                                      angle: 0.20,
+                                                      alignment:
+                                                          Alignment.bottomRight,
+                                                      child: _buildJobCard(
+                                                        displayJobs,
+                                                        _idx(
+                                                          2,
+                                                          displayJobs.length,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // 2nd card (middle)
+                                                Transform.scale(
+                                                  scale: nextScale,
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: Transform.translate(
+                                                    offset: Offset(
+                                                      0,
+                                                      nextTranslateY,
+                                                    ),
+                                                    child: Transform.rotate(
+                                                      angle: 0.10,
+                                                      alignment:
+                                                          Alignment.bottomRight,
+                                                      child: _buildJobCard(
+                                                        displayJobs,
+                                                        _idx(
+                                                          1,
+                                                          displayJobs.length,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // Top card (interactive)
+                                                Transform.rotate(
+                                                  angle: topAngle,
+                                                  child: Dismissible(
+                                                    key: ValueKey(
+                                                      'job_${_idx(0, displayJobs.length)}_$_topIndex',
+                                                    ),
+                                                    direction: DismissDirection
+                                                        .horizontal,
+                                                    dismissThresholds: const {
+                                                      DismissDirection
+                                                              .startToEnd:
+                                                          0.35,
+                                                      DismissDirection
+                                                              .endToStart:
+                                                          0.35,
+                                                    },
+                                                    onUpdate: (details) {
+                                                      _dragProgress.value =
+                                                          details.progress
+                                                              .clamp(0.0, 1.0);
+                                                      _dragDirection.value =
+                                                          details.direction;
+                                                    },
+                                                    onDismissed: (dismissDirection) {
+                                                      bool isLiked =
+                                                          dismissDirection ==
+                                                          DismissDirection
+                                                              .startToEnd;
+                                                      int currentIndex = _idx(
+                                                        0,
+                                                        displayJobs.length,
+                                                      );
+                                                      String jobId =
+                                                          displayJobs[currentIndex]['jobId'];
+                                                      String jobType =
+                                                          displayJobs[currentIndex]['jobType'] ??
+                                                          'company';
+
+                                                      if ((_topIndex + 1) %
+                                                              displayJobs
+                                                                  .length ==
+                                                          0) {
+                                                        print(
+                                                          "Reached last card! Fetching new jobs...",
+                                                        );
+                                                        context
+                                                            .read<JobProvider>()
+                                                            .fetchJobs();
+                                                      }
+
+                                                      _handleJobAction(
+                                                        jobId,
+                                                        jobType,
+                                                        isLiked,
+                                                      );
+
+                                                      setState(() {
+                                                        _topIndex =
+                                                            (_topIndex + 1) %
+                                                            displayJobs.length;
+                                                      });
+                                                      _dragProgress.value = 0.0;
+                                                      _dragDirection.value =
+                                                          null;
+                                                    },
+                                                    child: _buildJobCard(
+                                                      displayJobs,
+                                                      _idx(
+                                                        0,
+                                                        displayJobs.length,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    )
+                                  : displayJobs.isNotEmpty
+                                  ? _buildJobCard(displayJobs, 0)
+                                  : const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           );
         }
-
         // ✅ Main content - Use ValueListenableBuilder for smooth animations
         return Scaffold(
           backgroundColor: Colors.white,
@@ -822,10 +1028,28 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // ✅ Helper method to reduce code duplication
   Widget _buildJobCard(List<Map<String, dynamic>> jobs, int index) {
     final job = jobs[index];
+
+    // ✅ Convert perks to List<String>
+    List<String> perksList = [];
+    if (job['perks'] != null) {
+      if (job['perks'] is List) {
+        perksList = List<String>.from(job['perks']);
+      } else if (job['perks'] is String) {
+        // If it's a string, split by newlines or commas
+        String perksString = job['perks'];
+        perksList = perksString
+            .split('\n')
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .map((line) => line.replaceFirst(RegExp(r'^[•\-\*]\s*'), ''))
+            .where((line) => line.isNotEmpty)
+            .toList();
+      }
+    }
+
     return JobCard(
       jobTitle: job['jobTitle'],
       companyName: job['companyName'],
-
       location: job['location'],
       experienceLevel: job['experienceLevel'],
       requirements: List<String>.from(job['requirements']),
@@ -845,6 +1069,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       jobType: job['jobType'] ?? '',
       recruiter: job['recruiter'] as Map<String, dynamic>?,
       about: job['about'] ?? 'description not available',
+      salaryRange: job['salaryRange'] ?? 'salary not available',
+      perks: perksList, // ✅ Pass as List<String>
     );
   }
 }

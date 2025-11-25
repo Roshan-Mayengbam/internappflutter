@@ -143,6 +143,15 @@ flutter:
     - assets/images/puzzle.png
     - assets/text.png
 
+
+
+    - assets/skills.json
+    - assets/animations/Stressed Woman at work.json
+    - assets/animations/Trophy animation.json
+    - assets/jobPeference.json
+    - assets/userskills.json
+
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
+import 'package:internappflutter/package/ViewMores.dart';
+import 'package:internappflutter/screens/hackathon_details.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +41,12 @@ class _JobPageState extends State<JobPage> {
   ];
 
   String selectedHackathonFilter = 'All';
+
+  // Add state variables for view more functionality
+  bool showAllJobs = false;
+  bool showAllHackathons = false;
+  final int initialJobsCount = 10;
+  final int initialHackathonsCount = 10;
 
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
     return jobs.asMap().entries.map((entry) {
@@ -238,13 +246,22 @@ class _JobPageState extends State<JobPage> {
           }
 
           // Convert Job objects to Map format
-          final jobsList = jobsToDisplayFormat(jobProvider.jobs);
+          final allJobs = jobsToDisplayFormat(jobProvider.jobs);
+
+          // Limit jobs based on showAllJobs state
+          final jobsList = showAllJobs
+              ? allJobs
+              : allJobs.take(initialJobsCount).toList();
 
           // Convert Hackathon objects to Map format
-          final hackathonsList = hackathonsToDisplayFormat(
-            hackathonProvider.hackathons,
+          final allFilteredHackathons = filterHackathons(
+            hackathonsToDisplayFormat(hackathonProvider.hackathons),
           );
-          final filteredHackathons = filterHackathons(hackathonsList);
+
+          // Limit hackathons based on showAllHackathons state
+          final filteredHackathons = showAllHackathons
+              ? allFilteredHackathons
+              : allFilteredHackathons.take(initialHackathonsCount).toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 16),
@@ -260,15 +277,26 @@ class _JobPageState extends State<JobPage> {
                       'Based on your profile, preference and activity like applies, searches and saves',
                   filters: jobFilters,
                   selectedFilter: selectedJobFilter,
+                  isAppliedSection: false,
                   onFilterTap: (filter) {
                     setState(() {
                       selectedJobFilter = filter;
                     });
                   },
                   onViewMore: () {
-                    print("Pressed View more in jobs display");
+                    // Navigate to ViewMores page with ALL jobs
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewMores(
+                          items: allJobs, // Pass ALL jobs, not limited
+                          isAppliedSection: false,
+                          statusPage: false,
+                        ),
+                      ),
+                    );
                   },
-                  statusPage: true,
+                  statusPage: false,
                   items: jobsList,
                   onItemTap: (job) {
                     print("---- Navigating to Carddetails ----");
@@ -315,6 +343,9 @@ class _JobPageState extends State<JobPage> {
                           jobType: job['jobType'] ?? '',
                           recruiter: job['recruiter'],
                           about: job['about'] ?? 'description not available',
+                          salaryRange:
+                              job['salaryRange'] ?? 'salary not available',
+                          perks: job['perks'] ?? 'perks not available',
                         ),
                       ),
                     );
@@ -329,13 +360,27 @@ class _JobPageState extends State<JobPage> {
                   subtitle: 'Compete, innovate, and win amazing prizes',
                   filters: hackathonFilters,
                   selectedFilter: selectedHackathonFilter,
+                  isAppliedSection: false,
                   onFilterTap: (filter) {
                     setState(() {
                       selectedHackathonFilter = filter;
+                      // Reset showAllHackathons when filter changes
+                      showAllHackathons = false;
                     });
                   },
                   onViewMore: () {
-                    print("Pressed View more in hackathons");
+                    // Navigate to ViewMores page with ALL filtered hackathons
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewMores(
+                          items:
+                              allFilteredHackathons, // Pass ALL filtered hackathons
+                          isAppliedSection: false,
+                          statusPage: false,
+                        ),
+                      ),
+                    );
                   },
                   items: filteredHackathons,
                   onItemTap: (hackathon) {

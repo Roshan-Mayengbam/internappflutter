@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   Map<String, dynamic>? userData;
   final User? user = FirebaseAuth.instance.currentUser;
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
+
   bool isLoading = false;
   String errorMessage = '';
 
@@ -137,6 +139,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     }
   }
 
+  // ONLY REPLACE THE BUILD METHOD AND RELATED PARTS
+
+  @override
   Widget build(BuildContext context) {
     // Show loading indicator while fetching data
     if (isLoading || userData == null) {
@@ -151,10 +156,22 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     final profilePic = profile['profilePicture'] ?? '';
     final bio = profile['bio'] ?? '';
     final phone = userData!['phone'] ?? 'N/A';
-
     final email = user?.email ?? 'N/A';
     final education = userData!['education'] ?? {};
-    final userSkills = userData!['user_skills'] as Map<String, dynamic>? ?? {};
+    final resume = profile['resume'] ?? '';
+    final resumeName = profile['resumeName'] ?? '';
+    final collegeEmail = education['collegeEmail'] ?? '';
+
+    // ✅✅✅ CORRECT WAY TO HANDLE MAP
+    final rawSkills = userData!['user_skills'];
+    List<MapEntry<String, dynamic>> skillsList = [];
+
+    if (rawSkills is Map<String, dynamic>) {
+      // Backend sends Map: {"React.js": {"level": "intermediate"}}
+      skillsList = rawSkills.entries.toList();
+    } else if (rawSkills != null) {
+      print("⚠️ user_skills is not a Map: ${rawSkills.runtimeType}");
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4F5),
@@ -166,10 +183,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             width: double.infinity,
             color: Colors.black,
             child: profilePic.isNotEmpty
-                ? Image.network(
-                    profilePic,
+                ? CachedNetworkImage(
+                    imageUrl: profilePic,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error, color: Colors.red, size: 100),
                   )
                 : const Icon(Icons.person, size: 100, color: Colors.white),
           ),
@@ -209,6 +231,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       const SizedBox(height: 20),
 
                       // Name and Resume button
+                      // Replace the "Name and Resume button" section in your build method with this:
+
+                      // Name and Resume button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -223,23 +248,32 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                               ),
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              ResumeEditPopupUtils.showResumeEditPopup(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFD6F59A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  ResumeEditPopupUtils.showResumeEditPopup(
+                                    context,
+                                    resumelink: resumeName,
+                                    resume: resume,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD6F59A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Resume',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: GoogleFonts.jost().fontFamily,
+                                  ),
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              'Resume',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: GoogleFonts.jost().fontFamily,
-                              ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -310,10 +344,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       const SizedBox(height: 15),
                       _buildInputField('Degree', education['degree'] ?? ''),
                       const SizedBox(height: 15),
-                      _buildInputField(
-                        'College Email ID',
-                        education['collegeEmail'] ?? '',
-                      ),
+                      _buildInputField('College Email ID', collegeEmail),
                       const SizedBox(height: 15),
                       _buildInputField(
                         'Year of Graduation',
@@ -322,8 +353,8 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
                       const SizedBox(height: 20),
 
-                      // Skills section
-                      if (userSkills.isNotEmpty) ...[
+                      // ✅✅✅ FIXED Skills section - properly reads Map entries
+                      if (skillsList.isNotEmpty) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -338,11 +369,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                             ),
                             TextButton(
                               onPressed: () {
+                                // Convert entries list back to map for SkillVerification
+                                Map<String, dynamic> skillsMap =
+                                    Map.fromEntries(skillsList);
+
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => SkillVerification(
-                                      userSkills: userSkills,
+                                      userSkills: skillsMap,
                                     ),
                                   ),
                                 );
@@ -363,13 +398,18 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                         Wrap(
                           spacing: 10.0,
                           runSpacing: 10.0,
-                          children: userSkills.entries.map<Widget>((entry) {
+                          children: skillsList.map<Widget>((entry) {
                             String skillName = entry.key;
-                            String level =
-                                entry.value['level']
-                                    ?.toString()
-                                    .toLowerCase() ??
-                                'unverified';
+                            String level = 'unverified';
+
+                            if (entry.value is Map) {
+                              level = (entry.value['level'] ?? 'unverified')
+                                  .toString()
+                                  .toLowerCase();
+                            } else if (entry.value is String) {
+                              level = entry.value.toLowerCase();
+                            }
+
                             return _buildSkillChip(skillName, level);
                           }).toList(),
                         ),
@@ -417,8 +457,6 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             },
           ),
 
-          // Back button
-
           // Edit button
           Positioned(
             top: 40,
@@ -438,8 +476,6 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                       builder: (context) => const EditProfileScreen(),
                     ),
                   );
-
-                  // Refresh data if profile was updated
                   if (result == true) {
                     fetchStudentDetails();
                   }
@@ -1118,6 +1154,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   }
 
   void _showResumeDialog(BuildContext context) {
+    final profile = userData!['profile'] ?? {};
+    final resumeName = profile['resumeName'] ?? '';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1127,7 +1166,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildResumeFileItem('Harish_Resume', false),
+                _buildResumeFileItem(resumeName, true),
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,

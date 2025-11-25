@@ -26,11 +26,13 @@ class Carddetails extends StatefulWidget {
   final String stipend;
   final String details;
   final String noOfOpenings;
+  final List<String> perks; // ✅ Changed from String? to List<String>
   final String mode;
   final List skills;
   final String id;
   final String jobType;
   final Map<String, dynamic>? recruiter;
+  final String salaryRange;
 
   const Carddetails({
     super.key,
@@ -53,6 +55,8 @@ class Carddetails extends StatefulWidget {
     required this.id,
     required this.jobType,
     this.recruiter,
+    required this.salaryRange,
+    required this.perks,
   });
 
   @override
@@ -67,7 +71,7 @@ class _CarddetailsState extends State<Carddetails> {
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
   String get recruiterFirebaseId => widget.recruiter?['firebaseId'] ?? '';
-  String get recruiterName => widget.recruiter?['name'] ?? 'Un Recruiter';
+  String get recruiterName => widget.recruiter?['name'] ?? 'Unknown Recruiter';
 
   String get currentUserId {
     return FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -358,7 +362,7 @@ class _CarddetailsState extends State<Carddetails> {
                                       builder: (context) => ChatScreen(
                                         currentUserId: currentUserId,
                                         otherUserId: recruiterFirebaseId,
-                                        otherUserName: recruiterName,
+                                        otherUserName: widget.companyName,
                                       ),
                                     ),
                                   );
@@ -794,7 +798,10 @@ class _CarddetailsState extends State<Carddetails> {
                             Expanded(child: _buildInfoCard('Mode', 'Online')),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _buildInfoCard('Stipend', widget.stipend),
+                              child: _buildInfoCard(
+                                'Stipend',
+                                widget.salaryRange,
+                              ),
                             ),
                           ],
                         ),
@@ -918,12 +925,12 @@ class _CarddetailsState extends State<Carddetails> {
                     'Perks:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+
                   const SizedBox(height: 12),
-                  _buildPerkButton('Certificate'),
-                  const SizedBox(height: 8),
-                  _buildPerkButton('Letter of recommendation'),
-                  const SizedBox(height: 8),
-                  _buildPerkButton('Stipend'),
+                  for (var perk in widget.perks) ...[
+                    _buildPerkButton(perk),
+                    const SizedBox(height: 8),
+                  ],
 
                   const SizedBox(height: 20),
 
@@ -1117,11 +1124,15 @@ class _CarddetailsState extends State<Carddetails> {
         children: [
           Text(
             title,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
             value,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
