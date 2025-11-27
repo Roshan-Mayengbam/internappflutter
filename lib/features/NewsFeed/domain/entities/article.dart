@@ -1,16 +1,30 @@
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
-/// The core data structure for a news article, isolated from API and UI concerns.
+part 'article.g.dart';
+
+/// The common data structure for a news article, isolated from API and UI concerns.
+@HiveType(typeId: 0)
 class Article {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String webTitle;
+  @HiveField(2)
   final String sectionName;
+  @HiveField(3)
   final DateTime webPublicationDate;
+  @HiveField(4)
   final String webUrl;
+  @HiveField(5)
   final String apiUrl;
+  @HiveField(6)
   final String thumbnailUrl;
+  @HiveField(7)
   final String byline;
+  @HiveField(8)
   final String bodyHtml;
+  @HiveField(9)
   final String trailText;
 
   Article({

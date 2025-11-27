@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/components/details_page/resuable_tag.dart';
-import '../core/constants/details_page/reusable_tag_constants.dart';
+import '../common/components/details_page/resuable_tag.dart';
+import '../common/constants/details_page/reusable_tag_constants.dart';
 
 class DescriptionScreen extends StatelessWidget {
   const DescriptionScreen({super.key});

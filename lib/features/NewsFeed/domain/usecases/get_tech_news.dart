@@ -8,7 +8,7 @@ class GetTechNewsUseCase {
 
   GetTechNewsUseCase(this.repository);
 
-  /// Executes the core task: fetches articles for the given page and tags.
+  /// Executes the common task: fetches articles for the given page and tags.
   Future<List<Article>> execute({
     required int page,
     required String tags,

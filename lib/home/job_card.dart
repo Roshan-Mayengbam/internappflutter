@@ -60,7 +60,7 @@ class JobCard extends StatefulWidget {
 class _JobCardState extends State<JobCard> {
   late int colorIndex;
   bool isFavorite = false;
-  bool _showAllRequirements = false;
+  final bool _showAllRequirements = false;
 
   @override
   void initState() {

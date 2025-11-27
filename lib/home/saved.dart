@@ -1,13 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/core/components/custom_app_bar.dart';
-import 'package:internappflutter/core/components/custom_button.dart';
-import 'package:internappflutter/core/components/jobs_page/custom_carousel_section.dart';
 import 'package:internappflutter/home/cardDetails.dart';
-import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'cardDetails.dart';
+
+import '../common/components/custom_app_bar.dart';
+import '../common/components/custom_button.dart';
+import '../common/components/jobs_page/custom_carousel_section.dart';
+import '../models/jobs.dart';
 
 class Saved extends StatefulWidget {
   const Saved({super.key});
@@ -18,9 +21,7 @@ class Saved extends StatefulWidget {
 
 class _SavedState extends State<Saved> {
   final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-
-  // final String baseUrl3 = "http://10.168.89.157:3000";
-
+  final String baseUrl2 = "http://10.196.234.157:3000";
   List<Job> savedJobs = []; // ✅ Changed to List<Job>
   List<Job> appliedJobs = []; // ✅ Changed to List<Job>
   List<dynamic> appliedApplications = []; // Store full application data
@@ -123,7 +124,6 @@ class _SavedState extends State<Saved> {
         final data = json.decode(response.body);
         setState(() {
           print("✅ Applied jobs: $data");
-
           // Store full applications data
           appliedApplications = data['applications'] ?? [];
 
@@ -243,7 +243,6 @@ class _SavedState extends State<Saved> {
         'salaryRange':
             '₹${job.salaryRange.min.toInt()}k - ₹${job.salaryRange.max.toInt()}k',
         'jobId': job.id,
-        // ignore: equal_keys_in_map
         'jobType': job.jobType,
         'college': job.college ?? 'N/A',
         'tagLabel': job.jobType == 'on-campus'
@@ -341,7 +340,6 @@ class _SavedState extends State<Saved> {
                         // Implement filter logic here
                       },
                       items: jobsToDisplayFormat(savedJobs),
-
                       onViewMore: () {
                         Navigator.push(
                           context,

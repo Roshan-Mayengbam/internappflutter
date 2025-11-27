@@ -57,4 +57,21 @@ class MockHackathonRepository extends _i1.Mock
                 ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i6.HackathonResponse>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i6.HackathonResponse>>
+  getSimilarHackathons(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#getSimilarHackathons, [query]),
+            returnValue:
+                _i4.Future<
+                  _i2.Either<_i5.Failure, _i6.HackathonResponse>
+                >.value(
+                  _FakeEither_0<_i5.Failure, _i6.HackathonResponse>(
+                    this,
+                    Invocation.method(#getSimilarHackathons, [query]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i6.HackathonResponse>>);
 }
