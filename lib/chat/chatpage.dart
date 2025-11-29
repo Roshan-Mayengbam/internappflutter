@@ -39,17 +39,17 @@ class _ChatPageState extends State<ChatPage> {
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.more_vert, color: Colors.black),
-                      onPressed: () {},
-                    ),
-                  ),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     border: Border.all(color: Colors.black, width: 2),
+                  //   ),
+                  //   child: IconButton(
+                  //     icon: const Icon(Icons.more_vert, color: Colors.black),
+                  //     onPressed: () {},
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -85,25 +85,24 @@ class _ChatPageState extends State<ChatPage> {
             const SizedBox(height: 20),
 
             // Filter Buttons
-            SizedBox(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildFilterChip('Featured', true),
-                  const SizedBox(width: 12),
-                  _buildFilterChip('Live', false),
-                  const SizedBox(width: 12),
-                  _buildFilterChip('Upcoming', false),
-                  const SizedBox(width: 12),
-                  _buildFilterChip('Always Open', false),
-                  const SizedBox(width: 12),
-                  _buildFilterChip('Active', false),
-                ],
-              ),
-            ),
-
+            // SizedBox(
+            //   height: 50,
+            //   child: ListView(
+            //     scrollDirection: Axis.horizontal,
+            //     padding: const EdgeInsets.symmetric(horizontal: 16),
+            //     children: [
+            //       _buildFilterChip('Featured', true),
+            //       const SizedBox(width: 12),
+            //       _buildFilterChip('Live', false),
+            //       const SizedBox(width: 12),
+            //       _buildFilterChip('Upcoming', false),
+            //       const SizedBox(width: 12),
+            //       _buildFilterChip('Always Open', false),
+            //       const SizedBox(width: 12),
+            //       _buildFilterChip('Active', false),
+            //     ],
+            //   ),
+            // ),
             const SizedBox(height: 20),
 
             // Chat List

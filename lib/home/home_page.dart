@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/chat/chatpage.dart';
-import 'package:internappflutter/chat/chatscreen.dart';
 import 'package:internappflutter/home/saved.dart';
 import 'package:provider/provider.dart';
 import 'package:internappflutter/models/jobs.dart';
@@ -18,8 +17,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class HomePageState extends State<HomePage> {
   bool _hasShownError = false;
+  late AppinioSwiperController _swiperController;
+
+  @override
+  void initState() {
+    super.initState();
+    _swiperController = AppinioSwiperController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<JobProvider>().fetchJobs();
+    });
+  }
 
   // Convert API Job to display format
   List<Map<String, dynamic>> jobsToDisplayFormat(List<Job> jobs) {
@@ -104,92 +114,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }).toList();
   }
 
-  Map notifications = {
-    'msg': [
-      'New job matching your skills',
-      'Application status updated',
-      'On-campus opportunity available',
-      'Profile viewed by recruiter',
-      'Weekly job digest',
-    ],
-    'week': [
-      '2 hours ago',
-      '1 day ago',
-      '2 days ago',
-      '3 days ago',
-      '1 week ago',
-    ],
-  };
-
-  late List<AnimationController> _controllers;
-  late List<Animation<Offset>> _animations;
-
-  int _topIndex = 0;
-
-  // ✅ Use ValueNotifier for smoother updates without full rebuilds
-  final ValueNotifier<double> _dragProgress = ValueNotifier(0.0);
-  final ValueNotifier<DismissDirection?> _dragDirection = ValueNotifier(null);
-
-  int _idx(int offset, int totalJobs) => (_topIndex + offset) % totalJobs;
-
-  @override
-  void initState() {
-    super.initState();
-    _initAnimations();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<JobProvider>().fetchJobs();
-    });
-  }
-
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      // Sign out from Google and Firebase
-      await GoogleSignIn().signOut();
-      await FirebaseAuth.instance.signOut();
-
-      // Navigate to SignUpScreen and remove all previous routes
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const Page2()),
-        (route) => false, // remove all previous routes
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Sign out failed: $e")));
-    }
-  }
-
-  void _initAnimations() {
-    _controllers = List.generate(
-      notifications['msg'].length,
-      (index) => AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 400),
-      ),
-    );
-    _animations = List.generate(
-      notifications['msg'].length,
-      (index) => Tween<Offset>(begin: Offset.zero, end: Offset(1.5, 0)).animate(
-        CurvedAnimation(parent: _controllers[index], curve: Curves.easeInOut),
-      ),
-    );
-  }
-
-  void _slideAllAndRemove() async {
-    for (int i = 0; i < _controllers.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      _controllers[i].forward();
-    }
-    await Future.delayed(const Duration(milliseconds: 400));
-    setState(() {
-      notifications['msg'].clear();
-      notifications['week'].clear();
-      _controllers.clear();
-      _animations.clear();
-    });
-  }
-
   void _handleJobAction(String jobId, String jobType, bool isLiked) async {
     if (isLiked) {
       print("Attempting to apply for job: $jobId (Type: $jobType)");
@@ -212,196 +136,92 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Stack(
-            children: [
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Saved()),
-                  );
-                },
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: Offset(0, 6),
-                        blurRadius: 0,
-                        spreadRadius: -2,
-                      ),
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: Offset(6, 0),
-                        blurRadius: 0,
-                        spreadRadius: -2,
-                      ),
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: Offset(6, 6),
-                        blurRadius: 0,
-                        spreadRadius: -2,
-                      ),
-                    ],
-                    color: const Color(0xFFD9FFCB),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.black, width: 1),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(
-                    Icons.bookmark,
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Saved()),
+              );
+            },
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                boxShadow: const [
+                  BoxShadow(
                     color: Colors.black,
-                    size: 28,
+                    offset: Offset(0, 6),
+                    blurRadius: 0,
+                    spreadRadius: -2,
                   ),
-                ),
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(6, 0),
+                    blurRadius: 0,
+                    spreadRadius: -2,
+                  ),
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(6, 6),
+                    blurRadius: 0,
+                    spreadRadius: -2,
+                  ),
+                ],
+                color: const Color(0xFFD9FFCB),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.black, width: 1),
               ),
-            ],
+              alignment: Alignment.center,
+              child: const Icon(Icons.bookmark, color: Colors.black, size: 28),
+            ),
           ),
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(0, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 0),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(6, 6),
-                      blurRadius: 0,
-                      spreadRadius: -2,
-                    ),
-                  ],
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: const Border(
-                    top: BorderSide(
-                      color: Color.fromARGB(255, 6, 7, 8),
-                      width: 1,
-                    ),
-                    left: BorderSide(
-                      color: Color.fromARGB(255, 6, 7, 8),
-                      width: 1,
-                    ),
-                    right: BorderSide(
-                      color: Color.fromARGB(255, 6, 7, 8),
-                      width: 2,
-                    ),
-                    bottom: BorderSide(
-                      color: Color.fromARGB(255, 6, 7, 8),
-                      width: 2,
-                    ),
-                  ),
+          Container(
+            decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(0, 6),
+                  blurRadius: 0,
+                  spreadRadius: -2,
                 ),
-                padding: const EdgeInsets.all(8),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatPage()),
-                    );
-                  },
-                  child: const Icon(
-                    Icons.chat_bubble_outline,
-                    color: Colors.black,
-                  ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(6, 0),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(6, 6),
+                  blurRadius: 0,
+                  spreadRadius: -2,
+                ),
+              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: const Border(
+                top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+                left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+                right: BorderSide(
+                  color: Color.fromARGB(255, 6, 7, 8),
+                  width: 2,
+                ),
+                bottom: BorderSide(
+                  color: Color.fromARGB(255, 6, 7, 8),
+                  width: 2,
                 ),
               ),
-              const SizedBox(width: 12),
-              // Builder(
-              //   builder: (context) => InkWell(
-              //     onTap: () => Scaffold.of(context).openEndDrawer(),
-              //     child: Container(
-              //       decoration: BoxDecoration(
-              //         boxShadow: const [
-              //           BoxShadow(
-              //             color: Colors.black,
-              //             offset: Offset(0, 6),
-              //             blurRadius: 0,
-              //             spreadRadius: -2,
-              //           ),
-              //           BoxShadow(
-              //             color: Colors.black,
-              //             offset: Offset(6, 0),
-              //             blurRadius: 0,
-              //             spreadRadius: -2,
-              //           ),
-              //           BoxShadow(
-              //             color: Colors.black,
-              //             offset: Offset(6, 6),
-              //             blurRadius: 0,
-              //             spreadRadius: -2,
-              //           ),
-              //         ],
-              //         color: Colors.white,
-              //         borderRadius: BorderRadius.circular(10),
-              //         border: const Border(
-              //           top: BorderSide(
-              //             color: Color.fromARGB(255, 6, 7, 8),
-              //             width: 1,
-              //           ),
-              //           left: BorderSide(
-              //             color: Color.fromARGB(255, 6, 7, 8),
-              //             width: 1,
-              //           ),
-              //           right: BorderSide(
-              //             color: Color.fromARGB(255, 6, 7, 8),
-              //             width: 2,
-              //           ),
-              //           bottom: BorderSide(
-              //             color: Color.fromARGB(255, 6, 7, 8),
-              //             width: 2,
-              //           ),
-              //         ),
-              //       ),
-              //       padding: const EdgeInsets.all(8),
-              //       child: Stack(
-              //         children: [
-              //           const Icon(
-              //             Icons.notifications_none,
-              //             color: Colors.black,
-              //           ),
-              //           if (notifications['msg'].isNotEmpty)
-              //             Positioned(
-              //               right: 0,
-              //               top: 0,
-              //               child: Container(
-              //                 padding: const EdgeInsets.all(2),
-              //                 decoration: BoxDecoration(
-              //                   color: Colors.red,
-              //                   borderRadius: BorderRadius.circular(10),
-              //                 ),
-              //                 constraints: const BoxConstraints(
-              //                   minWidth: 16,
-              //                   minHeight: 16,
-              //                 ),
-              //                 child: Text(
-              //                   '${notifications['msg'].length}',
-              //                   style: const TextStyle(
-              //                     color: Colors.white,
-              //                     fontSize: 10,
-              //                   ),
-              //                   textAlign: TextAlign.center,
-              //                 ),
-              //               ),
-              //             ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-            ],
+            ),
+            padding: const EdgeInsets.all(8),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatPage()),
+                );
+              },
+              child: const Icon(Icons.chat_bubble_outline, color: Colors.black),
+            ),
           ),
         ],
       ),
@@ -409,18 +229,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(covariant HomePage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _initAnimations();
-  }
-
-  @override
   void dispose() {
-    for (var c in _controllers) {
-      c.dispose();
-    }
-    _dragProgress.dispose();
-    _dragDirection.dispose();
+    _swiperController.dispose();
     super.dispose();
   }
 
@@ -432,8 +242,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Consumer<JobProvider>(
       builder: (context, jobProvider, child) {
-        final displayJobs = jobsToDisplayFormat(jobProvider.jobs);
-
         // Error handling
         if (jobProvider.errorMessage != null && !_hasShownError) {
           _hasShownError = true;
@@ -459,8 +267,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           _hasShownError = false;
         }
 
-        // Empty state
-        if (displayJobs.isEmpty && !jobProvider.isLoading) {
+        // Loading state
+        if (jobProvider.isLoading && jobProvider.jobs.isEmpty) {
           return Scaffold(
             backgroundColor: Colors.white,
             body: SafeArea(
@@ -486,26 +294,52 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
-                            Icons.work_off,
-                            size: 80,
-                            color: Colors.grey,
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 1500),
+                            builder: (context, value, child) {
+                              return Transform.scale(
+                                scale: 0.8 + (value * 0.2),
+                                child: Icon(
+                                  Icons.search,
+                                  size: 80,
+                                  color: Colors.black.withValues(
+                                    alpha: 0.3 + (value * 0.4),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            jobProvider.errorMessage ?? 'No jobs available',
-                            style: const TextStyle(
-                              fontSize: 18,
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Finding jobs for you...',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                              fontFamily: 'jost',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Hang tight! We\'re searching for the best opportunities',
+                            style: TextStyle(
+                              fontSize: 14,
                               color: Colors.grey,
+                              fontFamily: 'jost',
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              _signOut(context);
-                            },
-                            child: const Text('Retry'),
+                          const SizedBox(height: 24),
+                          const SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.black,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -517,337 +351,89 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           );
         }
 
-        // Loading state
-        if (jobProvider.isLoading && displayJobs.isEmpty) {
+        // Empty state
+        if (jobProvider.jobs.isEmpty && !jobProvider.isLoading) {
           return Scaffold(
             backgroundColor: Colors.white,
-
-            // In your HomePage, wrap the body content with RefreshIndicator
-            // Replace the body: SafeArea( section with this:
-            body: SafeArea(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  // ✅ Refresh jobs when user pulls down
-                  await context.read<JobProvider>().fetchJobs();
-                },
-                color: Colors.black, // Customize spinner color
-                backgroundColor: const Color(0xFFD9FFCB), // Match your theme
-                child: SingleChildScrollView(
-                  physics:
-                      const AlwaysScrollableScrollPhysics(), // ✅ Enable pull even when content doesn't scroll
-                  child: SizedBox(
-                    height:
-                        MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top,
-                    child: Column(
-                      children: [
-                        _buildTopBar(jobProvider),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
+            body: RefreshIndicator(
+              onRefresh: () async {
+                await context.read<JobProvider>().fetchJobs();
+              },
+              color: Colors.black,
+              backgroundColor: const Color(0xFFD9FFCB),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height:
+                      MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top,
+                  child: Column(
+                    children: [
+                      _buildTopBar(jobProvider),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "SWIPE AND PICK YOUR JOB",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              letterSpacing: 1,
+                            ),
                           ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "SWIPE AND PICK YOUR JOB",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                letterSpacing: 1,
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.work_off,
+                                size: 80,
+                                color: Colors.grey,
                               ),
-                            ),
+                              const SizedBox(height: 16),
+                              Text(
+                                jobProvider.errorMessage ?? 'No jobs available',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Pull down to refresh',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _retryFetchJobs,
+                                child: const Text('Retry'),
+                              ),
+                            ],
                           ),
                         ),
-
-                        // ✅ Card stack with ValueListenableBuilder
-                        Expanded(
-                          child: Center(
-                            child: SizedBox(
-                              width: cardWidth,
-                              height: cardHeight,
-                              child: displayJobs.length >= 3
-                                  ? ValueListenableBuilder<double>(
-                                      valueListenable: _dragProgress,
-                                      builder: (context, progress, _) {
-                                        return ValueListenableBuilder<
-                                          DismissDirection?
-                                        >(
-                                          valueListenable: _dragDirection,
-                                          builder: (context, direction, _) {
-                                            // ✅ Calculate transforms once
-                                            final nextScale =
-                                                0.95 + (0.03 * progress);
-                                            final nextTranslateY =
-                                                24 - (8 * progress);
-                                            final thirdScale =
-                                                0.90 + (0.03 * progress * 0.5);
-                                            final thirdTranslateY =
-                                                48 - (8 * progress * 0.5);
-                                            final topAngle =
-                                                (direction ==
-                                                        DismissDirection
-                                                            .startToEnd
-                                                    ? 1
-                                                    : direction ==
-                                                          DismissDirection
-                                                              .endToStart
-                                                    ? -1
-                                                    : 0) *
-                                                (0.20 * progress);
-
-                                            return Stack(
-                                              clipBehavior: Clip.none,
-                                              children: [
-                                                // 3rd card (back)
-                                                Transform.scale(
-                                                  scale: thirdScale,
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  child: Transform.translate(
-                                                    offset: Offset(
-                                                      0,
-                                                      thirdTranslateY,
-                                                    ),
-                                                    child: Transform.rotate(
-                                                      angle: 0.20,
-                                                      alignment:
-                                                          Alignment.bottomRight,
-                                                      child: _buildJobCard(
-                                                        displayJobs,
-                                                        _idx(
-                                                          2,
-                                                          displayJobs.length,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-
-                                                // 2nd card (middle)
-                                                Transform.scale(
-                                                  scale: nextScale,
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  child: Transform.translate(
-                                                    offset: Offset(
-                                                      0,
-                                                      nextTranslateY,
-                                                    ),
-                                                    child: Transform.rotate(
-                                                      angle: 0.10,
-                                                      alignment:
-                                                          Alignment.bottomRight,
-                                                      child: _buildJobCard(
-                                                        displayJobs,
-                                                        _idx(
-                                                          1,
-                                                          displayJobs.length,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-
-                                                // Top card (interactive)
-                                                Transform.rotate(
-                                                  angle: topAngle,
-                                                  child: Dismissible(
-                                                    key: ValueKey(
-                                                      'job_${_idx(0, displayJobs.length)}_$_topIndex',
-                                                    ),
-                                                    direction: DismissDirection
-                                                        .horizontal,
-                                                    dismissThresholds: const {
-                                                      DismissDirection
-                                                              .startToEnd:
-                                                          0.35,
-                                                      DismissDirection
-                                                              .endToStart:
-                                                          0.35,
-                                                    },
-                                                    onUpdate: (details) {
-                                                      _dragProgress.value =
-                                                          details.progress
-                                                              .clamp(0.0, 1.0);
-                                                      _dragDirection.value =
-                                                          details.direction;
-                                                    },
-                                                    onDismissed: (dismissDirection) {
-                                                      bool isLiked =
-                                                          dismissDirection ==
-                                                          DismissDirection
-                                                              .startToEnd;
-                                                      int currentIndex = _idx(
-                                                        0,
-                                                        displayJobs.length,
-                                                      );
-                                                      String jobId =
-                                                          displayJobs[currentIndex]['jobId'];
-                                                      String jobType =
-                                                          displayJobs[currentIndex]['jobType'] ??
-                                                          'company';
-
-                                                      if ((_topIndex + 1) %
-                                                              displayJobs
-                                                                  .length ==
-                                                          0) {
-                                                        print(
-                                                          "Reached last card! Fetching new jobs...",
-                                                        );
-                                                        context
-                                                            .read<JobProvider>()
-                                                            .fetchJobs();
-                                                      }
-
-                                                      _handleJobAction(
-                                                        jobId,
-                                                        jobType,
-                                                        isLiked,
-                                                      );
-
-                                                      setState(() {
-                                                        _topIndex =
-                                                            (_topIndex + 1) %
-                                                            displayJobs.length;
-                                                      });
-                                                      _dragProgress.value = 0.0;
-                                                      _dragDirection.value =
-                                                          null;
-                                                    },
-                                                    child: _buildJobCard(
-                                                      displayJobs,
-                                                      _idx(
-                                                        0,
-                                                        displayJobs.length,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                    )
-                                  : displayJobs.isNotEmpty
-                                  ? _buildJobCard(displayJobs, 0)
-                                  : const SizedBox.shrink(),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           );
         }
-        // ✅ Main content - Use ValueListenableBuilder for smooth animations
+
+        // Main content with Appinio Swiper
         return Scaffold(
           backgroundColor: Colors.white,
-          endDrawer: Drawer(
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    const DrawerHeader(
-                      decoration: BoxDecoration(color: Colors.blue),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Notifications',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: notifications['msg'].isEmpty
-                          ? const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.notifications_off,
-                                    size: 50,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    'No notifications',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: notifications['msg'].length,
-                              itemBuilder: (context, index) {
-                                return SlideTransition(
-                                  position: _animations[index],
-                                  child: Dismissible(
-                                    key: Key(
-                                      notifications['msg'][index] +
-                                          index.toString(),
-                                    ),
-                                    direction: DismissDirection.startToEnd,
-                                    onDismissed: (direction) {
-                                      setState(() {
-                                        notifications['msg'].removeAt(index);
-                                        notifications['week'].removeAt(index);
-                                      });
-                                    },
-                                    child: Card(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      child: ListTile(
-                                        leading: const Icon(Icons.work),
-                                        title: Text(
-                                          notifications['msg'][index],
-                                        ),
-                                        subtitle: Text(
-                                          notifications['week'][index],
-                                        ),
-                                        trailing: const Icon(
-                                          Icons.arrow_forward_ios,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-                if (notifications['msg'].isNotEmpty)
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton(
-                      onPressed: _slideAllAndRemove,
-                      child: const Icon(Icons.clear_all),
-                    ),
-                  ),
-              ],
-            ),
-          ),
           body: SafeArea(
             child: Column(
               children: [
@@ -866,157 +452,75 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-
-                // ✅ Card stack with ValueListenableBuilder
                 Expanded(
-                  child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 8,
+                      bottom: 100,
+                    ),
                     child: SizedBox(
                       width: cardWidth,
                       height: cardHeight,
-                      child: displayJobs.length >= 3
-                          ? ValueListenableBuilder<double>(
-                              valueListenable: _dragProgress,
-                              builder: (context, progress, _) {
-                                return ValueListenableBuilder<
-                                  DismissDirection?
-                                >(
-                                  valueListenable: _dragDirection,
-                                  builder: (context, direction, _) {
-                                    // ✅ Calculate transforms once
-                                    final nextScale = 0.95 + (0.03 * progress);
-                                    final nextTranslateY = 24 - (8 * progress);
-                                    final thirdScale =
-                                        0.90 + (0.03 * progress * 0.5);
-                                    final thirdTranslateY =
-                                        48 - (8 * progress * 0.5);
-                                    final topAngle =
-                                        (direction ==
-                                                DismissDirection.startToEnd
-                                            ? 1
-                                            : direction ==
-                                                  DismissDirection.endToStart
-                                            ? -1
-                                            : 0) *
-                                        (0.20 * progress);
-
-                                    return Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        // 3rd card (back)
-                                        Transform.scale(
-                                          scale: thirdScale,
-                                          alignment: Alignment.bottomRight,
-                                          child: Transform.translate(
-                                            offset: Offset(0, thirdTranslateY),
-                                            child: Transform.rotate(
-                                              angle: 0.20,
-                                              alignment: Alignment.bottomRight,
-                                              child: _buildJobCard(
-                                                displayJobs,
-                                                _idx(2, displayJobs.length),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                        // 2nd card (middle)
-                                        Transform.scale(
-                                          scale: nextScale,
-                                          alignment: Alignment.bottomRight,
-                                          child: Transform.translate(
-                                            offset: Offset(0, nextTranslateY),
-                                            child: Transform.rotate(
-                                              angle: 0.10,
-                                              alignment: Alignment.bottomRight,
-                                              child: _buildJobCard(
-                                                displayJobs,
-                                                _idx(1, displayJobs.length),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Top card (interactive)
-                                        Transform.rotate(
-                                          angle: topAngle,
-                                          child: Dismissible(
-                                            key: ValueKey(
-                                              'job_${_idx(0, displayJobs.length)}_$_topIndex',
-                                            ),
-                                            direction:
-                                                DismissDirection.horizontal,
-                                            dismissThresholds: const {
-                                              DismissDirection.startToEnd: 0.35,
-                                              DismissDirection.endToStart: 0.35,
-                                            },
-                                            onUpdate: (details) {
-                                              // ✅ Update ValueNotifiers instead of setState
-                                              _dragProgress.value = details
-                                                  .progress
-                                                  .clamp(0.0, 1.0);
-                                              _dragDirection.value =
-                                                  details.direction;
-                                            },
-                                            onDismissed: (dismissDirection) {
-                                              bool isLiked =
-                                                  dismissDirection ==
-                                                  DismissDirection.startToEnd;
-                                              int currentIndex = _idx(
-                                                0,
-                                                displayJobs.length,
-                                              );
-                                              String jobId =
-                                                  displayJobs[currentIndex]['jobId'];
-                                              String jobType =
-                                                  displayJobs[currentIndex]['jobType'] ??
-                                                  'company';
-
-                                              if ((_topIndex + 1) %
-                                                      displayJobs.length ==
-                                                  0) {
-                                                print(
-                                                  "Reached last card! Fetching new jobs...",
-                                                );
-                                                context
-                                                    .read<JobProvider>()
-                                                    .fetchJobs();
-                                              }
-
-                                              _handleJobAction(
-                                                jobId,
-                                                jobType,
-                                                isLiked,
-                                              );
-
-                                              // ✅ Reset and update index
-                                              setState(() {
-                                                _topIndex =
-                                                    (_topIndex + 1) %
-                                                    displayJobs.length;
-                                              });
-                                              _dragProgress.value = 0.0;
-                                              _dragDirection.value = null;
-                                            },
-                                            child: _buildJobCard(
-                                              displayJobs,
-                                              _idx(0, displayJobs.length),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                      child: Selector<JobProvider, List<Job>>(
+                        selector: (context, provider) => provider.jobs,
+                        builder: (context, jobs, child) {
+                          final displayJobs = jobsToDisplayFormat(jobs);
+                          return AppinioSwiper(
+                            controller: _swiperController,
+                            cardCount: displayJobs.length,
+                            onSwipeEnd:
+                                (
+                                  int previousIndex,
+                                  int targetIndex,
+                                  SwiperActivity activity,
+                                ) {
+                                  // Check if we're near the end
+                                  if (previousIndex >= displayJobs.length - 2) {
+                                    print(
+                                      "Near end of cards! Fetching new jobs...",
                                     );
-                                  },
-                                );
-                              },
-                            )
-                          : displayJobs.isNotEmpty
-                          ? _buildJobCard(displayJobs, 0)
-                          : const SizedBox.shrink(),
+                                    context.read<JobProvider>().fetchJobs();
+                                  }
+
+                                  // Handle job action
+                                  bool isLiked =
+                                      activity.direction == AxisDirection.right;
+                                  String jobId =
+                                      displayJobs[previousIndex]['jobId'];
+                                  String jobType =
+                                      displayJobs[previousIndex]['jobType'] ??
+                                      'company';
+
+                                  _handleJobAction(jobId, jobType, isLiked);
+                                },
+                            onEnd: () {
+                              print("All cards swiped!");
+                              context.read<JobProvider>().fetchJobs();
+                            },
+                            cardBuilder: (BuildContext context, int index) {
+                              return _buildJobCard(displayJobs, index);
+                            },
+                            // Customization options
+                            swipeOptions: const SwipeOptions.only(
+                              left: true,
+                              right: true,
+                            ),
+                            duration: const Duration(milliseconds: 200),
+                            maxAngle: 30,
+                            threshold: 80,
+                            isDisabled: false,
+                            backgroundCardCount: 2,
+                            backgroundCardScale: 0.92,
+                            backgroundCardOffset: const Offset(0, 27),
+                            loop: true,
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -1025,17 +529,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // ✅ Helper method to reduce code duplication
   Widget _buildJobCard(List<Map<String, dynamic>> jobs, int index) {
     final job = jobs[index];
 
-    // ✅ Convert perks to List<String>
     List<String> perksList = [];
     if (job['perks'] != null) {
       if (job['perks'] is List) {
         perksList = List<String>.from(job['perks']);
       } else if (job['perks'] is String) {
-        // If it's a string, split by newlines or commas
         String perksString = job['perks'];
         perksList = perksString
             .split('\n')
@@ -1070,7 +571,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       recruiter: job['recruiter'] as Map<String, dynamic>?,
       about: job['about'] ?? 'description not available',
       salaryRange: job['salaryRange'] ?? 'salary not available',
-      perks: perksList, // ✅ Pass as List<String>
+      perks: perksList,
     );
   }
 }

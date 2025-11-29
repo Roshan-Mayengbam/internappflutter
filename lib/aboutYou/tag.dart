@@ -571,25 +571,25 @@ class _TagPageState extends State<TagPage> {
         children: [
           const SizedBox(height: 80), // space for profile image
           // Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text(
-              widget.uploadResume.name.isNotEmpty
-                  ? widget.uploadResume.name
-                  : 'Your Name',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          //   child: Text(
+          //     widget.uploadResume.name.isNotEmpty
+          //         ? widget.uploadResume.name
+          //         : 'Your Name',
+          //     style: const TextStyle(
+          //       fontSize: 24,
+          //       fontWeight: FontWeight.bold,
+          //       color: Colors.black,
+          //     ),
+          //     textAlign: TextAlign.center,
+          //     maxLines: 2,
+          //     overflow: TextOverflow.ellipsis,
+          //   ),
+          // ),
           const SizedBox(height: 24),
           // Info rows
-          _buildInfoRow('Role', widget.uploadResume.role),
+          _buildInfoRow('Name', widget.uploadResume.name),
           _buildInfoRow('Email', widget.uploadResume.email),
           _buildInfoRow('Phone', widget.uploadResume.phone),
           _buildInfoRow('College', widget.uploadResume.collegeName),

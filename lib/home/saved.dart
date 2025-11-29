@@ -318,14 +318,14 @@ class _SavedState extends State<Saved> {
                             buttonIcon: Icons.arrow_back,
                           ),
                         ),
-                        Expanded(
-                          child: CustomAppBar(
-                            searchController: TextEditingController(),
-                            onSearchSubmit: (value) {},
-                            onChatPressed: () {},
-                            onNotificationPressed: () {},
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: CustomAppBar(
+                        //     searchController: TextEditingController(),
+                        //     onSearchSubmit: (value) {},
+                        //     onChatPressed: () {},
+                        //     onNotificationPressed: () {},
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -399,6 +399,7 @@ class _SavedState extends State<Saved> {
                           ),
                         );
                       },
+                      isHackathonPage: false,
                     ),
 
                     const SizedBox(height: 20),

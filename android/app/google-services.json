@@ -46,6 +46,14 @@
           }
         },
         {
+          "client_id": "730899264601-ohuashlpvi33elcc8sn0bqqnef2hj1me.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myapp.hyrup",
+            "certificate_hash": "8a4601364c52c9f5ff45a2987af108b3cc8ea1f4"
+          }
+        },
+        {
           "client_id": "730899264601-a2t1c4p9njffva1g025acq3va394h039.apps.googleusercontent.com",
           "client_type": 3
         }

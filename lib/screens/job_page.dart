@@ -359,6 +359,7 @@ class _JobPageState extends State<JobPage> {
                   filters: hackathonFilters,
                   selectedFilter: selectedHackathonFilter,
                   isAppliedSection: false,
+                  isHackathonPage: true,
                   onFilterTap: (filter) {
                     setState(() {
                       selectedHackathonFilter = filter;

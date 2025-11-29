@@ -1,14 +1,16 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:internappflutter/aboutYou/tag.dart';
 import 'package:internappflutter/auth/courserange.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
 class UploadScreen extends StatefulWidget {
-  final UserProject? userProject; // ✅ Add proper field declaration
+  final UserProject? userProject;
   const UploadScreen({super.key, required this.userProject});
 
   @override
@@ -19,19 +21,86 @@ class _UploadScreenState extends State<UploadScreen> {
   File? pickedPhotoFile;
   File? pickedResumeFile;
 
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  // Request necessary permissions
+  Future<void> _requestPermissions() async {
+    if (Platform.isAndroid) {
+      // Check Android version
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+
+      if (androidInfo.version.sdkInt >= 33) {
+        // Android 13+ - Request granular media permissions
+        await [Permission.photos, Permission.videos].request();
+      } else if (androidInfo.version.sdkInt >= 30) {
+        // Android 11-12 - Request storage permission
+        await Permission.storage.request();
+
+        // If denied, request manage external storage
+        if (await Permission.storage.isDenied) {
+          await Permission.manageExternalStorage.request();
+        }
+      } else {
+        // Android 10 and below
+        await Permission.storage.request();
+      }
+    }
+  }
+
+  // Check if permissions are granted
+  Future<bool> _checkPermissions() async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+
+      if (androidInfo.version.sdkInt >= 33) {
+        // Android 13+
+        return await Permission.photos.isGranted;
+      } else {
+        // Android 12 and below
+        return await Permission.storage.isGranted ||
+            await Permission.manageExternalStorage.isGranted;
+      }
+    }
+    return true; // iOS doesn't need these permissions for file_picker
+  }
+
   Future<void> _pickPhoto() async {
+    // Check permissions first
+    bool hasPermission = await _checkPermissions();
+
+    if (!hasPermission) {
+      // Show permission dialog
+      bool? shouldRequest = await _showPermissionDialog(
+        'Photo Access',
+        'This app needs permission to access your photos to upload a profile picture.',
+      );
+
+      if (shouldRequest == true) {
+        await _requestPermissions();
+        hasPermission = await _checkPermissions();
+      }
+
+      if (!hasPermission) {
+        _showPermissionDeniedSnackBar('photo');
+        return;
+      }
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'png'],
-      withData: true, // ensures file size info is available
+      allowedExtensions: ['jpg', 'png', 'jpeg'],
+      withData: true,
     );
 
     if (result != null) {
       final fileBytes = result.files.single.bytes;
       final filePath = result.files.single.path;
 
-      // 5 MB = 5 * 1024 * 1024 bytes
-      const maxFileSize = 5 * 1024 * 1024;
+      const maxFileSize = 5 * 1024 * 1024; // 5 MB
 
       if (fileBytes != null && fileBytes.length > maxFileSize) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -52,18 +121,18 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future<void> _pickResume() async {
+    // File picker doesn't need special permissions for documents on most Android versions
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'docx'],
-      withData: true, // Needed to check file size
+      withData: true,
     );
 
     if (result != null) {
       final fileBytes = result.files.single.bytes;
       final filePath = result.files.single.path;
 
-      // 5 MB = 5 * 1024 * 1024 bytes
-      const maxFileSize = 5 * 1024 * 1024;
+      const maxFileSize = 5 * 1024 * 1024; // 5 MB
 
       if (fileBytes != null && fileBytes.length > maxFileSize) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,11 +152,50 @@ class _UploadScreenState extends State<UploadScreen> {
     }
   }
 
+  // Show permission dialog
+  Future<bool?> _showPermissionDialog(String title, String message) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Grant Permission'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show permission denied snackbar
+  void _showPermissionDeniedSnackBar(String fileType) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Permission denied. Cannot access $fileType.'),
+        backgroundColor: Colors.redAccent,
+        action: SnackBarAction(
+          label: 'Settings',
+          textColor: Colors.white,
+          onPressed: () {
+            openAppSettings(); // Opens app settings
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -118,7 +226,6 @@ class _UploadScreenState extends State<UploadScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -127,13 +234,11 @@ class _UploadScreenState extends State<UploadScreen> {
                     height: 150,
                     child: Image.asset('assets/bear.gif', fit: BoxFit.fill),
                   ),
-
                   Expanded(
                     child: Container(
                       width: double.infinity,
                       child: Stack(
-                        alignment:
-                            Alignment.center, // centers children in the stack
+                        alignment: Alignment.center,
                         children: [
                           Image.asset(
                             'assets/text.png',
@@ -147,9 +252,7 @@ class _UploadScreenState extends State<UploadScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-
               const SizedBox(height: 25),
-
               FileUploadWidget(
                 onTap: _pickPhoto,
                 file: pickedPhotoFile,
@@ -158,7 +261,6 @@ class _UploadScreenState extends State<UploadScreen> {
                 text2: 'PNG',
                 text3: '<1mb',
               ),
-
               if (pickedPhotoFile != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -166,9 +268,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     'Photo selected: ${pickedPhotoFile!.path.split('/').last}',
                   ),
                 ),
-
               const SizedBox(height: 25),
-
               FileUploadWidget(
                 onTap: _pickResume,
                 file: pickedResumeFile,
@@ -177,6 +277,13 @@ class _UploadScreenState extends State<UploadScreen> {
                 text2: 'DOCX',
                 text3: '<3mb',
               ),
+              if (pickedResumeFile != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Resume selected: ${pickedResumeFile!.path.split('/').last}',
+                  ),
+                ),
             ],
           ),
         ),
@@ -189,7 +296,6 @@ class _UploadScreenState extends State<UploadScreen> {
             if (widget.userProject != null &&
                 pickedPhotoFile != null &&
                 pickedResumeFile != null) {
-              // Create a new UploadResume instance
               final uploadResume = UploadResume(
                 profilePic: pickedPhotoFile!.path,
                 resumeFile: pickedResumeFile!.path,
@@ -214,7 +320,6 @@ class _UploadScreenState extends State<UploadScreen> {
                 preferences: widget.userProject!.preferences,
               );
 
-              // ✅ Print everything
               print('--- UploadResume Details ---');
               print('Profile Pic: ${uploadResume.profilePic}');
               print('Resume File: ${uploadResume.resumeFile}');
@@ -227,7 +332,7 @@ class _UploadScreenState extends State<UploadScreen> {
               print('Description: ${uploadResume.description}');
               print('Year: ${uploadResume.year}');
               print('Name: ${uploadResume.name}');
-              print('Name: ${uploadResume.phone}');
+              print('Phone: ${uploadResume.phone}');
               print('Email: ${uploadResume.email}');
               print('UID: ${uploadResume.uid}');
               print('Role: ${uploadResume.role}');
@@ -258,7 +363,6 @@ class _UploadScreenState extends State<UploadScreen> {
               );
             }
           },
-
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFB6A5FE),
             foregroundColor: Colors.white,
@@ -276,8 +380,6 @@ class _UploadScreenState extends State<UploadScreen> {
     );
   }
 }
-
-// TagPage({File? profileImage, required userModel}) {}
 
 class FileUploadWidget extends StatelessWidget {
   final File? file;
@@ -338,7 +440,6 @@ class FileUploadWidget extends StatelessWidget {
                   ),
                 ],
               ),
-
               child: _buildUploadPrompt(
                 primaryPurple,
                 lightGreyText,

@@ -17,22 +17,35 @@ class BottomnavbarAlternative extends StatefulWidget {
 class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomePage(userData: null),
-    ExplorePage(),
-    const JobPage(),
-    const ProfileScreenPage(),
-  ];
+  // Initialize pages once to prevent rebuilding and API calls
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create pages only once when widget initializes
+    _pages = [
+      const HomePage(userData: null),
+      ExplorePage(),
+      const JobPage(),
+      const ProfileScreenPage(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      // Make body transparent by wrapping in a stack
+      body: IndexedStack(index: _selectedIndex, children: _pages),
+      // Remove background color from scaffold
+      extendBody: true, // Extend body behind bottom nav bar
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 70, // Slightly increased height for better proportion
+          height: 70,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Center(
+          color: Colors.transparent, // Make container transparent
+          child: Align(
+            alignment: Alignment.bottomCenter,
             child: Container(
               width: 220,
               height: 56,

@@ -213,7 +213,13 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                 ),
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 120, // ✅ Added bottom padding to prevent overlap
+                  ),
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

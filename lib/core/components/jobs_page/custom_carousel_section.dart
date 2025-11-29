@@ -10,7 +10,8 @@ class CustomCarouselSection extends StatelessWidget {
   final String selectedFilter;
   final Function(String) onFilterTap;
   final bool statusPage;
-  final bool isAppliedSection; // NEW: Flag to identify Applied Jobs section
+  final bool isAppliedSection;
+  final bool isHackathonPage; // Changed from final with default value
   final List<Map<String, dynamic>> items;
   final VoidCallback? onViewMore;
   final Function(Map<String, dynamic>)? onItemTap;
@@ -25,6 +26,7 @@ class CustomCarouselSection extends StatelessWidget {
     required this.items,
     this.statusPage = false,
     this.isAppliedSection = false,
+    this.isHackathonPage = false, // Add default value here
     this.onViewMore,
     this.onItemTap,
     required Null Function(String p1) onCarouselTap,
@@ -110,7 +112,9 @@ class CustomCarouselSection extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          subtitle.toLowerCase().contains('saved')
+                          isHackathonPage
+                              ? Icons.emoji_events_outlined
+                              : subtitle.toLowerCase().contains('saved')
                               ? Icons.bookmark_border
                               : Icons.work_outline,
                           size: 80,
@@ -118,7 +122,9 @@ class CustomCarouselSection extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          subtitle.toLowerCase().contains('saved')
+                          isHackathonPage
+                              ? 'No hackathons available'
+                              : subtitle.toLowerCase().contains('saved')
                               ? 'No saved jobs yet'
                               : 'No applied jobs yet',
                           textAlign: TextAlign.center,
@@ -156,12 +162,11 @@ class CustomCarouselSection extends StatelessWidget {
                                       : (item["applied"] ?? false)
                                       ? "Applied"
                                       : "Not Applied")
-                                : item["location"], // For Job/Hackathon pages, show location
+                                : item["location"],
                             tag2: isAppliedSection
-                                ? null // No second tag for Applied section
+                                ? null
                                 : item['experienceLevel'],
-                            statusCard:
-                                isAppliedSection, // Single tag mode for applied
+                            statusCard: isAppliedSection,
                             location: item["location"],
                           ),
                         ),

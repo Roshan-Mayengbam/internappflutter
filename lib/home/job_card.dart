@@ -84,54 +84,57 @@ class _JobCardState extends State<JobCard> {
     final cardPadding = screenWidth * 0.03;
     final borderRadius = screenWidth * 0.05;
 
-    return Material(
-      color: Colors.transparent,
-      child: Stack(
-        children: [
-          Card(
-            elevation: 0,
-            shadowColor: Colors.transparent,
-            color: const Color.fromRGBO(230, 211, 252, 1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
+    return RepaintBoundary(
+      // Wrap entire card
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          children: [
+            Card(
+              elevation: 0,
+              shadowColor: Colors.transparent,
+              color: const Color.fromRGBO(230, 211, 252, 1),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius),
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.black,
-                    width: screenWidth * 0.005,
-                  ),
-                  left: BorderSide(
-                    color: Colors.black,
-                    width: screenWidth * 0.005,
-                  ),
-                  right: BorderSide(
-                    color: Colors.black,
-                    width: screenWidth * 0.012,
-                  ),
-                  bottom: BorderSide(
-                    color: Colors.black,
-                    width: screenWidth * 0.01,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.005,
+                    ),
+                    left: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.005,
+                    ),
+                    right: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.012,
+                    ),
+                    bottom: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.01,
+                    ),
                   ),
                 ),
-              ),
-              padding: EdgeInsets.all(cardPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPosterCard(screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.015),
-                  _buildJobTitleSection(screenWidth),
-                  SizedBox(height: screenHeight * 0.015),
-                  _buildInfoSection(screenWidth),
-                ],
+                padding: EdgeInsets.all(cardPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPosterCard(screenWidth, screenHeight),
+                    SizedBox(height: screenHeight * 0.015),
+                    _buildJobTitleSection(screenWidth),
+                    SizedBox(height: screenHeight * 0.015),
+                    _buildInfoSection(screenWidth),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (widget.tagLabel != null) _buildTag(screenWidth),
-        ],
+            if (widget.tagLabel != null) _buildTag(screenWidth),
+          ],
+        ),
       ),
     );
   }
@@ -159,146 +162,120 @@ class _JobCardState extends State<JobCard> {
   }
 
   Widget _buildPosterCard(double screenWidth, double screenHeight) {
-    return InkWell(
-      onTap: () {
-        print('--- Job Details ---');
-        print('Job Title: ${widget.jobTitle}');
-        print('Company Name: ${widget.companyName}');
-        print('About: ${widget.about}'); // ✅ Add this
-        print('Location: ${widget.location}');
-        print('Experience Level: ${widget.experienceLevel}');
-        print('Requirements: ${widget.requirements}');
-        print('Website URL: ${widget.websiteUrl}');
-        print('Tag Label: ${widget.tagLabel}');
-        print('Employment Type: ${widget.employmentType}');
-        print('Roles & Responsibilities: ${widget.rolesAndResponsibilities}');
-        print('Duration: ${widget.duration}');
-        print('Stipend: ${widget.stipend}');
-        print('Details: ${widget.details}');
-        print('No. of Openings: ${widget.noOfOpenings}');
-        print('Mode: ${widget.mode}');
-        print('Skills: ${widget.skills}');
-        print('ID: ${widget.id}');
-        print('Job Type: ${widget.jobType}');
-        print('Recruiter: ${widget.recruiter}');
-        print('Salary Range: ${widget.salaryRange}');
-        print('Perks: ${widget.perks}');
-        print('-------------------');
-
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => Carddetails(
-              jobTitle: widget.jobTitle,
-              companyName: widget.companyName,
-              about: widget.about, // ✅ Pass it here
-              location: widget.location,
-              experienceLevel: widget.experienceLevel,
-              requirements: widget.requirements,
-              websiteUrl: widget.websiteUrl,
-              tagLabel: widget.tagLabel,
-              employmentType: widget.employmentType,
-              rolesAndResponsibilities: widget.rolesAndResponsibilities,
-              duration: widget.duration,
-              stipend: widget.stipend,
-              details: widget.details,
-              noOfOpenings: widget.noOfOpenings,
-              mode: widget.mode,
-              skills: widget.skills,
-              id: widget.id,
-              jobType: widget.jobType,
-              recruiter: widget.recruiter,
-              salaryRange: widget.salaryRange,
-              perks: [...widget.perks],
-            ),
-          ),
-        );
-      },
-      child: Container(
-        padding: EdgeInsets.all(screenWidth * 0.04),
-        decoration: BoxDecoration(
-          color: const Color(0xFF4B20C2),
-          borderRadius: BorderRadius.circular(screenWidth * 0.04),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHiringTag(screenWidth),
-            SizedBox(height: screenHeight * 0.015),
-            Text(
-              widget.jobTitle,
-              style: TextStyle(
-                color: const Color(0xFFF9A825),
-                fontSize: screenWidth * 0.065,
-                fontWeight: FontWeight.bold,
-                height: 1.2,
+    return RepaintBoundary(
+      // Isolate repaints
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => Carddetails(
+                jobTitle: widget.jobTitle,
+                companyName: widget.companyName,
+                about: widget.about,
+                location: widget.location,
+                experienceLevel: widget.experienceLevel,
+                requirements: widget.requirements,
+                websiteUrl: widget.websiteUrl,
+                tagLabel: widget.tagLabel,
+                employmentType: widget.employmentType,
+                rolesAndResponsibilities: widget.rolesAndResponsibilities,
+                duration: widget.duration,
+                stipend: widget.stipend,
+                details: widget.details,
+                noOfOpenings: widget.noOfOpenings,
+                mode: widget.mode,
+                skills: widget.skills,
+                id: widget.id,
+                jobType: widget.jobType,
+                recruiter: widget.recruiter,
+                salaryRange: widget.salaryRange,
+                perks: [...widget.perks],
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: screenHeight * 0.015),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: screenHeight * 0.25),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...widget.requirements
-                        .take(3)
-                        .map((req) => _buildRequirementRow(req, screenWidth))
-                        .toList(),
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.all(screenWidth * 0.04),
+          decoration: BoxDecoration(
+            color: const Color(0xFF4B20C2),
+            borderRadius: BorderRadius.circular(screenWidth * 0.04),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHiringTag(screenWidth),
+              SizedBox(height: screenHeight * 0.015),
+              Text(
+                widget.jobTitle,
+                style: TextStyle(
+                  color: const Color(0xFFF9A825),
+                  fontSize: screenWidth * 0.065,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: screenHeight * 0.015),
+              // Use Column instead of ConstrainedBox + SingleChildScrollView
+              // for better performance when showing only 3 items
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...widget.requirements
+                      .take(3)
+                      .map((req) => _buildRequirementRow(req, screenWidth)),
 
-                    // Show "Show more..." button if there are more than 3 requirements
-                    if (widget.requirements.length > 3)
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Carddetails(
-                                jobTitle: widget.jobTitle,
-                                companyName: widget.companyName,
-                                about: widget.about, // ✅ Pass it here too
-                                location: widget.location,
-                                experienceLevel: widget.experienceLevel,
-                                requirements: widget.requirements,
-                                websiteUrl: widget.websiteUrl,
-                                tagLabel: widget.tagLabel,
-                                employmentType: widget.employmentType,
-                                rolesAndResponsibilities:
-                                    widget.rolesAndResponsibilities,
-                                duration: widget.duration,
-                                stipend: widget.stipend,
-                                details: widget.details,
-                                noOfOpenings: widget.noOfOpenings,
-                                mode: widget.mode,
-                                skills: widget.skills,
-                                id: widget.id,
-                                jobType: widget.jobType,
-                                recruiter: widget.recruiter,
-                                salaryRange: widget.salaryRange,
-                                perks: [...widget.perks],
-                              ),
+                  if (widget.requirements.length > 3)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Carddetails(
+                              jobTitle: widget.jobTitle,
+                              companyName: widget.companyName,
+                              about: widget.about,
+                              location: widget.location,
+                              experienceLevel: widget.experienceLevel,
+                              requirements: widget.requirements,
+                              websiteUrl: widget.websiteUrl,
+                              tagLabel: widget.tagLabel,
+                              employmentType: widget.employmentType,
+                              rolesAndResponsibilities:
+                                  widget.rolesAndResponsibilities,
+                              duration: widget.duration,
+                              stipend: widget.stipend,
+                              details: widget.details,
+                              noOfOpenings: widget.noOfOpenings,
+                              mode: widget.mode,
+                              skills: widget.skills,
+                              id: widget.id,
+                              jobType: widget.jobType,
+                              recruiter: widget.recruiter,
+                              salaryRange: widget.salaryRange,
+                              perks: [...widget.perks],
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 0.0),
-                          child: Text(
-                            'Show more...',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 0.0),
+                        child: Text(
+                          'Show more...',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-            ),
-            SizedBox(height: screenHeight * 0.02),
-            _buildWebsiteButton(screenWidth),
-          ],
+              SizedBox(height: screenHeight * 0.02),
+              _buildWebsiteButton(screenWidth),
+            ],
+          ),
         ),
       ),
     );

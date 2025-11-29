@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;
 import 'package:internappflutter/chat/fileshow.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -50,27 +52,174 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  Future<bool> _requestPermissions() async {
+    try {
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        final sdkInt = androidInfo.version.sdkInt;
+
+        print('📱 Android SDK: $sdkInt');
+
+        if (sdkInt >= 33) {
+          // Android 13+ (API 33+) - Request granular media permissions
+          print('📋 Requesting media permissions for Android 13+');
+
+          Map<Permission, PermissionStatus> statuses = await [
+            Permission.photos,
+            Permission.videos,
+            Permission.audio,
+          ].request();
+
+          bool hasAnyPermission = statuses.values.any(
+            (status) => status.isGranted,
+          );
+
+          if (!hasAnyPermission) {
+            // Check if permanently denied
+            bool permanentlyDenied = statuses.values.any(
+              (status) => status.isPermanentlyDenied,
+            );
+            if (permanentlyDenied) {
+              _showPermissionDialog();
+              return false;
+            }
+          }
+
+          return hasAnyPermission;
+        } else if (sdkInt >= 30) {
+          // Android 11-12 (API 30-32)
+          print('📋 Requesting storage permission for Android 11-12');
+
+          final status = await Permission.storage.request();
+
+          if (status.isDenied) {
+            return false;
+          } else if (status.isPermanentlyDenied) {
+            _showPermissionDialog();
+            return false;
+          }
+
+          return status.isGranted;
+        } else {
+          // Android 10 and below (API 29 and below)
+          print('📋 Requesting storage permission for Android 10 and below');
+
+          final status = await Permission.storage.request();
+
+          if (status.isDenied) {
+            return false;
+          } else if (status.isPermanentlyDenied) {
+            _showPermissionDialog();
+            return false;
+          }
+
+          return status.isGranted;
+        }
+      } else if (Platform.isIOS) {
+        // iOS - Request photos permission
+        print('📋 Requesting photos permission for iOS');
+
+        final status = await Permission.photos.request();
+
+        if (status.isDenied) {
+          return false;
+        } else if (status.isPermanentlyDenied) {
+          _showPermissionDialog();
+          return false;
+        }
+
+        return status.isGranted;
+      }
+
+      // Other platforms - assume permission granted
+      return true;
+    } catch (e) {
+      print('❌ Error requesting permissions: $e');
+      return false;
+    }
+  }
+
+  void _showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+            'This app needs access to your files and media to send attachments. '
+            'Please grant permission in your device settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _pickFile() async {
     try {
+      print('🔍 Starting file picker...');
+
+      // Request permissions first
+      final hasPermission = await _requestPermissions();
+
+      if (!hasPermission) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Permission denied. Cannot access files.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      print('✅ Permissions granted. Opening file picker...');
+
+      // Pick file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
+        allowMultiple: false,
       );
 
       if (result != null && result.files.isNotEmpty) {
         final picked = result.files.first;
-        final filePath = picked.path!;
-        final file = File(filePath);
+        final filePath = picked.path;
 
+        if (filePath == null) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to access the selected file'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        final file = File(filePath);
         final mimeType = lookupMimeType(filePath) ?? '';
 
-        print('📄 Picked file: ${picked.name}');
-        print('📂 MIME type: $mimeType');
-        print('📏 File size: ${(picked.size / 1024).toStringAsFixed(2)} KB');
+        print('📄 File selected: ${picked.name}, type: $mimeType');
 
         if (mimeType.startsWith('image/') || mimeType.startsWith('video/')) {
-          Navigator.of(context).push(
+          if (!mounted) return;
+          Navigator.push(
+            context,
             MaterialPageRoute(
-              builder: (context) => Fileshow(
+              builder: (_) => Fileshow(
                 file: file,
                 currentUserId: widget.currentUserId,
                 otherUserId: widget.otherUserId,
@@ -79,18 +228,32 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           );
         } else {
-          print('Selected file is not image/video. Uploading file...');
           await _uploadAndSendFile(file, picked.name, mimeType);
         }
       } else {
-        print('No file selected.');
+        print('❌ No file selected');
       }
     } catch (e) {
-      print('❌ Error picking file: $e');
+      print('❌ File picker error: $e');
+
+      if (!mounted) return;
+
+      String errorMessage = 'Failed to pick file';
+      final errString = e.toString().toLowerCase();
+
+      if (errString.contains('permission')) {
+        errorMessage =
+            'Permission denied. Please grant file access permission.';
+      } else if (errString.contains('pick') ||
+          errString.contains('filepicker')) {
+        errorMessage = 'Failed to open file picker';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error picking file: $e'),
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -137,6 +300,7 @@ class _ChatScreenState extends State<ChatScreen> {
         mimeType: mimeType,
       );
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('File sent successfully!'),
@@ -145,6 +309,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } on FirebaseAuthException catch (e) {
       print('❌ Auth Error: ${e.code} - ${e.message}');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Authentication error: ${e.message}'),
@@ -153,6 +318,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } on FirebaseException catch (e) {
       print('❌ Firebase Error: ${e.code} - ${e.message}');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Upload error: ${e.message}'),
@@ -161,6 +327,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } catch (e) {
       print('❌ Error uploading file: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error uploading file: $e'),
@@ -168,9 +335,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isUploadingFile = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isUploadingFile = false;
+        });
+      }
     }
   }
 
@@ -180,7 +349,6 @@ class _ChatScreenState extends State<ChatScreen> {
     required String mimeType,
   }) async {
     try {
-      // Determine type based on mime type
       String messageType = 'file';
       if (mimeType.startsWith('image/')) {
         messageType = 'image';
@@ -246,13 +414,13 @@ class _ChatScreenState extends State<ChatScreen> {
       await _firestore.collection('chats').doc(chatId).set({
         'users': [widget.currentUserId, widget.otherUserId],
         'otherusername': widget.otherUserName,
-
         'lastMessage': message,
         'lastMessageTime': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error sending message: $e')));
@@ -262,11 +430,13 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       });
     }
   }
@@ -352,45 +522,20 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Icon(Icons.person, color: Colors.white),
             ),
             const SizedBox(width: 12),
-            Text(
-              widget.otherUserName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis, // or fade, clip
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-
-                fontWeight: FontWeight.w500,
+            Expanded(
+              child: Text(
+                widget.otherUserName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
         ),
-        // actions: [
-        //   Container(
-        //     margin: const EdgeInsets.all(8),
-        //     decoration: BoxDecoration(
-        //       border: Border.all(color: Colors.black, width: 2),
-        //       borderRadius: BorderRadius.circular(12),
-        //     ),
-        //     child: IconButton(
-        //       icon: const Icon(Icons.search, color: Colors.black),
-        //       onPressed: () {},
-        //       padding: EdgeInsets.zero,
-        //     ),
-        //   ),
-        //   Container(
-        //     margin: const EdgeInsets.all(8),
-        //     decoration: BoxDecoration(
-        //       border: Border.all(color: Colors.black, width: 2),
-        //       borderRadius: BorderRadius.circular(12),
-        //     ),
-        //     child: IconButton(
-        //       icon: const Icon(Icons.more_vert, color: Colors.black),
-        //       onPressed: () {},
-        //       padding: EdgeInsets.zero,
-        //     ),
-        //   ),
-        // ],
       ),
       body: Column(
         children: [
@@ -729,10 +874,10 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Column(
         children: [
           if (_isUploadingFile)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
               child: Row(
-                children: const [
+                children: [
                   SizedBox(
                     width: 16,
                     height: 16,

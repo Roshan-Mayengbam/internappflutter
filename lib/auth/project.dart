@@ -133,21 +133,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   void _navigateToNext() {
-    if (savedProjects.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one project before continuing.'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
+    // Validation removed to make project optional
     // If form is started but not complete, show dialog
-    if (_isFormStarted && !isFormComplete) {
-      _showIncompleteFormDialog();
-      return;
-    }
+
 
     // Create UserProject model from the most recent project (if any)
     UserProject? userProject;
@@ -161,12 +149,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
           projectLink: latestProject['link']!,
           projectDescription: latestProject['desc']!,
         );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UploadScreen(userProject: userProject),
-          ),
-        );
       } else {
         // Create a UserProject with empty project fields
         userProject = UserProject.fromUserExperience(
@@ -176,6 +158,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
           projectDescription: '',
         );
       }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UploadScreen(userProject: userProject!),
+        ),
+      );
 
       // Debug print all fields
       print("---- Navigating to UploadScreen ----");
@@ -362,14 +351,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
                   /// Input Fields
                   _buildInputBox(
-                    "Project Name *",
+                    "Project Name",
                     projectNameController,
                     "Write the name of the Project",
                   ),
                   const SizedBox(height: 16),
 
                   _buildInputBox(
-                    "Link *",
+                    "Link",
                     linkController,
                     "Paste the link of your project",
                   ),
@@ -590,7 +579,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Description *",
+          "Description",
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
         const SizedBox(height: 8),

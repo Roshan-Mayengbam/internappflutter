@@ -18,7 +18,7 @@ class Collegedetails extends StatefulWidget {
 
 class _CollegedetailsState extends State<Collegedetails> {
   int filledFields = 0;
-  final int totalFields = 4; // Changed from 3 to 4
+  final int totalFields = 3; // Changed from 3 to 4
 
   String? selectedCollege;
   String? selectedUniversity;
@@ -270,11 +270,6 @@ class _CollegedetailsState extends State<Collegedetails> {
       selectedCollege = college['name'];
       _collegeSearchController.text = college['name'];
       _showCollegeDropdown = false;
-
-      if (college['domain'] != null && _emailController.text.isEmpty) {
-        _emailController.text = 'student@${college['domain']}';
-        selectedEmailId = _emailController.text;
-      }
     });
     updateProgress();
   }
@@ -284,8 +279,7 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege != null) count++;
     if (selectedUniversity != null) count++;
     if (selectedDegree != null) count++;
-    if (selectedEmailId != null && selectedEmailId!.isNotEmpty)
-      count++; // Added email check
+
     setState(() {
       filledFields = count;
     });
@@ -294,9 +288,7 @@ class _CollegedetailsState extends State<Collegedetails> {
   bool get isFormComplete {
     return selectedCollege != null &&
         selectedUniversity != null &&
-        selectedDegree != null &&
-        selectedEmailId != null &&
-        selectedEmailId!.isNotEmpty; // Added email check
+        selectedDegree != null;
   }
 
   void showValidationMessage() {
@@ -304,8 +296,8 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege == null) missingFields.add('College Name');
     if (selectedUniversity == null) missingFields.add('University');
     if (selectedDegree == null) missingFields.add('Degree');
-    if (selectedEmailId == null || selectedEmailId!.isEmpty)
-      missingFields.add('College Email'); // Added email
+    // if (selectedEmailId == null || selectedEmailId!.isEmpty)
+    //   missingFields.add('College Email'); // Added email
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -693,7 +685,7 @@ class _CollegedetailsState extends State<Collegedetails> {
 
                         // College Email ID (Now Required)
                         Text(
-                          'College Email ID *',
+                          'College Email ID ',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -725,7 +717,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
-                              filled: true,
+                              // filled: true,
                               fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -741,16 +733,16 @@ class _CollegedetailsState extends State<Collegedetails> {
                               });
                               updateProgress();
                             },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'College email is required';
-                              }
-                              if (!value.contains('@') ||
-                                  !value.contains('.')) {
-                                return 'Enter a valid email address';
-                              }
-                              return null;
-                            },
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) {
+                            //     return 'College email is required';
+                            //   }
+                            //   if (!value.contains('@') ||
+                            //       !value.contains('.')) {
+                            //     return 'Enter a valid email address';
+                            //   }
+                            //   return null;
+                            // },
                           ),
                         ),
 
@@ -803,7 +795,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                 collegeName: selectedCollege!,
                 university: selectedUniversity!,
                 degree: selectedDegree!,
-                collegeEmailId: selectedEmailId!,
+                collegeEmailId: selectedEmailId ?? '', // make optional
               );
 
               print("Extended user model with college details:");
