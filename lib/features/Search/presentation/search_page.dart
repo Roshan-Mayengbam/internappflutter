@@ -367,7 +367,15 @@ class _JobListItem extends StatelessWidget {
           jobType: job.jobType,
           about: job.recruiter.company.description ?? "Description Not found",
           salaryRange: "${job.salaryRange.max} - ${job.salaryRange.min}",
-          perks: job.perks!.split(" "),
+          perks: job.perks?.isNotEmpty == true
+              ? job.perks!
+                    .split(RegExp(r'[.,]')) // Split using regex for . or ,
+                    .map((s) => s.trim()) // Remove leading/trailing whitespace
+                    .where((s) => s.isNotEmpty)
+                    .toList()
+              : [
+                  'Not specified',
+                ], // Return a List of strings or ['Not specified']
         ),
       ),
     );

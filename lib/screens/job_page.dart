@@ -264,12 +264,10 @@ class _JobPageState extends State<JobPage> {
               : allFilteredHackathons.take(initialHackathonsCount).toList();
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(vertical: 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 50),
-
                 // Top Job Picks Section
                 CustomCarouselSection(
                   title: 'Top job picks for you',

@@ -150,7 +150,14 @@ flutter:
     - assets/animations/Trophy animation.json
     - assets/jobPeference.json
     - assets/userskills.json
-
+    - assets/images/job_card/banner_background.png
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/jost/Jost-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/jost/Jost-Medium.ttf
+          weight: 500
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

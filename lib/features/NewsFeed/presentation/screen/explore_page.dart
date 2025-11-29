@@ -9,6 +9,8 @@ import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart'
 import 'package:internappflutter/features/NewsFeed/presentation/provider/news_provider.dart';
 import 'package:internappflutter/screens/article_detail_screen.dart';
 
+import '../../../../chat/chatpage.dart';
+
 class ExplorePage extends StatelessWidget {
   ExplorePage({super.key});
   final TextEditingController _searchController = TextEditingController();
@@ -87,7 +89,10 @@ class ExplorePage extends StatelessWidget {
                     context,
                     MaterialPageRoute(builder: (context) => SearchPage()),
                   ),
-                  onChatPressed: () => debugPrint('Chat pressed'),
+                  onChatPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatPage()),
+                  ),
                   onNotificationPressed: () =>
                       debugPrint('Notification pressed'),
                 ),

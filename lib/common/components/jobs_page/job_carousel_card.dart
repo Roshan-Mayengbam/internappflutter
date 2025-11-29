@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:internappflutter/common/constants/job_carousel_card_constants.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+
+import '../../../features/core/design_systems/app_colors.dart';
+import '../../../features/core/design_systems/app_shapes.dart';
+import '../../../features/core/design_systems/app_spacing.dart';
 
 class CarouselCard extends StatelessWidget {
   final String title;
@@ -29,40 +34,64 @@ class CarouselCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 320,
-        margin: JobCardConstants.margin,
-        padding: JobCardConstants.padding,
+        margin: const EdgeInsets.only(
+          right: AppSpacing.lg,
+        ), // Standard margin for carousel
+        padding: const EdgeInsets.all(AppSpacing.md), // Reduced main padding
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: JobCardConstants.cardBorder,
-          borderRadius: BorderRadius.circular(JobCardConstants.borderRadius),
-          boxShadow: JobCardConstants.cardShadow,
+          color: AppColors.card,
+          border: Border.all(
+            color: AppColors.borderStrong,
+            width: 1.0,
+          ), // Use soft border
+          borderRadius: AppShapes.card, // Use radiusLg (20) from AppShapes
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadowSoft,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min, // ✅ Prevent overflow
           children: [
             // Banner
+            // Banner
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius:
+                  AppShapes.pill, // Using AppShapes for consistent radius
               child: Container(
-                height: 120, // ✅ Reduced from 140 to prevent overflow
-                decoration: const BoxDecoration(
-                  gradient: JobCardConstants.bannerGradient,
+                height: 120,
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
+                    image: AssetImage(
+                      'assets/images/job_card/banner_background.png',
+                    ),
+                    fit: BoxFit.fill,
+                    alignment: Alignment.center,
+                  ),
+                  gradient: AppColors.bannerGradient,
                 ),
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                  ), // Use AppSpacing
                   child: Text(
                     title,
-                    style: JobCardConstants.bannerTextStyle,
+                    style: AppTypography.headingLg.copyWith(
+                      color: AppColors.card,
+                    ),
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 2, // ✅ Allow 2 lines for long titles
+                    maxLines: 2,
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12), // ✅ Reduced from 16
+            const SizedBox(height: AppSpacing.lg), // ✅ Reduced from 16
             // Row with two columns
             Flexible(
               // ✅ Make this flexible to prevent overflow
@@ -78,23 +107,26 @@ class CarouselCard extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: JobCardConstants.jobTitleStyle,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          style: AppTypography.jobTitle.copyWith(height: 1.2),
+                          maxLines: (title.length > 18) ? 2 : 1,
                         ),
-                        const SizedBox(height: 4), // ✅ Reduced from 6
+                        const SizedBox(
+                          height: AppSpacing.sm,
+                        ), // ✅ Reduced from 6
                         Row(
                           children: [
                             Flexible(
                               child: Text(
                                 subtitle,
-                                style: JobCardConstants.companyNameStyle,
+                                style: AppTypography.companyName.copyWith(
+                                  fontSize: 15,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
                             ),
                             if (isVerified) ...[
-                              const SizedBox(width: 3),
+                              const SizedBox(width: AppSpacing.xs),
                               const Icon(
                                 Icons.verified,
                                 color: Colors.blue,
@@ -107,7 +139,6 @@ class CarouselCard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(width: 8), // ✅ Add spacing between columns
                   // Right: Tags
                   SizedBox(
                     width: 100,
@@ -119,7 +150,9 @@ class CarouselCard extends StatelessWidget {
                             children: [
                               if (tag1 != null) buildTag(tag1!),
                               if (tag1 != null && tag2 != null)
-                                const SizedBox(height: 4), // ✅ Reduced from 6
+                                const SizedBox(
+                                  height: AppSpacing.md,
+                                ), // ✅ Reduced from 6
                               if (tag2 != null) buildTag(tag2!),
                             ],
                           ),
@@ -135,21 +168,24 @@ class CarouselCard extends StatelessWidget {
 
   Widget buildTag(String label) {
     return Container(
-      height: 30,
+      height: 28,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.black, width: 1.5),
+        color: AppColors.primarySurface,
+        borderRadius: AppShapes.pill,
+        border: Border.all(color: AppColors.borderStrong, width: 1.5),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
       ),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
           child: Text(
-            label,
+            label.toUpperCase(),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12),
+            style: AppTypography.chip.copyWith(
+              color: AppColors.primary,
+              fontSize: 10,
+            ),
           ),
         ),
       ),
