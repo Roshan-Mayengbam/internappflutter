@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'recruiter.dart'; // Ensure correct import path
 import 'salary_range.dart'; // Ensure correct import path
+import 'preferences.dart'; // NEW: Import the Preferences class
 
 class Job extends Equatable {
   final String id;
@@ -26,10 +27,9 @@ class Job extends Equatable {
   final SalaryRange salaryRange;
   final String? college; // Conditional field
   final String? applicationLink; // Conditional field
-  final String? location; // From preferences
 
-  // Note: preferences are often modeled separately if needed.
-  // For simplicity, only location is pulled out here.
+  // INCORPORATED PREFERENCES FIELD
+  final Preferences preferences;
 
   const Job({
     required this.id,
@@ -48,7 +48,9 @@ class Job extends Equatable {
     required this.salaryRange,
     this.college,
     this.applicationLink,
-    this.location,
+    // preferences is required and must be provided
+    required this.preferences,
+    // The previous standalone 'location' field is removed as it's now in Preferences
   });
 
   @override
@@ -69,6 +71,7 @@ class Job extends Equatable {
     salaryRange,
     college,
     applicationLink,
-    location,
+    // Add the new object to the props list
+    preferences,
   ];
 }

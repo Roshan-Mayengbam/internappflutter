@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:internappflutter/core/constants/app_constants.dart';
+import 'package:internappflutter/common/constants/app_constants.dart';
 import 'package:internappflutter/features/core/errors/failiure.dart';
 import 'package:internappflutter/features/AvailableJobs/data/models/job_response_model.dart';
 
@@ -36,18 +38,26 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
       throw AuthFailure("No user is currently signed in.");
     }
     final idToken = await currentUser.getIdToken();
-
-    final queryParameters = {
+    final Map<String, String> queryParameters = {
       'page': page.toString(),
       'limit': limit.toString(),
-      if (query != null && query.isNotEmpty) 'q': query,
-      if (location != null && location.isNotEmpty) 'location': location,
-      if (skills != null && skills.isNotEmpty) 'skills': skills,
     };
+
+    if (query != null && query.isNotEmpty) {
+      queryParameters['q'] = query;
+    }
+    if (location != null && location.isNotEmpty) {
+      queryParameters['location'] = location;
+    }
+    if (skills != null && skills.isNotEmpty) {
+      queryParameters['skills'] = skills;
+    }
 
     final uri = Uri.parse(
       "$_baseUrl/jobs",
     ).replace(queryParameters: queryParameters);
+
+    print("$uri");
 
     try {
       final response = await client.get(
@@ -58,11 +68,30 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
         },
       );
 
-      if (response.statusCode == 200) {
-        return JobResponseModel.fromJson(json.decode(response.body));
+      debugPrint(
+        '⬅️ REMOTE DATASOURCE: Received response. Status: ${response.statusCode} -\n ${response.body}',
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // 3. Log the successful response body (or part of it)
+        debugPrint(
+          '✅ REMOTE DATASOURCE: Success! Data snippet: ${response.body.substring(0, 30)}...',
+        );
+        return JobResponseModel.fromJson(
+          json.decode(response.body) as Map<String, dynamic>,
+        );
+      } else if (response.statusCode == 500) {
+        // 4. Log the full 500 error body for backend context
+        debugPrint(
+          '🚨 REMOTE DATASOURCE: Server Error 500 received! Full body: ${response.body}',
+        );
+        throw ServerFailure('Internal server error : ${response.statusCode}');
       } else {
-        final errorBody = json.decode(response.body);
-        throw ServerFailure(errorBody['message'] ?? 'Failed to load jobs');
+        // 5. Log other client errors (400, 404, etc.)
+        debugPrint(
+          '⚠️ REMOTE DATASOURCE: Client Error ${response.statusCode}. Body: ${response.body}',
+        );
+        throw ServerFailure('Failed with status ${response.statusCode}');
       }
     } on SocketException {
       throw NetworkFailure();

@@ -10,25 +10,36 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:internappflutter/features/AvailableHackathons/data/datasource/hackathon_datasource.dart';
+import 'package:internappflutter/features/AvailableHackathons/data/repository/hackathon_repo_impl.dart';
+import 'package:internappflutter/features/AvailableHackathons/domain/usecases/fetch_similar_hackathons.dart';
+import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
 
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
+import 'package:internappflutter/screens/hackathon.dart';
+import 'package:provider/provider.dart';
 
 // Imports for the NEW provider (JProvider)
 import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
 import 'package:internappflutter/features/AvailableJobs/data/repositories/job_repository_impl.dart';
-import 'package:internappflutter/features/presentation/providers/job_provider.dart';
+import 'package:internappflutter/features/AvailableJobs/presentation/provider/job_provider.dart';
 
 import 'features/AvailableJobs/domain/usecases/get_jobs.dart';
 import 'features/NewsFeed/data/datasources/guardian_api_remote_datasource.dart';
 import 'features/NewsFeed/data/repositories/news_repository_impl.dart';
 import 'features/NewsFeed/domain/usecases/get_tech_news.dart';
-import 'features/presentation/providers/news_provider.dart';
-import 'package:internappflutter/screens/hackathon.dart';
-import 'package:provider/provider.dart';
+import 'features/NewsFeed/presentation/provider/news_provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'features/NewsFeed/domain/entities/article.dart';
+import 'features/NewsFeed/data/datasources/news_local_datasource.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +54,10 @@ void main() async {
       print('Error initializing Firebase: $e');
     }
   }
+
+  // Initialize Hive
+  await Hive.initFlutter();
+  Hive.registerAdapter(ArticleAdapter());
 
   runApp(
     MultiProvider(
@@ -60,12 +75,27 @@ void main() async {
             ),
           ),
         ),
+        ChangeNotifierProvider(
+          create: (_) => HProvider(
+            getSimilarHackathons: GetSimilarHackathons(
+              repository: HackathonRepositoryImpl(
+                remoteDataSource: HackathonRemoteDataSourceImpl(
+                  client: http.Client(),
+                  auth: FirebaseAuth.instance,
+                ),
+              ),
+            ),
+          ),
+        ),
         // Old provider from the models directory
         ChangeNotifierProvider(create: (_) => JobProvider()),
         ChangeNotifierProvider(
           create: (_) => ExploreViewModel(
             getNewsUseCase: GetTechNewsUseCase(
-              NewsRepositoryImpl(remoteDataSource: GuardianApiDataSource()),
+              NewsRepositoryImpl(
+                remoteDataSource: GuardianApiDataSource(),
+                localDataSource: NewsLocalDataSourceImpl(),
+              ),
             ),
           ),
         ),

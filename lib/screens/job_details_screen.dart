@@ -12,53 +12,51 @@ class JobDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: Container(
-          child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                // Bottom shadow
-                const BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(0, 6),
-                  blurRadius: 0,
-                  spreadRadius: -2,
-                ),
-                // Right shadow
-                const BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(6, 0),
-                  blurRadius: 0,
-                  spreadRadius: -2,
-                ),
-                // Bottom-right corner shadow
-                const BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(6, 6),
-                  blurRadius: 0,
-                  spreadRadius: -2,
-                ),
-              ],
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: const Border(
-                top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-                left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-                right: BorderSide(
-                  color: Color.fromARGB(255, 6, 7, 8),
-                  width: 2,
-                ),
-                bottom: BorderSide(
-                  color: Color.fromARGB(255, 6, 7, 8),
-                  width: 2,
-                ),
+          decoration: BoxDecoration(
+            boxShadow: [
+              // Bottom shadow
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(0, 6),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+              // Right shadow
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(6, 0),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+              // Bottom-right corner shadow
+              const BoxShadow(
+                color: Colors.black,
+                offset: Offset(6, 6),
+                blurRadius: 0,
+                spreadRadius: -2,
+              ),
+            ],
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: const Border(
+              top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+              left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
+              right: BorderSide(
+                color: Color.fromARGB(255, 6, 7, 8),
+                width: 2,
+              ),
+              bottom: BorderSide(
+                color: Color.fromARGB(255, 6, 7, 8),
+                width: 2,
               ),
             ),
-            padding: const EdgeInsets.all(8),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                Navigator.pop(context); // Goes back to previous screen
-              },
-            ),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context); // Goes back to previous screen
+            },
           ),
         ),
         elevation: 0,

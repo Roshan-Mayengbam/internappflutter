@@ -1,7 +1,7 @@
 // lib/data/datasources/guardian_api_data_source.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:internappflutter/core/constants/app_constants.dart';
+import 'package:internappflutter/common/constants/app_constants.dart';
 
 /// Handles direct communication with the Guardian Content API.
 class GuardianApiDataSource {
@@ -18,7 +18,7 @@ class GuardianApiDataSource {
       '$_baseUrl?'
       'api-key=$_apiKey&'
       'show-fields=$fields&'
-      'tag=$tags&'
+      'q=${Uri.encodeQueryComponent(tags)}&'
       'page-size=$pageSize&'
       'page=$page&'
       'order-by=newest',

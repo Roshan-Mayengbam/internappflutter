@@ -3,6 +3,7 @@ import '../../domain/entities/job.dart';
 import 'recruiter_model.dart';
 import 'company_model.dart';
 import 'salary_range_model.dart';
+import 'preference_model.dart';
 
 class JobModel extends Job {
   const JobModel({
@@ -20,9 +21,9 @@ class JobModel extends Job {
     required super.mode,
     super.stipend,
     required super.salaryRange,
-    super.college, // New Conditional
-    super.applicationLink, // New Conditional
-    super.location,
+    super.college,
+    super.applicationLink,
+    required super.preferences, // UPDATED: Use the Preferences object
   });
 
   factory JobModel.fromJson(Map<String, dynamic> json) {
@@ -49,6 +50,15 @@ class JobModel extends Job {
       return const SalaryRangeModel(min: 0, max: 0);
     }
 
+    // NEW: Helper function for safer parsing of preferences
+    PreferencesModel _parsePreferences(dynamic data) {
+      if (data != null && data is Map<String, dynamic>) {
+        return PreferencesModel.fromJson(data);
+      }
+      // Return a default, empty Preferences object if data is missing
+      return const PreferencesModel();
+    }
+
     return JobModel(
       id: json["_id"] as String? ?? '',
       title: json["title"] as String? ?? 'No Title',
@@ -62,6 +72,9 @@ class JobModel extends Job {
       // Nested objects
       recruiter: parseRecruiter(json["recruiter"]),
       salaryRange: _parseSalaryRange(json["salaryRange"]),
+      preferences: _parsePreferences(
+        json["preferences"],
+      ), // NEW: Parse preferences
 
       jobType: json["jobType"] as String? ?? 'N/A',
 
@@ -77,10 +90,8 @@ class JobModel extends Job {
       college: json["college"] as String?,
       applicationLink: json["applicationLink"] as String?,
 
-      // Location is nested inside 'preferences'
-      location:
-          (json["preferences"] as Map<String, dynamic>?)?["location"]
-              as String?,
+      // The previous standalone location field is REMOVED
+      // location: (json["preferences"] as Map<String, dynamic>?)?["location"] as String?,
     );
   }
 }
