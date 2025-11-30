@@ -8,6 +8,8 @@ import 'package:internappflutter/common/components/explore_page/filter_tag_group
 import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
 import 'package:internappflutter/features/NewsFeed/presentation/provider/news_provider.dart';
 import 'package:internappflutter/screens/article_detail_screen.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 import '../../../../chat/chatpage.dart';
 
@@ -65,7 +67,6 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // 2. Main UI Rendering using a Consumer
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Consumer<ExploreViewModel>(
           builder: (context, viewModel, child) {
@@ -105,7 +106,7 @@ class ExplorePage extends StatelessWidget {
                   onFilterSelected: viewModel.setFilter,
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: AppSpacing.lg),
 
                 Expanded(child: _buildContent(context, viewModel)),
 

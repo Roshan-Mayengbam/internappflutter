@@ -15,7 +15,7 @@ class SearchFilterGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45, // Fixed height for horizontal scrolling
+      height: 40, // Fixed height for horizontal scrolling
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         scrollDirection: Axis.horizontal,

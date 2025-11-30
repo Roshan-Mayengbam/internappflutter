@@ -5,6 +5,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
 import 'article_tile.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 /// Organism responsible for displaying articles in a Masonry (Pinterest) layout.
 class ArticleContentGrid extends StatelessWidget {
@@ -34,14 +35,14 @@ class ArticleContentGrid extends StatelessWidget {
     // Use MasonryGridView for the Pinterest-style staggered layout
     return MasonryGridView.count(
       // The overall padding for the entire grid
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPaddingH, vertical: AppSpacing.md),
 
       // Two columns for the classic Pinterest look
       crossAxisCount: 2,
 
       // Spacing between tiles
-      mainAxisSpacing: 16, // Vertical spacing
-      crossAxisSpacing: 16, // Horizontal spacing
+      mainAxisSpacing: AppSpacing.xl, // Vertical spacing
+      crossAxisSpacing: AppSpacing.lg, // Horizontal spacing
 
       itemCount: articles.length,
 

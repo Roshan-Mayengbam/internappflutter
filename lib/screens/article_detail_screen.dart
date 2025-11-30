@@ -1,5 +1,3 @@
-// lib/presentation/screens/explore/article_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:internappflutter/common/components/custom_search_field.dart';
@@ -7,6 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../common/components/custom_button.dart';
 import '../features/NewsFeed/domain/entities/article.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
   final Article article;
@@ -23,10 +25,9 @@ class ArticleDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Controller for the search bar (local to this screen)
-    const String customFont = 'Jost';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: AppColors.scaffold,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -36,7 +37,7 @@ class ArticleDetailScreen extends StatelessWidget {
               // Custom App Bar Implementation
               // ----------------------------------------------------------------
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -56,13 +57,18 @@ class ArticleDetailScreen extends StatelessWidget {
 
               // --- Main Content Card (Image + Title) ---
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPaddingH,
+                ),
                 padding: const EdgeInsets.all(0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.card,
+                  borderRadius: AppShapes.card,
                   boxShadow: [
-                    BoxShadow(color: Colors.black, offset: const Offset(2, 2)),
+                    BoxShadow(
+                      color: AppColors.shadowSharp,
+                      offset: const Offset(4, 4),
+                    ),
                   ],
                 ),
                 child: Column(
@@ -81,7 +87,7 @@ class ArticleDetailScreen extends StatelessWidget {
                               width: double.infinity,
                               placeholder: (context, url) => Container(
                                 height: 250,
-                                color: Colors.grey[200],
+                                color: AppColors.primarySurface,
                                 child: const Center(
                                   child: CircularProgressIndicator.adaptive(),
                                 ),
@@ -89,12 +95,12 @@ class ArticleDetailScreen extends StatelessWidget {
                               errorWidget: (context, url, error) => Container(
                                 height: 250,
                                 width: double.infinity,
-                                color: Colors.grey[300],
+                                color: AppColors.card,
                                 child: const Center(
                                   child: Icon(
                                     Icons.broken_image,
                                     size: 50,
-                                    color: Colors.grey,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -102,7 +108,7 @@ class ArticleDetailScreen extends StatelessWidget {
                           : Container(
                               height: 250,
                               width: double.infinity,
-                              color: Colors.blueGrey[100],
+                              color: AppColors.primarySurface,
                               child: const Center(
                                 child: Text('No Image Available'),
                               ),
@@ -111,34 +117,25 @@ class ArticleDetailScreen extends StatelessWidget {
 
                     // Title and Subtitle Section
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             article.webTitle,
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                  fontFamily: customFont,
-                                ),
+                            style: AppTypography.headingLg,
                           ),
                           const SizedBox(height: 8),
                           Row(
                             children: [
                               Text(
                                 article.sectionName,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(
-                                      color: Colors.grey[700],
-                                      fontFamily: customFont,
-                                    ),
+                                style: AppTypography.companyName,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: AppSpacing.sm),
                               const Icon(
                                 Icons.check_circle,
-                                color: Colors.blue,
+                                color: AppColors.primary,
                                 size: 18,
                               ),
                             ],
@@ -153,26 +150,23 @@ class ArticleDetailScreen extends StatelessWidget {
 
               // --- Description Section ---
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPaddingH,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Description',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            fontFamily: customFont,
-                          ),
+                      style: AppTypography.jobTitle.copyWith(fontSize: 26),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.sm),
                     Text(
                       article.bodyHtml,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.black87,
+                      style: AppTypography.bodySm.copyWith(
+                        fontSize: 12,
                         height: 1.5,
-                        fontFamily: customFont,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -185,23 +179,19 @@ class ArticleDetailScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: _launchUrl,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.card,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 60,
                       vertical: 18,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: AppShapes.card),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Know More',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: customFont,
+                    style: AppTypography.jobTitle.copyWith(
+                      color: AppColors.card,
                     ),
                   ),
                 ),
