@@ -21,9 +21,4 @@ final List<SearchCategory> kSearchFilters = [
     searchFilter: 'hackathons',
     icon: Icons.schedule,
   ),
-  const SearchCategory(
-    label: 'Companies',
-    searchFilter: 'companies',
-    icon: Icons.person_add,
-  ),
 ];

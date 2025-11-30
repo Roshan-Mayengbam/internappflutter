@@ -18,6 +18,7 @@ class AppColors {
 
   // Shadows
   static const shadowSoft = Color(0x14000000); // 8% black
+  static const shadowSharp = Colors.black; //  black
 
   static final bannerGradient = const LinearGradient(
     colors: [Colors.purple, Colors.pinkAccent],
