@@ -187,4 +187,4 @@ flutter:
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  image_path: "assets/hyrup/hyrup.png"
+  image_path: "assets/hyrup/hyrup_logo.png"

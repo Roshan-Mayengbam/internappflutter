@@ -8,9 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/common/components/custom_button.dart';
 import 'package:internappflutter/screens/add_experience.dart';
 import 'package:internappflutter/screens/add_project_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -103,7 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: TextStyle(fontFamily: 'Jost'),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop;
                   await _pickAndUploadImage(ImageSource.gallery);
                 },
               ),
@@ -681,72 +684,88 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: Colors.grey[100],
-        appBar: AppBar(
-          title: const Text('Edit Profile'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: Stack(
         children: [
+          // Header with back button
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.lg,
+                ),
+                child: Row(
+                  children: [
+                    CustomButton(
+                      buttonIcon: Icons.arrow_back,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      child: Text(
+                        'Edit Profile',
+                        style: AppTypography.headingLg.copyWith(fontSize: 26),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           // top profile picture
           ListView(
+            padding: EdgeInsets.only(top: 100),
             children: [
               const SizedBox(height: 20),
               Center(
-                child: // Replace the profile picture section in your build method with this:
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.black,
-                        radius: 60,
-                        backgroundImage: profilePicUrl.isNotEmpty
-                            ? NetworkImage(profilePicUrl)
-                            : null,
-                        child: profilePicUrl.isEmpty
-                            ? const Icon(
-                                Icons.person,
-                                size: 60,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: InkWell(
-                            onTap: _pickImageSource,
-                            child: const Icon(
-                              Icons.edit,
-                              size: 20,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.black,
+                      radius: 60,
+                      backgroundImage: profilePicUrl.isNotEmpty
+                          ? NetworkImage(profilePicUrl)
+                          : null,
+                      child: profilePicUrl.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              size: 60,
                               color: Colors.white,
-                            ),
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: InkWell(
+                          onTap: _pickImageSource,
+                          child: const Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 100),
