@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
   Widget build(BuildContext context) {
     if (isLoading || userData == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFFE9E4F5),
+        backgroundColor: AppColors.scaffold,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -176,6 +176,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: Stack(
         children: [
           // Background image section
@@ -205,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: BoxDecoration(
-                  color: Color(0xFFF2EAFF),
+                  color: AppColors.scaffold,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(25),
                     topRight: Radius.circular(25),
@@ -927,61 +928,90 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
   void _showResumeDialog(BuildContext context) {
     final profile = userData!['profile'] ?? {};
-    final resumeName = profile['resumeName'] ?? '';
+    final resumeName = profile['resumeName'] ?? 'No Resume';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Resume'),
+          title: Text(
+            'Resume',
+            style: AppTypography.headingLg.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 22,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildResumeFileItem(resumeName, true),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.borderSoft),
+                    borderRadius: AppShapes.card,
                   ),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Click to Upload or drag and drop',
-                        style: TextStyle(fontSize: 16),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
                         '(Max. File size: 1.2 MB)',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         'PDF | DOCX | > 3 MB',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                const SizedBox(height: AppSpacing.lg),
+                Text(
                   'AI Resume Builder',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: AppTypography.headingLg.copyWith(
+                    fontSize: 18,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.textPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.lg,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppShapes.card,
+                      ),
                     ),
-                    child: const Text('Submit'),
+                    child: Text(
+                      'Submit',
+                      style: AppTypography.chip.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -992,7 +1022,10 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Close'),
+              child: Text(
+                'Close',
+                style: AppTypography.bodySm.copyWith(color: AppColors.primary),
+              ),
             ),
           ],
         );

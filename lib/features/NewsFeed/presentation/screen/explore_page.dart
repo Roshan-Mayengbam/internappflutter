@@ -11,7 +11,7 @@ import 'package:internappflutter/screens/article_detail_screen.dart';
 import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
-import '../../../../chat/chatpage.dart';
+import 'package:internappflutter/chat/chatpage.dart';
 
 class ExplorePage extends StatelessWidget {
   ExplorePage({super.key});
@@ -67,6 +67,7 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // 2. Main UI Rendering using a Consumer
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: SafeArea(
         child: Consumer<ExploreViewModel>(
           builder: (context, viewModel, child) {
