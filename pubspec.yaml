@@ -91,6 +91,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/hyrup/splash_logo.json
     - assets/bear.gif
     - assets/Union.svg
     - assets/svg/logo.svg
@@ -187,4 +188,4 @@ flutter:
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  image_path: "assets/hyrup/hyrup.png"
+  image_path: "assets/hyrup/hyrup_logo.png"

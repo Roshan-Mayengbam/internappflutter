@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -253,21 +255,17 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F4EF),
-      body: Center(
-        child: Text(
-          'hyrup',
-          style: GoogleFonts.pacifico(
-            fontSize: 84,
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 1.2,
-          ),
-        ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Center(
+      child: Lottie.asset(
+        'assets/hyrup/splash_logo.json', 
+        fit: BoxFit.fitWidth,
+        animate: true, 
       ),
-    );
-  }
+    ),
+  );
+}
 }

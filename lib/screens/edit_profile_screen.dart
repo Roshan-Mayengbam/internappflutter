@@ -8,9 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internappflutter/common/components/custom_button.dart';
 import 'package:internappflutter/screens/add_experience.dart';
 import 'package:internappflutter/screens/add_project_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -103,7 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: TextStyle(fontFamily: 'Jost'),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop;
                   await _pickAndUploadImage(ImageSource.gallery);
                 },
               ),
@@ -681,469 +684,453 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: Colors.grey[100],
-        appBar: AppBar(
-          title: const Text('Edit Profile'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Stack(
+      body: ListView(
+        padding: EdgeInsets.zero,
         children: [
-          // top profile picture
-          ListView(
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: // Replace the profile picture section in your build method with this:
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.black,
-                        radius: 60,
-                        backgroundImage: profilePicUrl.isNotEmpty
-                            ? NetworkImage(profilePicUrl)
-                            : null,
-                        child: profilePicUrl.isEmpty
-                            ? const Icon(
-                                Icons.person,
-                                size: 60,
-                                color: Colors.white,
-                              )
-                            : null,
+          // Header with back button
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.lg,
+              ),
+              child: Row(
+                children: [
+                  CustomButton(
+                    buttonIcon: Icons.arrow_back,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: Text(
+                      'Edit Profile',
+                      style: AppTypography.headingLg.copyWith(fontSize: 26),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.black,
+                  radius: 60,
+                  backgroundImage: profilePicUrl.isNotEmpty
+                      ? NetworkImage(profilePicUrl)
+                      : null,
+                  child: profilePicUrl.isEmpty
+                      ? const Icon(Icons.person, size: 60, color: Colors.white)
+                      : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: InkWell(
+                      onTap: _pickImageSource,
+                      child: const Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: Colors.white,
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: InkWell(
-                            onTap: _pickImageSource,
-                            child: const Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+
+          // Draggable sheet content (now just a section in the ListView)
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Center(
+                    child: Text(
+                      'Edit Profile',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Jost',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // full name
+                  _buildTextField('Full Name', fullNameCtrl),
+                  const SizedBox(height: 15),
+                  _buildTextField('Phone Number', phoneCtrl),
+                  const SizedBox(height: 15),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                          fontFamily: 'Jost',
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(0, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 0),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(6, 6),
+                              blurRadius: 0,
+                              spreadRadius: -2,
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: emailCtrl,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.grey[300]!),
                             ),
                           ),
+                          style: const TextStyle(color: Colors.black54),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 100),
-            ],
-          ),
+                  const SizedBox(height: 15),
+                  _buildTextField('Bio', bioCtrl),
+                  const SizedBox(height: 15),
+                  _buildTextField('About', aboutController),
+                  const SizedBox(height: 15),
+                  _buildTextField('College Name', collegeCtrl),
+                  const SizedBox(height: 15),
+                  _buildTextField('Degree', degreeCtrl),
+                  const SizedBox(height: 15),
+                  _buildTextField('Year of graduation', yearOfPassingCtrl),
+                  const SizedBox(height: 15),
+                  _buildTextField('College Email ID', collegeEmailCtrl),
 
-          // everything in ONE draggable sheet
-          DraggableScrollableSheet(
-            initialChildSize: 0.8,
-            minChildSize: 0.8,
-            maxChildSize: 0.95,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(25),
-                    topRight: Radius.circular(25),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 2,
+                  // const SizedBox(height: 15),
+                  // _buildTextField('College Email ID', collegeEmailCtrl),
+                  const Divider(height: 40),
+
+                  // Skills Section
+                  const Text(
+                    'Skills',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Jost',
                     ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 50,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[400],
-                            borderRadius: BorderRadius.circular(10),
+                  ),
+                  const SizedBox(height: 10),
+
+                  _buildSearchSection(
+                    hintText: "Add your skills",
+                    controller: _skillsController,
+                    // selectedItems: skills, //
+                    filteredItems: filteredSkills,
+                    onChanged: _filterSkills,
+                    onRemove: _removeSkill,
+                    onAdd: _addSkillFromSearch,
+                    selectedItems: [],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Show skill chips with red delete
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: skills
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => _buildChip(
+                            entry.value,
+                            onDelete: () => _removeSkill(entry.key as String),
+                            deleteColor: Colors.red,
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Center(
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Job Preference input
+                  // Job Preference input - REMOVE Expanded wrapper
+                  _buildSearchSection(
+                    hintText: "Select your job preference",
+                    controller: _jobsController,
+                    selectedItems: selectedJobs,
+                    filteredItems: filteredJobs,
+                    onChanged: _filterJobs,
+                    onAdd: _addJob,
+                    onRemove: _removeJob,
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Show job chips with red delete
+                  Wrap(
+                    spacing: 15,
+                    runSpacing: 10,
+                    children: jobPreferences
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => _buildChip(
+                            entry.value,
+                            onDelete: () {
+                              setState(() {
+                                jobPreferences.removeAt(entry.key);
+                              });
+                            },
+                            deleteColor: Colors.red,
+                          ),
+                        )
+                        .toList(),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Flexible(
                         child: Text(
-                          'Edit Profile',
+                          'Experience',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Jost',
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // full name
-                      _buildTextField('Full Name', fullNameCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('Phone Number', phoneCtrl),
-                      const SizedBox(height: 15),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Email',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                              fontFamily: 'Jost',
-                            ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: _addExperience,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF5B967),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16, // Reduced from 20
+                            vertical: 10, // Reduced from 12
                           ),
-                          const SizedBox(height: 5),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(0, 6),
-                                  blurRadius: 0,
-                                  spreadRadius: -2,
-                                ),
-                                BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(6, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: -2,
-                                ),
-                                BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(6, 6),
-                                  blurRadius: 0,
-                                  spreadRadius: -2,
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: emailCtrl,
-                              enabled: false,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 12,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey[300]!,
-                                  ),
-                                ),
-                                disabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey[300]!,
-                                  ),
-                                ),
-                              ),
-                              style: const TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      _buildTextField('Bio', bioCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('About', aboutController),
-                      const SizedBox(height: 15),
-                      _buildTextField('College Name', collegeCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('Degree', degreeCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('Year of graduation', yearOfPassingCtrl),
-                      const SizedBox(height: 15),
-                      _buildTextField('College Email ID', collegeEmailCtrl),
-
-                      // const SizedBox(height: 15),
-                      // _buildTextField('College Email ID', collegeEmailCtrl),
-                      const Divider(height: 40),
-
-                      // Skills Section
-                      const Text(
-                        'Skills',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Jost',
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      _buildSearchSection(
-                        hintText: "Add your skills",
-                        controller: _skillsController,
-                        // selectedItems: skills, //
-                        filteredItems: filteredSkills,
-                        onChanged: _filterSkills,
-                        onRemove: _removeSkill,
-                        onAdd: _addSkillFromSearch,
-                        selectedItems: [],
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Show skill chips with red delete
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: skills
-                            .asMap()
-                            .entries
-                            .map(
-                              (entry) => _buildChip(
-                                entry.value,
-                                onDelete: () =>
-                                    _removeSkill(entry.key as String),
-                                deleteColor: Colors.red,
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Job Preference input
-                      // Job Preference input - REMOVE Expanded wrapper
-                      _buildSearchSection(
-                        hintText: "Select your job preference",
-                        controller: _jobsController,
-                        selectedItems: selectedJobs,
-                        filteredItems: filteredJobs,
-                        onChanged: _filterJobs,
-                        onAdd: _addJob,
-                        onRemove: _removeJob,
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Show job chips with red delete
-                      Wrap(
-                        spacing: 15,
-                        runSpacing: 10,
-                        children: jobPreferences
-                            .asMap()
-                            .entries
-                            .map(
-                              (entry) => _buildChip(
-                                entry.value,
-                                onDelete: () {
-                                  setState(() {
-                                    jobPreferences.removeAt(entry.key);
-                                  });
-                                },
-                                deleteColor: Colors.red,
-                              ),
-                            )
-                            .toList(),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Flexible(
-                            child: Text(
-                              'Experience',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Jost',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: _addExperience,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF5B967),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16, // Reduced from 20
-                                vertical: 10, // Reduced from 12
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Add',
-                              style: TextStyle(
-                                fontFamily: 'Jost',
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Dynamic Experience Cards
-                      ...experiences.asMap().entries.map((entry) {
-                        final experience = entry.value;
-                        return _buildExperienceCard(
-                          organization:
-                              experience['nameOfOrg'] ?? 'Organization',
-                          position: experience['position'] ?? 'Position',
-                          timeline: experience['timeline'] ?? 'Timeline',
-                          description:
-                              experience['description'] ?? 'Description',
-                          onEdit: () => _editExperience(entry.key),
-                          onDelete: () => _deleteExperience(entry.key),
-                        );
-                      }).toList(),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Flexible(
-                            child: Text(
-                              'Projects',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Jost',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: _addProject,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF5B967),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16, // Reduced from 20
-                                vertical: 10, // Reduced from 12
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Add',
-                              style: TextStyle(
-                                fontFamily: 'Jost',
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Dynamic Project Cards
-                      ...projects.asMap().entries.map((entry) {
-                        final project = entry.value;
-                        return _buildProjectCard(
-                          projectName: project['projectName'] ?? 'Project Name',
-                          link: project['link'] ?? 'Link',
-                          description: project['description'] ?? 'Description',
-                          onEdit: () => _editProject(entry.key),
-                          onDelete: () => _deleteProject(entry.key),
-                        );
-                      }).toList(),
-
-                      const SizedBox(height: 5),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF090909),
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.grey.shade400,
-                              width: 1,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(0, 6),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(6, 0),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(6, 6),
-                                blurRadius: 0,
-                                spreadRadius: -2,
-                              ),
-                            ],
                           ),
-                          child: ElevatedButton(
-                            onPressed: _isSaving ? null : _saveProfile,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF090909),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              shadowColor: Colors.transparent,
-                            ),
-                            child: _isSaving
-                                ? SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : const Text(
-                                    'Update',
-                                    style: TextStyle(
-                                      fontFamily: 'Jost',
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                        ),
+                        child: const Text(
+                          'Add',
+                          style: TextStyle(
+                            fontFamily: 'Jost',
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+                  const SizedBox(height: 10),
+
+                  // Dynamic Experience Cards
+                  ...experiences.asMap().entries.map((entry) {
+                    final experience = entry.value;
+                    return _buildExperienceCard(
+                      organization: experience['nameOfOrg'] ?? 'Organization',
+                      position: experience['position'] ?? 'Position',
+                      timeline: experience['timeline'] ?? 'Timeline',
+                      description: experience['description'] ?? 'Description',
+                      onEdit: () => _editExperience(entry.key),
+                      onDelete: () => _deleteExperience(entry.key),
+                    );
+                  }).toList(),
+
+                  const SizedBox(height: 20),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Flexible(
+                        child: Text(
+                          'Projects',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Jost',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: _addProject,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF5B967),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16, // Reduced from 20
+                            vertical: 10, // Reduced from 12
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Add',
+                          style: TextStyle(
+                            fontFamily: 'Jost',
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Dynamic Project Cards
+                  ...projects.asMap().entries.map((entry) {
+                    final project = entry.value;
+                    return _buildProjectCard(
+                      projectName: project['projectName'] ?? 'Project Name',
+                      link: project['link'] ?? 'Link',
+                      description: project['description'] ?? 'Description',
+                      onEdit: () => _editProject(entry.key),
+                      onDelete: () => _deleteProject(entry.key),
+                    );
+                  }).toList(),
+
+                  const SizedBox(height: 5),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF090909),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.grey.shade400,
+                          width: 1,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(0, 6),
+                            blurRadius: 0,
+                            spreadRadius: -2,
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(6, 0),
+                            blurRadius: 0,
+                            spreadRadius: -2,
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(6, 6),
+                            blurRadius: 0,
+                            spreadRadius: -2,
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isSaving ? null : _saveProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF090909),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: _isSaving
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text(
+                                'Update',
+                                style: TextStyle(
+                                  fontFamily: 'Jost',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

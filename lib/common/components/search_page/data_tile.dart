@@ -28,10 +28,7 @@ class DataTile extends StatelessWidget {
           border: Border.all(color: AppColors.borderSoft, width: 2.0),
           borderRadius: AppShapes.card,
           boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadowSharp,
-              offset: Offset(4, 4),
-            ),
+            BoxShadow(color: AppColors.shadowSharp, offset: Offset(4, 4)),
           ],
         ),
         child: InkWell(
@@ -82,7 +79,7 @@ class DataTile extends StatelessWidget {
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       return Container(
-        decoration : BoxDecoration(
+        decoration: BoxDecoration(
           border: Border.all(color: AppColors.borderSoft, width: 1.0),
           borderRadius: borderRadius,
         ),
@@ -105,7 +102,9 @@ class DataTile extends StatelessWidget {
                 child: const Center(
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.primary,
+                    ),
                   ),
                 ),
               );

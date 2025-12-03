@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:internappflutter/common/components/custom_button.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/skillVerify/TestStart.dart';
 import 'package:internappflutter/skillVerify/test1.dart';
 
@@ -47,77 +51,80 @@ class _SkillVerificationState extends State<SkillVerification> {
     List<String> skills = skillsWithLevels.keys.toList();
 
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.fromLTRB(20, 40, 20, 20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                SizedBox(width: 5),
-                Container(
-                  height: 44,
-                  width: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 0,
-                        spreadRadius: 1,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
+      backgroundColor: AppColors.scaffold,
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md * 4,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with back button
+              Row(
+                children: [
+                  CustomButton(
+                    buttonIcon: Icons.arrow_back,
+                    onPressed: Navigator.of(context).pop,
                   ),
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.arrow_back),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: Text(
+                      'Flex your skills',
+                      style: AppTypography.headingLg.copyWith(fontSize: 28),
+                    ),
                   ),
-                ),
-                SizedBox(width: 65),
-                Text(
-                  'Flex your skills',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 24),
-            Text(
-              " 'Short & snappy quiz. Nail it and unlock shiny badges recruiters can't ignore.",
-            ),
-            SizedBox(height: 24),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Pick your power skill 💡 ',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ],
               ),
-            ),
-            SizedBox(height: 24),
-            Text(
-              '"Choose one of your skills to test first. You can always come back for more."',
-              style: TextStyle(fontSize: 14, color: Colors.blue),
-            ),
-            SizedBox(height: 24),
-            SizedBox(
-              height: 500,
-              child: skills.isEmpty
+              const SizedBox(height: AppSpacing.xl),
+
+              // Description
+              Text(
+                "'Short & snappy quiz. Nail it and unlock shiny badges recruiters can't ignore.",
+                style: AppTypography.bodySm.copyWith(fontSize: 16),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              // Title
+              Text(
+                'Pick your power skill 💡',
+                style: AppTypography.jobTitle.copyWith(fontSize: 24),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Instructions
+              Text(
+                '"Choose one of your skills to test first. You can always come back for more."',
+                style: AppTypography.bodySm.copyWith(
+                  fontSize: 16,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              // Skills Grid
+              skills.isEmpty
                   ? Center(
-                      child: Text(
-                        'No skills available',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xl,
+                        ),
+                        child: Text(
+                          'No skills available',
+                          style: AppTypography.bodySm,
+                        ),
                       ),
                     )
                   : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 2.5,
-                        crossAxisSpacing: 70,
-                        mainAxisSpacing: 10,
-                      ),
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 2.5,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: AppSpacing.lg,
+                          ),
                       itemCount: skills.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
@@ -145,52 +152,59 @@ class _SkillVerificationState extends State<SkillVerification> {
                         );
                       },
                     ),
-            ),
-            SizedBox(height: 24),
-            Container(
-              width: 390,
-              height: 54,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(4, 4),
-                    blurRadius: 0,
-                    spreadRadius: 2,
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ElevatedButton(
-                onPressed: selectedSkill == null
-                    ? null
-                    : () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TestStart(
-                              selectedSkill: selectedSkill!,
-                              UserSkillLevel: selectedSkillLevel!,
+              const SizedBox(height: AppSpacing.xl),
+
+              // Next Button
+              Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderStrong, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: AppColors.shadowSharp,
+                      offset: Offset(4, 4),
+                      blurRadius: 0,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                  borderRadius: AppShapes.card,
+                ),
+                child: ElevatedButton(
+                  onPressed: selectedSkill == null
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TestStart(
+                                selectedSkill: selectedSkill!,
+                                UserSkillLevel: selectedSkillLevel!,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB6A5FE),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textPrimary,
+                    disabledBackgroundColor: AppColors.borderSoft,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.lg,
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: AppShapes.card),
+                  ),
+                  child: Text(
+                    'Next',
+                    style: AppTypography.chip.copyWith(
+                      fontSize: 16,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
-                child: const Text('Next'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -212,18 +226,16 @@ class SkillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, // Makes the entire area tappable
+      onTap: onTap,
       child: Container(
-        height: 53,
-        width: 133,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF40FFB9) : const Color(0xFFE3FEAA),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
+          color: isSelected ? AppColors.accentLime : AppColors.primarySurface,
+          borderRadius: AppShapes.card,
+          border: Border.all(color: AppColors.borderStrong, width: 2),
           boxShadow: const [
             BoxShadow(
-              color: Colors.grey,
+              color: AppColors.shadowSharp,
               offset: Offset(4, 4),
               blurRadius: 0,
               spreadRadius: 1,
@@ -233,9 +245,9 @@ class SkillButton extends StatelessWidget {
         child: Text(
           text.toUpperCase(),
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: AppTypography.chip.copyWith(
             fontSize: 18,
-            color: Color(0xFF1FA7E3),
+            color: AppColors.primary,
             fontWeight: FontWeight.w600,
           ),
         ),

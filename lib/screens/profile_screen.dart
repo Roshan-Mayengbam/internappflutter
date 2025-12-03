@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/auth/page2.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 import 'package:internappflutter/skillVerify/SkillVerification.dart';
@@ -143,10 +146,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Show loading indicator while fetching data
     if (isLoading || userData == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFFE9E4F5),
+        backgroundColor: AppColors.scaffold,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -174,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE9E4F5),
+      backgroundColor: AppColors.scaffold,
       body: Stack(
         children: [
           // Background image section
@@ -203,17 +205,21 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             maxChildSize: 1.0,
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
-                width: 25,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE9E4F5),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: AppColors.scaffold,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(25),
                     topRight: Radius.circular(25),
+                  ),
+                  border: Border(
+                    top: BorderSide(color: AppColors.borderSoft, width: 1.5),
+                    left: BorderSide(color: AppColors.borderSoft, width: 1.5),
+                    right: BorderSide(color: AppColors.borderSoft, width: 1.5),
                   ),
                 ),
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -228,10 +234,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // Name and Resume button
-                      // Replace the "Name and Resume button" section in your build method with this:
+                      const SizedBox(height: AppSpacing.xl),
 
                       // Name and Resume button
                       Row(
@@ -240,11 +243,8 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                           Expanded(
                             child: Text(
                               fullName,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: GoogleFonts.jost().fontFamily,
-                                color: Colors.black,
+                              style: AppTypography.headingLg.copyWith(
+                                fontSize: 28,
                               ),
                             ),
                           ),
@@ -260,16 +260,15 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFD6F59A),
+                                  backgroundColor: AppColors.accentLime,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: AppShapes.card,
                                   ),
                                 ),
                                 child: Text(
                                   'Resume',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: GoogleFonts.jost().fontFamily,
+                                  style: AppTypography.chip.copyWith(
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                               ),
@@ -277,99 +276,76 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: AppSpacing.sm),
 
                       // Contact info
                       Text(
                         phone,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          fontSize: 20,
-                        ),
+                        style: AppTypography.bodySm.copyWith(fontSize: 16),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         email,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          fontSize: 20,
-                        ),
+                        style: AppTypography.bodySm.copyWith(fontSize: 16),
                       ),
 
                       // Bio section
-                      const SizedBox(height: 15),
+                      const SizedBox(height: AppSpacing.lg),
                       Text(
                         'Bio',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          color: Colors.black,
-                        ),
+                        style: AppTypography.jobTitle.copyWith(fontSize: 26),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         bio,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          fontSize: 20,
-                        ),
+                        style: AppTypography.bodySm.copyWith(fontSize: 16),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
 
                       Text(
                         'College Details',
-                        style: TextStyle(
+                        style: AppTypography.jobTitle.copyWith(
                           fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.jost().fontFamily,
-                          color: Color(0xFF100739),
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: AppSpacing.sm),
 
                       // Education section
                       _buildInputField(
                         'College Name',
                         education['college'] ?? '',
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: AppSpacing.lg),
                       _buildInputField(
                         'University',
                         education['universityType'] ?? '',
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: AppSpacing.lg),
                       _buildInputField('Degree', education['degree'] ?? ''),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: AppSpacing.lg),
                       _buildInputField('College Email ID', collegeEmail),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: AppSpacing.lg),
                       _buildInputField(
                         'Year of Graduation',
                         education['yearOfPassing']?.toString() ?? '',
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
 
-                      // ✅✅✅ FIXED Skills section - properly reads Map entries
+                      // Skills section
                       if (skillsList.isNotEmpty) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Skills',
-                              style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: GoogleFonts.jost().fontFamily,
-                                color: Color(0xFF100739),
+                              style: AppTypography.jobTitle.copyWith(
+                                fontSize: 26,
                               ),
                             ),
-                            TextButton(
+                            ElevatedButton(
                               onPressed: () {
-                                // Convert entries list back to map for SkillVerification
                                 Map<String, dynamic> skillsMap =
                                     Map.fromEntries(skillsList);
 
@@ -382,22 +358,32 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                                   ),
                                 );
                               },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.accentLime,
+                                foregroundColor: AppColors.textPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.lg,
+                                  vertical: AppSpacing.sm,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppShapes.pill,
+                                ),
+                                elevation: 0,
+                              ),
                               child: Text(
                                 "Verify Skills",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: GoogleFonts.jost().fontFamily,
-                                  color: Color(0xFF100739),
+                                style: AppTypography.chip.copyWith(
+                                  fontSize: 16,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: AppSpacing.md),
                         Wrap(
-                          spacing: 10.0,
-                          runSpacing: 10.0,
+                          spacing: AppSpacing.lg,
+                          runSpacing: AppSpacing.lg,
                           children: skillsList.map<Widget>((entry) {
                             String skillName = entry.key;
                             String level = 'unverified';
@@ -413,20 +399,20 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                             return _buildSkillChip(skillName, level);
                           }).toList(),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.xl),
                       ],
 
                       // Job Preference section
                       _buildJobPreferenceSection(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
 
                       // Experience section
                       _buildExperienceSection(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
 
                       // Projects section
                       _buildProjectsSection(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
 
                       Center(
                         child: ElevatedButton.icon(
@@ -434,18 +420,21 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                             _signOut(context);
                           },
                           icon: const Icon(Icons.logout, color: Colors.white),
-                          label: const Text(
+                          label: Text(
                             'Logout',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                            style: AppTypography.chip.copyWith(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.redAccent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppShapes.card,
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+                              horizontal: AppSpacing.xl,
+                              vertical: AppSpacing.md,
                             ),
                           ),
                         ),
@@ -462,13 +451,17 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             top: 40,
             right: 10,
             child: Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: const Color(0xFFE9E4F5),
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.accentLime,
+                borderRadius: AppShapes.pill,
               ),
               child: IconButton(
-                icon: const Icon(Icons.edit, color: Colors.black, size: 30),
+                icon: const Icon(
+                  Icons.edit,
+                  color: AppColors.textPrimary,
+                  size: 30,
+                ),
                 onPressed: () async {
                   final result = await Navigator.push(
                     context,
@@ -494,250 +487,128 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 20,
+          style: AppTypography.chip.copyWith(
+            fontSize: 18,
             fontWeight: FontWeight.bold,
-            fontFamily: GoogleFonts.jost().fontFamily,
-            color: Colors.black,
           ),
-          textAlign: TextAlign.left,
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: AppSpacing.sm),
         Container(
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 255, 255),
-            boxShadow: [
-              // Bottom shadow
-              const BoxShadow(
-                color: Colors.black,
+            color: AppColors.card,
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.shadowSharp,
                 offset: Offset(0, 6),
                 blurRadius: 0,
                 spreadRadius: -2,
               ),
-              // Right shadow
-              const BoxShadow(
-                color: Colors.black,
+              BoxShadow(
+                color: AppColors.shadowSharp,
                 offset: Offset(6, 0),
                 blurRadius: 0,
                 spreadRadius: -2,
               ),
-              // Bottom-right corner shadow
-              const BoxShadow(
-                color: Colors.black,
+              BoxShadow(
+                color: AppColors.shadowSharp,
                 offset: Offset(6, 6),
                 blurRadius: 0,
                 spreadRadius: -2,
               ),
             ],
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppShapes.card,
             border: const Border(
-              top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-              left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-              right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-              bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+              top: BorderSide(color: AppColors.borderStrong, width: 1),
+              left: BorderSide(color: AppColors.borderStrong, width: 1),
+              right: BorderSide(color: AppColors.borderStrong, width: 2),
+              bottom: BorderSide(color: AppColors.borderStrong, width: 2),
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 value,
-                style: const TextStyle(color: Colors.black, fontSize: 18),
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildSkillsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Skills',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.jost().fontFamily,
-                color: Color(0xFF100739),
-              ),
-            ),
-
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 255, 255, 255),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(0, 6),
-                    blurRadius: 0,
-                    spreadRadius: -2,
-                  ),
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(6, 0),
-                    blurRadius: 0,
-                    spreadRadius: -2,
-                  ),
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(6, 6),
-                    blurRadius: 0,
-                    spreadRadius: -2,
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-                border: const Border(
-                  top: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 1,
-                  ),
-                  left: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 1,
-                  ),
-                  right: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 2,
-                  ),
-                  bottom: BorderSide(
-                    color: Color.fromARGB(255, 6, 7, 8),
-                    width: 2,
-                  ),
-                ),
-              ),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  // Make button background transparent so the container shows
-                  backgroundColor: const Color(0xFFFDC88D),
-                  shadowColor: Colors.transparent, // remove default shadow
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Verify Skills',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: GoogleFonts.jost().fontFamily,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        // Wrap(
-        //   spacing: 50.0,
-        //   runSpacing: 35.0,
-        //   children: [
-        //     _buildSkillChip('ADOBE', const Color(0xFFFDD34F)),
-        //     _buildSkillChip('REACT', Colors.white),
-        //     _buildSkillChip('FLUTTER', const Color(0xFF96E7E5)),
-        //     _buildSkillChip('FIGMA', const Color(0xFF40FFB9)),
-        //     _buildSkillChip('TENSOR FLOW', Colors.white),
-        //   ],
-        // ),
       ],
     );
   }
 
   Widget _buildSkillChip(String skill, String level) {
-    // Determine color based on level
     Color chipColor;
     switch (level.toLowerCase()) {
       case 'beginner':
-        chipColor = const Color(0xFFFDD34F); // Yellow
+        chipColor = const Color(0xFFFDD34F);
         break;
       case 'intermediate':
-        chipColor = const Color(0xFF96E7E5); // Cyan
+        chipColor = const Color(0xFF96E7E5);
         break;
       case 'advanced':
       case 'advance':
-        chipColor = const Color(0xFF40FFB9); // Green
+        chipColor = const Color(0xFF40FFB9);
         break;
       case 'unverified':
       default:
-        chipColor = const Color.fromARGB(
-          255,
-          255,
-          244,
-          244,
-        ); // Light grey for unverified
+        chipColor = const Color.fromARGB(255, 255, 244, 244);
         break;
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: chipColor, // Use the level-based color
+        color: chipColor,
         boxShadow: const [
-          // Bottom shadow
           BoxShadow(
-            color: Colors.black,
-            offset: Offset(0, 6),
-            blurRadius: 0,
-            spreadRadius: -2,
-          ),
-          // Right shadow
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(6, 0),
-            blurRadius: 0,
-            spreadRadius: -2,
-          ),
-          // Bottom-right shadow
-          BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
         ],
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppShapes.card,
         border: const Border(
-          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xs,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             skill,
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: GoogleFonts.jost().fontFamily,
-              color: const Color(0xFF1FA7E3),
-              fontWeight: FontWeight.bold,
+            style: AppTypography.chip.copyWith(
+              fontSize: 18,
+              color: AppColors.primary,
             ),
           ),
-          const SizedBox(width: 8),
-          // Optional small badge showing level
+          const SizedBox(width: AppSpacing.sm),
           if (level.toLowerCase() != 'unverified')
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: 2,
+              ),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppShapes.pill,
               ),
               child: Text(
-                level.toUpperCase()[0], // First letter B/I/A
+                level.toUpperCase()[0],
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 10,
@@ -755,19 +626,14 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Job Preference',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: AppTypography.jobTitle.copyWith(fontSize: 26),
         ),
-        const SizedBox(height: 10),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.md),
         Wrap(
-          spacing: 25.0,
-          runSpacing: 30.0,
+          spacing: AppSpacing.lg,
+          runSpacing: AppSpacing.lg,
           children: jobPreferences
               .map<Widget>((job) => _buildJobChipWithShadow(job.toString()))
               .toList(),
@@ -776,42 +642,42 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     );
   }
 
-  // New helper method with shadow
   Widget _buildJobChipWithShadow(String label) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         boxShadow: const [
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(0, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 0),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
         ],
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1),
+        borderRadius: AppShapes.pill,
+        border: Border.all(color: AppColors.borderStrong, width: 1),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTypography.chip.copyWith(
           fontSize: 15,
-          fontFamily: GoogleFonts.jost().fontFamily,
-          color: const Color(0xFF1FA7E3),
-          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
         ),
       ),
     );
@@ -824,21 +690,16 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
       children: [
         Text(
           'Experience',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontFamily: GoogleFonts.jost().fontFamily,
-          ),
+          style: AppTypography.jobTitle.copyWith(fontSize: 26),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.md),
         ...experiences.map((exp) {
           final org = exp['nameOfOrg'] ?? '';
           final position = exp['position'] ?? '';
           final timeline = exp['timeline'] ?? '';
           final description = exp['description'] ?? '';
           return Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
+            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
             child: _buildExperienceCard(org, position, timeline, description),
           );
         }).toList(),
@@ -851,22 +712,14 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Projects',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Jost',
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(height: 10),
+        Text('Projects', style: AppTypography.jobTitle.copyWith(fontSize: 26)),
+        const SizedBox(height: AppSpacing.md),
         ...projects.map((proj) {
           final name = proj['projectName'] ?? '';
           final description = proj['description'] ?? '';
           final link = proj['link'] ?? '';
           return Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: _buildProjectCard(
               name: name,
               description: description,
@@ -885,8 +738,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     String description,
   ) {
     return Container(
-      padding: const EdgeInsets.all(15),
-
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -899,94 +751,13 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     );
   }
 
-  // Widget _buildProjectCard({
-  //   required String name,
-  //   required String description,
-  //    required link,
-  // }) {
-  //   return Container(
-  //     padding: const EdgeInsets.all(15),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Expanded(
-  //               child: Text(
-  //                 'Name of Project: $name',
-  //                 style: const TextStyle(fontWeight: FontWeight.bold),
-  //               ),
-  //             ),
-  //             Container(
-  //               decoration: BoxDecoration(
-  //                 color: const Color(0xFFD3EBFD),
-  //                 borderRadius: BorderRadius.circular(10),
-  //                 boxShadow: const [
-  //                   BoxShadow(
-  //                     color: Colors.black,
-  //                     offset: Offset(0, 6),
-  //                     blurRadius: 0,
-  //                     spreadRadius: -2,
-  //                   ),
-  //                   BoxShadow(
-  //                     color: Colors.black,
-  //                     offset: Offset(6, 0),
-  //                     blurRadius: 0,
-  //                     spreadRadius: -2,
-  //                   ),
-  //                   BoxShadow(
-  //                     color: Colors.black,
-  //                     offset: Offset(6, 6),
-  //                     blurRadius: 0,
-  //                     spreadRadius: -2,
-  //                   ),
-  //                 ],
-  //               ),
-  //                 if (link != null && link.isNotEmpty)
-  //              ElevatedButton(
-  //               onPressed: () async {
-  //                 final uri = Uri.parse(link);
-  //                 if (await canLaunchUrl(uri)) {
-  //                   await launchUrl(uri, mode: LaunchMode.externalApplication);
-  //                 } else {
-  //                   print('Could not launch $link');
-  //                 }
-  //               },
-  //                 style: ElevatedButton.styleFrom(
-  //                   backgroundColor: Colors.white, // shows container color
-  //                   padding: const EdgeInsets.symmetric(
-  //                     horizontal: 25,
-  //                     vertical: 15,
-  //                   ),
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //                 child: const Text(
-  //                   'LINK',
-  //                   style: TextStyle(color: Color(0xFF1FA7E3)),
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 5),
-  //         Text(
-  //           'Description: $description',
-  //           style: const TextStyle(color: Colors.black54),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget _buildProjectCard({
     required String name,
     required String description,
-    String? link, // make it nullable
+    String? link,
   }) {
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -996,7 +767,10 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
               Expanded(
                 child: Text(
                   'Name of Project: $name',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: AppTypography.chip.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
               if (link != null && link.isNotEmpty)
@@ -1013,26 +787,26 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.card,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 15,
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: AppShapes.card),
                   ),
-                  child: const Text(
+                  child: Text(
                     'LINK',
-                    style: TextStyle(color: Color(0xFF1FA7E3)),
+                    style: AppTypography.chip.copyWith(
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             'Description: $description',
-            style: const TextStyle(color: Colors.black54),
+            style: AppTypography.bodySm.copyWith(fontSize: 14),
           ),
         ],
       ),
@@ -1041,22 +815,21 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Text.rich(
         TextSpan(
           text: '$label : ',
-          style: const TextStyle(
+          style: AppTypography.chip.copyWith(
             fontWeight: FontWeight.bold,
-            fontFamily: 'Jost',
-            color: Color(0xFF232323),
+            color: AppColors.textPrimary,
           ),
           children: [
             TextSpan(
               text: value,
-              style: const TextStyle(
+              style: AppTypography.bodySm.copyWith(
                 fontWeight: FontWeight.normal,
-                fontFamily: 'Jost',
-                color: Color(0xFF232323),
+                color: AppColors.textPrimary,
+                fontSize: 14,
               ),
             ),
           ],
@@ -1155,61 +928,90 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
 
   void _showResumeDialog(BuildContext context) {
     final profile = userData!['profile'] ?? {};
-    final resumeName = profile['resumeName'] ?? '';
+    final resumeName = profile['resumeName'] ?? 'No Resume';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Resume'),
+          title: Text(
+            'Resume',
+            style: AppTypography.headingLg.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 22,
+            ),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildResumeFileItem(resumeName, true),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.borderSoft),
+                    borderRadius: AppShapes.card,
                   ),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Click to Upload or drag and drop',
-                        style: TextStyle(fontSize: 16),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
                         '(Max. File size: 1.2 MB)',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         'PDF | DOCX | > 3 MB',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                const SizedBox(height: AppSpacing.lg),
+                Text(
                   'AI Resume Builder',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: AppTypography.headingLg.copyWith(
+                    fontSize: 18,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.textPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.lg,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppShapes.card,
+                      ),
                     ),
-                    child: const Text('Submit'),
+                    child: Text(
+                      'Submit',
+                      style: AppTypography.chip.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1220,7 +1022,10 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Close'),
+              child: Text(
+                'Close',
+                style: AppTypography.bodySm.copyWith(color: AppColors.primary),
+              ),
             ),
           ],
         );

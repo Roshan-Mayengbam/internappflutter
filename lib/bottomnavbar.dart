@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 
 import 'package:internappflutter/home/home_page.dart';
 
@@ -27,6 +28,7 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: _pages[_selectedIndex],
       bottomNavigationBar: SafeArea(
         child: Container(

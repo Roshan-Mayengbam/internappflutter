@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/package/ViewMores.dart';
@@ -215,6 +216,7 @@ class _JobPageState extends State<JobPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: Consumer2<JobProvider, HackathonProvider>(
         builder: (context, jobProvider, hackathonProvider, child) {
           // Show loading indicator
@@ -376,6 +378,7 @@ class _JobPageState extends State<JobPage> {
                               allFilteredHackathons, // Pass ALL filtered hackathons
                           isAppliedSection: false,
                           statusPage: false,
+                          hackathonPage: true,
                         ),
                       ),
                     );

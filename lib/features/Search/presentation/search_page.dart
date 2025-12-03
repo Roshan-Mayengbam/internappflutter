@@ -278,6 +278,7 @@ class _SearchPageState extends State<SearchPage> {
     final filterSlug = _selectedSearchCategory.searchFilter;
 
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
