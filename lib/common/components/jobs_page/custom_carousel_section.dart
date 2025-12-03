@@ -5,6 +5,7 @@ import '../../../features/core/design_systems/app_colors.dart';
 import '../../../features/core/design_systems/app_shapes.dart';
 import 'filter_tag.dart';
 import 'job_carousel_card.dart';
+import 'package:lottie/lottie.dart';
 
 // Reusable Custom Carousel Section
 class CustomCarouselSection extends StatelessWidget {
@@ -108,12 +109,12 @@ class CustomCarouselSection extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          subtitle.toLowerCase().contains('saved')
-                              ? Icons.bookmark_border
-                              : Icons.work_outline,
-                          size: 80,
-                          color: Colors.grey.shade300,
+                        Lottie.asset(
+                          'assets/animations/empty/empty_lottie.json',
+                          width: 200,
+                          height: 200,
+                          repeat: false,
+                          animate: true,
                         ),
                         const SizedBox(height: 20),
                         Text(

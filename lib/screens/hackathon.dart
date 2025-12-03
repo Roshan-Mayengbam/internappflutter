@@ -79,7 +79,7 @@ class HackathonProvider extends ChangeNotifier {
         print('Error response: ${response.body}');
       }
     } catch (e, stackTrace) {
-      _errorMessage = 'Error fetching hackathons: $e';
+      _errorMessage = 'Error fetching hackathons';
       print('Error: $e');
       print('Stack trace: $stackTrace');
     } finally {
