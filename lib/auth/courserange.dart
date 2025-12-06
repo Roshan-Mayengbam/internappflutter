@@ -14,51 +14,117 @@ class CourseRangePage extends StatefulWidget {
 }
 
 class _CourseRangePageState extends State<CourseRangePage> {
-  int? selectedOption;
+  // Use a TextEditingController for the TextFormField
+  final TextEditingController _yearController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   String? selectedCourseRange;
 
-  final List<String> options = ['2026', '2027', '2028', '2029'];
+  // Define the range for year selection: Current year + 5 years
+  final int currentYear = DateTime.now().year;
+  late final int minYear = currentYear;
+  late final int maxYear = currentYear + 6;
 
   @override
   void initState() {
     super.initState();
-    // ✅ Debug print to see received user data - FIXED parameter name
+    // Debug print
     if (widget.extendedUserModel != null) {
-      print("=== RECEIVED DATA IN COURSE RANGE PAGE ===");
+      print("=== RECEIVED DATA IN COURSE RANGE PAGE (MODIFIED UI) ===");
       print("Name: ${widget.extendedUserModel!.name}");
-      print("Email: ${widget.extendedUserModel!.email}");
-      print("Phone: ${widget.extendedUserModel!.phone}");
-      print("UID: ${widget.extendedUserModel!.uid}");
-      print("Role: ${widget.extendedUserModel!.role}");
-      print("College Name: ${widget.extendedUserModel!.collegeName}");
-      print("University: ${widget.extendedUserModel!.university}");
-      print("Degree: ${widget.extendedUserModel!.degree}");
-      print("College Email: ${widget.extendedUserModel!.collegeEmailId}");
-      print("Skills: ${widget.extendedUserModel!.skills}");
-      print("Jobs: ${widget.extendedUserModel!.jobs}");
       print("===============================");
     }
   }
 
-  // ✅ Show validation message
-  void showValidationMessage() {
+  @override
+  void dispose() {
+    _yearController.dispose();
+    super.dispose();
+  }
+
+  // Function to show the year picker dialog
+  Future<void> _selectYear(BuildContext context) async {
+    final int currentYear = DateTime.now().year;
+    final int minYear = currentYear;
+    final int maxYear = currentYear + 5;
+
+    final DateTime? pickedDate = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        DateTime? selectedDate = DateTime(
+          currentYear,
+        ); // Initialize with a default date
+
+        return AlertDialog(
+          title: const Text("Select Pass-out Year"),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            // Use the YearPicker widget directly
+            child: YearPicker(
+              firstDate: DateTime(minYear),
+              lastDate: DateTime(maxYear),
+              selectedDate: selectedDate!, // Must be non-null
+              onChanged: (DateTime newDate) {
+                // When a year is selected, update the selectedDate and close the dialog
+                selectedDate = newDate;
+                Navigator.pop(
+                  context,
+                  selectedDate,
+                ); // Return the selected year
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Close dialog without selecting anything
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedCourseRange = pickedDate.year.toString();
+        _yearController.text = selectedCourseRange!;
+        print("Selected course year: $selectedCourseRange");
+      });
+    }
+  }
+
+  // Show validation message
+  void showValidationMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Please select your course range to continue',
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text(message, style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.red[600],
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
 
+  // Validation function for the TextFormField
+  String? _validateYear(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your pass-out year';
+    }
+    final int? year = int.tryParse(value);
+    if (year == null || year < minYear || year > maxYear) {
+      return 'Year must be between $minYear and $maxYear';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    double progress = selectedOption != null ? 1.0 : 0.0;
+    double progress = selectedCourseRange != null ? 1.0 : 0.0;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -68,7 +134,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
           children: [
             SizedBox(height: MediaQuery.of(context).padding.top),
 
-            // Progress bar with back button
+            // Progress bar
             Row(
               children: [
                 Expanded(
@@ -85,7 +151,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
               ],
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // GIF and message box image
             Row(
@@ -107,11 +173,11 @@ class _CourseRangePageState extends State<CourseRangePage> {
                           fit: BoxFit.contain,
                           width: double.infinity,
                         ),
-                        Text(
-                          "OK, LET'S ADD YOUR COURSE RANGE",
+                        const Text(
+                          "OK, LET'S ADD YOUR PASSOUT YEAR",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                             letterSpacing: 1.2,
@@ -124,99 +190,59 @@ class _CourseRangePageState extends State<CourseRangePage> {
               ],
             ),
 
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
 
-            // Options - Expanded to take available space
-            Expanded(
-              child: Column(
-                children: [
-                  ...List.generate(options.length, (index) {
-                    final bool isSelected = selectedOption == index;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Material(
-                        elevation: 0,
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () {
-                            setState(() {
-                              selectedOption = index;
-                              selectedCourseRange = options[index];
-                            });
-                            print("Selected course range: ${options[index]}");
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color.fromRGBO(232, 226, 254, 1)
-                                  : const Color.fromRGBO(248, 248, 248, 1),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color.fromARGB(
-                                    255,
-                                    181,
-                                    169,
-                                    235,
-                                  ).withOpacity(0.5),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                              border: Border(
-                                bottom: isSelected
-                                    ? BorderSide(
-                                        color: const Color.fromRGBO(
-                                          182,
-                                          165,
-                                          254,
-                                          1,
-                                        ),
-                                        width: 5,
-                                      )
-                                    : BorderSide.none,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20,
-                              horizontal: 16,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  options[index],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? const Color.fromRGBO(182, 165, 254, 1)
-                                        : Colors.black,
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: const Color.fromRGBO(
-                                      182,
-                                      165,
-                                      254,
-                                      1,
-                                    ),
-                                    size: 24,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
+            // 🚀 Replaced Fixed Options with Year Input Field
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _yearController,
+                readOnly: true, // Forces usage of the picker
+                decoration: InputDecoration(
+                  labelText: 'Select Pass-out Year',
+                  hintText: 'Tap to select year',
+                  // Styling to match the original button aesthetic
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6A5FE),
+                      width: 2,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6A5FE),
+                      width: 3,
+                    ),
+                  ),
+                  suffixIcon: const Icon(
+                    Icons.calendar_today,
+                    color: Color(0xFFB6A5FE),
+                  ),
+                  fillColor: const Color.fromRGBO(248, 248, 248, 1),
+                  filled: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
+                  ),
+                ),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                onTap: () => _selectYear(context), // Open the year picker
+                validator: _validateYear,
               ),
             ),
+            const SizedBox(height: 20),
+            Text(
+              'Select a year between $minYear and $maxYear.',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+
+            // Spacer to push the button to the bottom
+            const Spacer(),
           ],
         ),
       ),
@@ -239,48 +265,38 @@ class _CourseRangePageState extends State<CourseRangePage> {
           ),
           child: ElevatedButton(
             onPressed: () {
-              // ✅ Validate selection
-              if (selectedOption == null) {
-                showValidationMessage();
+              // Validate form
+              if (!_formKey.currentState!.validate()) {
+                showValidationMessage(
+                  'Please select a valid course pass-out year.',
+                );
                 return;
               }
 
-              // ✅ Create CourseRange model from ExtendedUserModel + selected year
+              if (selectedCourseRange == null ||
+                  widget.extendedUserModel == null) {
+                showValidationMessage(
+                  'An internal error occurred. Please select the year again.',
+                );
+                return;
+              }
+
+              // Create CourseRange model using your existing factory method
               final courseRangeModel = CourseRange.fromExtended(
                 widget.extendedUserModel!,
                 year: selectedCourseRange!,
               );
 
-              // ✅ Print all data INCLUDING course range
-              print(
-                "=== COMPLETE DATA BEFORE NAVIGATION (WITH COURSE RANGE) ===",
-              );
-              print("Name: ${courseRangeModel.name}");
-              print("Email: ${courseRangeModel.email}");
-              print("Phone: ${courseRangeModel.phone}");
-              print("UID: ${courseRangeModel.uid}");
-              print("Role: ${courseRangeModel.role}");
-              print("College Name: ${courseRangeModel.collegeName}");
-              print("University: ${courseRangeModel.university}");
-              print("Degree: ${courseRangeModel.degree}");
-              print("College Email: ${courseRangeModel.collegeEmailId}");
-              print("Skills: ${courseRangeModel.skills}");
-              print("Jobs: ${courseRangeModel.jobs}");
-              print(
-                "Course Range/Year: ${courseRangeModel.year}",
-              ); // NEW FIELD ADDED
+              print("=== NAVIGATION DATA (USING YOUR MODEL) ===");
               print("Full Model: ${courseRangeModel.toString()}");
               print("===========================================");
 
-              // ✅ Navigate to Skills page (which then goes to Experience)
-              // Note: You might want to navigate to Skills page instead of ExperiencePage directly
+              // Navigate to Skills page
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Skills(
-                    extendedUserModel:
-                        courseRangeModel, // Pass the CourseRange model
-                  ),
+                  builder: (context) =>
+                      Skills(extendedUserModel: courseRangeModel),
                 ),
               );
             },
@@ -293,8 +309,8 @@ class _CourseRangePageState extends State<CourseRangePage> {
               ),
             ),
             child: Text(
-              selectedOption != null ? 'Next' : 'Select Course Range',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              selectedCourseRange != null ? 'Next' : 'Select Pass-out Year',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),

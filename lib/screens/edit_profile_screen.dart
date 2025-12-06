@@ -14,6 +14,9 @@ import 'package:internappflutter/screens/add_project_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internappflutter/features/core/design_systems/app_typography.dart';
 import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:lottie/lottie.dart';
+
+import '../features/core/design_systems/app_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -139,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final List<dynamic> data = json.decode(response);
       _allSkills = data.cast<String>();
       _skillsLoaded = true;
-      return _allSkills;
+      return _allSkills.map((s) => s.toLowerCase()).toList();
     } catch (e) {
       print('Error loading skills: $e');
       return [];
@@ -525,10 +528,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _removeSkill(String skill) {
+  void _removeSkill(String skillToRemove) {
+    final normalizedSkill = skillToRemove.toLowerCase();
+
     setState(() {
-      skills.remove(skill);
+      skills.removeWhere(
+        (storedSkill) => storedSkill.toLowerCase() == normalizedSkill,
+      );
     });
+
     // Note: You might want to implement a removeSkill endpoint in your backend
   }
 
@@ -626,8 +634,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   // Update your _addSkill method to work with the new system
-  void _addSkillFromSearch(String skillName) {
-    _addSkill(skillName);
+  void _addSkillFromSearch(String skillName) async {
+    final normalizedInput = skillName.trim().toLowerCase();
+    if (normalizedInput.isEmpty) return;
+    await _loadSkillsFromJson();
+
+    if (skills.map((s) => s.toLowerCase()).contains(normalizedInput)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Skill "${skillName.trim()}" is already added.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.borderStrong,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _skillsController.clear();
+      setState(() {
+        filteredSkills = [];
+      });
+      return;
+    }
+
+    final masterSkillsLower = _allSkills.map((s) => s.toLowerCase());
+
+    if (!masterSkillsLower.contains(normalizedInput)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Skill "${skillName.trim()}" is not recognized. Please select from suggestions.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.borderStrong,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _skillsController.clear();
+      setState(() {
+        filteredSkills = [];
+      });
+      return;
+    }
+
+    _addSkill(skillName.trim());
+
     _skillsController.clear();
     setState(() {
       filteredSkills = [];
@@ -662,14 +713,62 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   // Method to add job from search
-  void _addJob(String jobName) {
+  Future<void> _addJob(String jobName) async {
+    final normalizedJobName = jobName.trim();
+    final normalizedInput = normalizedJobName.toLowerCase();
+
+    if (normalizedInput.isEmpty) {
+      _jobsController.clear();
+      setState(() {
+        filteredJobs = [];
+      });
+      return;
+    }
+
+    await _loadJobsFromJson();
+
+    if (!_allJobs.map((j) => j.toLowerCase()).contains(normalizedInput)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Job preference "$normalizedJobName" is not recognized. Please select from suggestions.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.borderStrong,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _jobsController.clear();
+      setState(() {
+        filteredJobs = [];
+      });
+      return; // STOP execution if invalid!
+    }
+
+    if (jobPreferences.map((j) => j.toLowerCase()).contains(normalizedInput)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Job preference "$normalizedJobName" is already added.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.borderStrong,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _jobsController.clear();
+      setState(() {
+        filteredJobs = [];
+      });
+      return;
+    }
+
     setState(() {
-      jobPreferences.add(jobName);
-    });
-    _jobsController.clear();
-    setState(() {
+      jobPreferences.add(normalizedJobName);
       filteredJobs = [];
     });
+
+    _jobsController.clear();
   }
 
   // Method to remove job
@@ -684,7 +783,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: Colors.grey[100],
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: Lottie.asset(
+            'assets/animations/searching/searching_lottie.json',
+            width: 300,
+            height: 300,
+            repeat: true,
+          ),
+        ),
       );
     }
 
@@ -914,7 +1020,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         .map(
                           (entry) => _buildChip(
                             entry.value,
-                            onDelete: () => _removeSkill(entry.key as String),
+                            onDelete: () => _removeSkill(entry.value),
                             deleteColor: Colors.red,
                           ),
                         )

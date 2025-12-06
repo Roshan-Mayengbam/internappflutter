@@ -5,6 +5,7 @@ import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:internappflutter/screens/hackathon_details.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../common/components/jobs_page/custom_carousel_section.dart';
@@ -223,7 +224,29 @@ class _JobPageState extends State<JobPage> {
           if ((jobProvider.isLoading && jobProvider.jobs.isEmpty) ||
               (hackathonProvider.isLoading &&
                   hackathonProvider.hackathons.isEmpty)) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    'assets/animations/searching/searching_lottie.json',
+                    width: 300,
+                    height: 300,
+                    repeat: true, // Keep the animation looping
+                    animate: true, // Ensure the animation starts
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Fetching the latest data...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           // Show error message for jobs

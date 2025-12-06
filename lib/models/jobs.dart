@@ -452,7 +452,7 @@ class JobProvider with ChangeNotifier {
 
       _errorMessage = null;
     } catch (e) {
-      print("⚠️ Exception occurred: $e");
+      print("⚠️ Exception occurred while fetching Jobs");
       _errorMessage =
           'Network error: Please check your connection and try again.';
     } finally {
@@ -510,7 +510,7 @@ class JobProvider with ChangeNotifier {
       }
     } catch (e) {
       print("⚠️ Exception occurred: $e");
-      _errorMessage = "Error applying to job: $e";
+      _errorMessage = "Error occurred when applying to job";
     }
 
     notifyListeners();

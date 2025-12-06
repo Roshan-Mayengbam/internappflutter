@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/network/network_service.dart';
+import 'package:internappflutter/features/core/network/network_service_impl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -64,7 +66,10 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // New provider from the features directory
+        Provider<NetworkService>(
+          // Use the concrete implementation
+          create: (_) => NetworkServiceImpl(),
+        ),
         ChangeNotifierProvider(
           create: (_) => JProvider(
             getJobs: GetJobs(
@@ -99,6 +104,7 @@ void main() async {
                 localDataSource: NewsLocalDataSourceImpl(),
               ),
             ),
+            networkService: NetworkServiceImpl(),
           ),
         ),
         ChangeNotifierProvider(create: (_) => HackathonProvider()),
@@ -255,17 +261,17 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.white,
-    body: Center(
-      child: Lottie.asset(
-        'assets/hyrup/splash_logo.json', 
-        fit: BoxFit.fitWidth,
-        animate: true, 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Lottie.asset(
+          'assets/hyrup/splash_logo.json',
+          fit: BoxFit.fitWidth,
+          animate: true,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

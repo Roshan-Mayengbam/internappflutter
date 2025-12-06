@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/network/network_service.dart';
 
 import '../../../../common/constants/explore_page/explore_page_constant.dart';
 import '../../domain/entities/article.dart';
 import '../../domain/usecases/get_tech_news.dart';
 
-// Assuming ExploreFilter is defined elsewhere, e.g., in constants.
-
 class ExploreViewModel extends ChangeNotifier {
   final GetTechNewsUseCase getNewsUseCase;
+  final NetworkService networkService;
 
-  ExploreViewModel({required this.getNewsUseCase});
+  ExploreViewModel({
+    required this.getNewsUseCase,
+    required this.networkService,
+  });
 
   // --- State Variables ---
   bool _isLoading = false;
@@ -20,7 +23,6 @@ class ExploreViewModel extends ChangeNotifier {
   bool _initialLoadAttempted = false;
 
   // --- Caching Variables ---
-  // Map: { FilterTag: { PageNumber: [List of Articles] } }
   final Map<ExploreFilter, Map<int, List<Article>>> _cache = {};
 
   // --- RATE LIMITING & DEBOUNCING PROPERTIES ---
@@ -37,21 +39,18 @@ class ExploreViewModel extends ChangeNotifier {
   bool get isRateLimited =>
       _rateLimitUntil != null && _rateLimitUntil!.isAfter(DateTime.now());
 
-  // Helper for consistent logging
   void _log(String message) {
     debugPrint('[ExploreVM] $message');
   }
 
-  // Helper to retrieve all articles for the current filter from the cache
   List<Article> _getCachedArticles(ExploreFilter filter) {
     if (!_cache.containsKey(filter)) {
       return [];
     }
-    // Flatten all lists of articles across all pages for the current filter
     return _cache[filter]!.values.expand((list) => list).toList();
   }
 
-  // --- Core Logic: Fetching News ---
+  // --- Core Logic: Fetching News (Network check removed) ---
   Future<void> fetchNews({bool isRefresh = false}) async {
     _log(
       '-> Initiating fetch. IsRefresh: $isRefresh, Current Page: $_currentPage, Filter: ${_selectedFilter.label}',
@@ -70,6 +69,8 @@ class ExploreViewModel extends ChangeNotifier {
       return;
     }
 
+    // ❌ REMOVED: NETWORK CONNECTIVITY CHECK - Now handled by StreamBuilder/Try-Catch
+
     // --- Prepare State ---
     _isFetching = true;
     _isLoading = true;
@@ -77,20 +78,16 @@ class ExploreViewModel extends ChangeNotifier {
     _initialLoadAttempted = true;
 
     if (isRefresh) {
-      // When refreshing, we reset current state and check the cache for page 1 data.
       _currentPage = 1;
       _articles = _getCachedArticles(_selectedFilter);
       _log('State reset complete. Total cached articles: ${_articles.length}');
 
-      // If we have cached data for page 1, we return it instantly and then fetch.
       if (_cache.containsKey(_selectedFilter) &&
           _cache[_selectedFilter]!.containsKey(1)) {
-        // Only notify if we are showing cached data instantly
         notifyListeners();
       }
     }
 
-    // Check cache for the *specific* page we are requesting
     if (_cache.containsKey(_selectedFilter) &&
         _cache[_selectedFilter]!.containsKey(_currentPage)) {
       final cachedPageArticles = _cache[_selectedFilter]![_currentPage]!;
@@ -103,7 +100,6 @@ class ExploreViewModel extends ChangeNotifier {
       return;
     }
 
-    // If cache missed, proceed with API call.
     notifyListeners();
 
     _log(
@@ -111,7 +107,6 @@ class ExploreViewModel extends ChangeNotifier {
     );
 
     try {
-      // 3. Execute Use Case
       final newArticles = await getNewsUseCase.execute(
         page: _currentPage,
         tags: _selectedFilter.searchFilter,
@@ -119,22 +114,24 @@ class ExploreViewModel extends ChangeNotifier {
 
       _log('SUCCESS: Received ${newArticles.length} articles.');
 
-      // 4. Update State on Success
       _articles = [..._articles, ...newArticles];
       _currentPage++;
 
-      // --- CACHING STEP ---
-      // Store the new page of articles in the cache map
       _cache.putIfAbsent(_selectedFilter, () => {});
-      _cache[_selectedFilter]![_currentPage - 1] =
-          newArticles; // Store by the page that was just fetched (currentPage - 1)
+      _cache[_selectedFilter]![_currentPage - 1] = newArticles;
       _log(
         'Cache updated for Filter: ${_selectedFilter.label}, Page: ${_currentPage - 1}',
       );
     } on Exception catch (e, stack) {
       final errorString = e.toString();
 
-      if (errorString.contains('Status 429') ||
+      // Since the immediate network check is removed, we must rely on the network layer
+      // throwing an exception for network failure and set the error message here.
+      if (errorString.contains('SocketException') ||
+          errorString.contains('Network')) {
+        _errorMessage = 'Fetch FAILED: No network connection detected.';
+        _log('ERROR: Network exception caught by fetchNews.');
+      } else if (errorString.contains('Status 429') ||
           errorString.contains('Too Many Requests')) {
         _rateLimitUntil = DateTime.now().add(_blockDuration);
         _errorMessage =
@@ -147,7 +144,6 @@ class ExploreViewModel extends ChangeNotifier {
 
       if (_articles.isEmpty) _articles = [];
     } finally {
-      // 7. Finalize State
       _isLoading = false;
       _isFetching = false;
       _log(
@@ -157,45 +153,40 @@ class ExploreViewModel extends ChangeNotifier {
     }
   }
 
-  // --- UI Action: Changing Filter ---
-  void setFilter(ExploreFilter filter) {
+  // --- UI Action: Changing Filter (Network check removed) ---
+  void setFilter(ExploreFilter filter) async {
     if (isRateLimited) {
       _log('Filter change ABORTED: Rate limit active.');
       return;
     }
+
+    // ❌ REMOVED: Immediate Network Check - Now relying on fetchNews failure
 
     if (filter != _selectedFilter) {
       _log(
         'Filter change detected: ${_selectedFilter.label} -> ${filter.label}',
       );
       _selectedFilter = filter;
+      _errorMessage = null;
 
-      // Check if we have any data cached for the new filter
       final cachedArticles = _getCachedArticles(_selectedFilter);
       if (cachedArticles.isNotEmpty) {
         _log('Filter change: Found cached data. Displaying now.');
 
-        // Load cached state instantly
         _articles = cachedArticles;
-
-        // Find the last page loaded in cache for this filter
         _currentPage =
             _cache[_selectedFilter]!.keys.reduce((a, b) => a > b ? a : b) + 1;
 
-        // Reset error state and stop loading instantly
         _isLoading = false;
-        _errorMessage = null;
         notifyListeners();
       } else {
-        // If no cache, trigger a fresh API fetch
         fetchNews(isRefresh: true);
       }
     }
   }
 
-  // --- UI Action: Loading More ---
+  // --- UI Action: Loading More (rest of the code remains the same) ---
   void loadMore() {
-    // Guards ensure loadMore only triggers if not loading, not rate-limited, and not already fetching.
     if (!_isLoading && !isRateLimited && !_isFetching) {
       _log('LoadMore triggered.');
       fetchNews(isRefresh: false);

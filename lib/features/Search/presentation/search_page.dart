@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/screens/hackathon_details.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -125,32 +126,70 @@ class _SearchPageState extends State<SearchPage> {
     switch (state) {
       case JobState.loading:
       case JobState.initial:
-        return const Center(child: CircularProgressIndicator());
-
+        return Center(
+          child: Lottie.asset(
+            'assets/animations/searching/searching_lottie.json',
+            width: 250,
+            height: 250,
+            repeat: true,
+            animate: true,
+          ),
+        );
       case JobState.error:
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Text(
-              'Error fetching jobs: ${jobProvider.errorMessage}',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(color: Colors.red),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/error/error_lottie.json',
+                  width: 250,
+                  height: 250,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Error fetching jobs: ${jobProvider.errorMessage}',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 14,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         );
-
       case JobState.empty:
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Text(
-              currentQuery != null && currentQuery.isNotEmpty
-                  ? 'No results found for "$currentQuery".'
-                  : 'No jobs are currently available.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/empty/empty_lottie.lottie',
+                  width: 200,
+                  height: 200,
+                  repeat: true,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  currentQuery != null && currentQuery.isNotEmpty
+                      ? 'No results found for "$currentQuery".'
+                      : 'No jobs are currently available.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -209,16 +248,42 @@ class _SearchPageState extends State<SearchPage> {
     switch (state) {
       case HackathonState.loading:
       case HackathonState.initial:
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: Lottie.asset(
+            'assets/animations/searching/searching_lottie.json',
+            width: 250,
+            height: 250,
+            repeat: true,
+            animate: true,
+          ),
+        );
 
       case HackathonState.error:
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Text(
-              'Error fetching hackathons: ${hackathonProvider.errorMessage}',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(color: Colors.red),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/error/error_lottie.json',
+                  width: 250,
+                  height: 250,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Error fetching jobs: ${hackathonProvider.errorMessage}',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 14,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -227,14 +292,29 @@ class _SearchPageState extends State<SearchPage> {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Text(
-              currentQuery != null && currentQuery.isNotEmpty
-                  ? 'No results found for "$currentQuery". 🧐'
-                  : 'No hackathons are currently scheduled.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/empty/empty_lottie.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  currentQuery != null && currentQuery.isNotEmpty
+                      ? 'No results found for "$currentQuery".'
+                      : 'No jobs are currently available.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         );
