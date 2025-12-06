@@ -96,6 +96,7 @@ flutter:
     - assets/animations/empty/empty_lottie.json
     - assets/animations/searching/searching_lottie.json
     - assets/animations/error/error_lottie.json
+    - assets/animations/coming_soon/coming_soon_lottie.json
     - assets/bear.gif
     - assets/Union.svg
     - assets/svg/logo.svg
