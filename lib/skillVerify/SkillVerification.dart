@@ -6,6 +6,7 @@ import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/skillVerify/TestStart.dart';
 import 'package:internappflutter/skillVerify/test1.dart';
+import 'package:lottie/lottie.dart'; // Import Lottie package
 
 class SkillVerification extends StatefulWidget {
   final Map<String, dynamic> userSkills;
@@ -16,11 +17,65 @@ class SkillVerification extends StatefulWidget {
 }
 
 class _SkillVerificationState extends State<SkillVerification> {
+  // TODO: Remove this flag once the feature is complete and ready for production.
+  final bool _isComingSoon = true; // New boolean flag, false by default
   String? selectedSkill;
   String? selectedSkillLevel;
 
   @override
   Widget build(BuildContext context) {
+    // TODO : Remove this after feature is complete.
+    if (_isComingSoon) {
+      return Scaffold(
+        backgroundColor: AppColors.scaffold,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.md,
+                  left: AppSpacing.xl,
+                ),
+                child: CustomButton(
+                  buttonIcon: Icons.arrow_back,
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    'assets/animations/coming_soon/coming_soon_lottie.json',
+                    repeat: false,
+                    width: 300,
+                    height: 300,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    'Skill Verification Coming Soon!',
+                    style: AppTypography.headingLg.copyWith(fontSize: 28),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'We\'re working hard to bring this feature to you.',
+                    style: AppTypography.bodySm.copyWith(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // --- Normal content starts here (when _isComingSoon is false) ---
+
     // Extract skills from the userSkills map with their levels
     Map<String, String> skillsWithLevels = {};
 
