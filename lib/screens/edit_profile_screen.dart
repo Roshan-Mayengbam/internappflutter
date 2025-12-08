@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart' show DeviceInfoPlugin;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:internappflutter/screens/add_experience.dart';
 import 'package:internappflutter/screens/add_project_screen.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -22,8 +20,8 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  // final String baseUrl2 = "http://10.129.135.157:3000";
+  final String baseUrl2 = "https://hyrup-730899264601.asia-south1.run.app";
+  // final String baseUrl2 = "http://10.234.130.157:3000";
 
   String profilePicUrl = '';
 
@@ -71,75 +69,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _loadUserData();
     _loadSkillsFromJson();
     _loadJobsFromJson();
-  }
-
-  Future<void> _requestPermissions() async {
-    if (Platform.isAndroid) {
-      try {
-        final androidInfo = await DeviceInfoPlugin().androidInfo;
-
-        if (androidInfo.version.sdkInt >= 33) {
-          // Android 13+ - Request granular media permissions
-          await [Permission.photos, Permission.camera].request();
-        } else if (androidInfo.version.sdkInt >= 30) {
-          // Android 11-12
-          await [Permission.storage, Permission.camera].request();
-        } else {
-          // Android 10 and below
-          await [Permission.storage, Permission.camera].request();
-        }
-      } catch (e) {
-        print('Error requesting permissions: $e');
-      }
-    }
-  }
-
-  // ✅ CHECK PERMISSIONS
-  Future<bool> _checkPermission(Permission permission) async {
-    if (Platform.isIOS) return true; // iOS handles permissions differently
-
-    final status = await permission.status;
-    return status.isGranted;
-  }
-
-  // ✅ SHOW PERMISSION DIALOG
-  Future<bool?> _showPermissionDialog(String title, String message) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title, style: const TextStyle(fontFamily: 'Jost')),
-          content: Text(message, style: const TextStyle(fontFamily: 'Jost')),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Grant Permission'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // ✅ SHOW PERMISSION DENIED SNACKBAR
-  void _showPermissionDeniedSnackBar(String permissionType) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$permissionType permission denied'),
-        backgroundColor: Colors.redAccent,
-        action: SnackBarAction(
-          label: 'Settings',
-          textColor: Colors.white,
-          onPressed: () {
-            openAppSettings();
-          },
-        ),
-      ),
-    );
   }
 
   /// Alternative: Pick from camera
@@ -235,48 +164,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   /// Pick and upload image from specified source
   Future<void> _pickAndUploadImage(ImageSource source) async {
     try {
-      // Check appropriate permission based on source
-      Permission requiredPermission;
-      String permissionName;
-
-      if (source == ImageSource.camera) {
-        requiredPermission = Permission.camera;
-        permissionName = 'Camera';
-      } else {
-        if (Platform.isAndroid) {
-          final androidInfo = await DeviceInfoPlugin().androidInfo;
-          if (androidInfo.version.sdkInt >= 33) {
-            requiredPermission = Permission.photos;
-          } else {
-            requiredPermission = Permission.storage;
-          }
-        } else {
-          requiredPermission = Permission.photos;
-        }
-        permissionName = 'Gallery';
-      }
-
-      // Check if permission is granted
-      bool hasPermission = await _checkPermission(requiredPermission);
-
-      if (!hasPermission) {
-        // Ask user if they want to grant permission
-        bool? shouldRequest = await _showPermissionDialog(
-          '$permissionName Access',
-          'This app needs $permissionName permission to ${source == ImageSource.camera ? 'take' : 'select'} photos for your profile picture.',
-        );
-
-        if (shouldRequest == true) {
-          final status = await requiredPermission.request();
-          hasPermission = status.isGranted;
-        }
-
-        if (!hasPermission) {
-          _showPermissionDeniedSnackBar(permissionName);
-          return;
-        }
-      }
-
       print("1. Starting image upload process...");
 
       showDialog(
@@ -337,9 +224,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       print("6. Firebase Storage URL: $downloadURL");
 
       // Send to backend
-      print("7. Sending to backend: $baseUrl/student/profile-photo");
+      print("7. Sending to backend: $baseUrl2/student/profile-photo");
       final response = await http.put(
-        Uri.parse('$baseUrl/student/profile-photo'),
+        Uri.parse('$baseUrl2/student/profile-photo'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -390,7 +277,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (idToken == null) return;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/student/StudentDetails'),
+        Uri.parse('$baseUrl2/student/StudentDetails'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -536,7 +423,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       print("Sending update data: ${json.encode(updateData)}");
 
       final response = await http.put(
-        Uri.parse('$baseUrl/student/profile'),
+        Uri.parse('$baseUrl2/student/profile'),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $idToken",
@@ -608,7 +495,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (idToken == null) return;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/student/addSkills'),
+        Uri.parse('$baseUrl2/student/addSkills'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',

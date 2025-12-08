@@ -77,6 +77,16 @@ class _CarddetailsState extends State<Carddetails> {
     return FirebaseAuth.instance.currentUser?.uid ?? '';
   }
 
+  String get _formattedStipendK {
+    final clean = widget.stipend.replaceAll(RegExp(r'[^0-9.]'), '');
+    if (clean.isEmpty) return widget.stipend;
+    final double? amount = double.tryParse(clean);
+    if (amount == null || amount == 0) return widget.stipend;
+    final double k = amount / 1000.0;
+    final String kStr = k % 1 == 0 ? k.toStringAsFixed(0) : k.toStringAsFixed(1);
+    return '₹${kStr}k';
+  }
+
   Future<void> applyJob(String jobId, String jobType) async {
     print("🔄 Starting job application...");
     print("📋 Job ID: $jobId");
@@ -800,7 +810,7 @@ class _CarddetailsState extends State<Carddetails> {
                             Expanded(
                               child: _buildInfoCard(
                                 'Stipend',
-                                widget.salaryRange,
+                                _formattedStipendK,
                               ),
                             ),
                           ],

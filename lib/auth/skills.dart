@@ -216,6 +216,7 @@ class _SkillsState extends State<Skills> {
     required Function(String) onChanged,
     required Function(String) onAdd,
     required Function(String) onRemove,
+    required List<String> allItems, // ADD THIS PARAMETER
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,8 +251,27 @@ class _SkillsState extends State<Skills> {
             ),
             onChanged: onChanged,
             onSubmitted: (value) {
-              if (value.trim().isNotEmpty) {
-                onAdd(value.trim());
+              // FIXED: Only add if the value exists in the JSON data
+              final trimmedValue = value.trim();
+              if (trimmedValue.isNotEmpty) {
+                // Check if the value exists in allItems (case-insensitive)
+                final matchingItem = allItems.firstWhere(
+                  (item) => item.toLowerCase() == trimmedValue.toLowerCase(),
+                  orElse: () => '',
+                );
+
+                if (matchingItem.isNotEmpty) {
+                  onAdd(matchingItem);
+                } else {
+                  // Optional: Show a message that the item is not in the list
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select from the available options'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  controller.clear();
+                }
               }
             },
           ),
@@ -480,6 +500,7 @@ class _SkillsState extends State<Skills> {
                             onAdd: (String) {
                               _addSkill(String);
                             },
+                            allItems: allSkills, // ADD THIS
                           ),
 
                           const SizedBox(height: 32),
@@ -502,6 +523,7 @@ class _SkillsState extends State<Skills> {
                             onChanged: _filterJobs,
                             onAdd: _addJob,
                             onRemove: _removeJob,
+                            allItems: allJobs, // ADD THIS
                           ),
 
                           const SizedBox(height: 100), // Space for the button

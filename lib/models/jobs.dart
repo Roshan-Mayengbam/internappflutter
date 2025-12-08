@@ -324,9 +324,9 @@ class SalaryRange {
 }
 
 class JobProvider with ChangeNotifier {
-  static const String baseUrl2 =
+  static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
-  // final String baseUrl2 = "http://10.168.89.157:3000";
+  // final String baseUrl = "http://10.234.130.157:3000";
 
   List<Job> _jobs = [];
   bool _isLoading = false;
@@ -377,14 +377,14 @@ class JobProvider with ChangeNotifier {
       // Fetch both opportunities and recruiter jobs in parallel
       final responses = await Future.wait([
         http.get(
-          Uri.parse('$baseUrl2/college/opportunities'),
+          Uri.parse('$baseUrl/college/opportunities'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $idToken',
           },
         ),
         http.get(
-          Uri.parse('$baseUrl2/recruiter/jobs'),
+          Uri.parse('$baseUrl/recruiter/jobs'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $idToken',
@@ -483,7 +483,7 @@ class JobProvider with ChangeNotifier {
       }
 
       // Updated URL to include jobType
-      final url = '$baseUrl2/student/jobs/$jobId/$jobType/apply';
+      final url = '$baseUrl/student/jobs/$jobId/$jobType/apply';
 
       print("🌐 API URL: $url");
 
@@ -533,7 +533,7 @@ class JobProvider with ChangeNotifier {
       }
 
       final response = await http.post(
-        Uri.parse('$baseUrl2/jobs'),
+        Uri.parse('$baseUrl/jobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',

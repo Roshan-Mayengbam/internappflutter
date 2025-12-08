@@ -151,8 +151,8 @@ flutter_icons:
 
 flutter_launcher_icons:
   android: "launcher_icon"
-  image_path: "assets/hyrup/hyrup.png"
+  image_path: "assets/hyrup.png"
   adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/hyrup/hyrup.png"
+  adaptive_icon_foreground: "assets/hyrup.png"
 
 

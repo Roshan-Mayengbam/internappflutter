@@ -20,8 +20,8 @@ class Saved extends StatefulWidget {
 }
 
 class _SavedState extends State<Saved> {
-  final String baseUrl = "https://hyrup-730899264601.asia-south1.run.app";
-  final String baseUrl2 = "http://10.196.234.157:3000";
+  final String baseUrl2 = "https://hyrup-730899264601.asia-south1.run.app";
+  // final String baseUrl2 = "http://10.234.130.157:3000";
   List<Job> savedJobs = []; // ✅ Changed to List<Job>
   List<Job> appliedJobs = []; // ✅ Changed to List<Job>
   List<dynamic> appliedApplications = []; // Store full application data
@@ -59,7 +59,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching saved jobs...");
 
       final response = await http.get(
-        Uri.parse('$baseUrl/student/saves'),
+        Uri.parse('$baseUrl2/student/saves'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
@@ -113,7 +113,7 @@ class _SavedState extends State<Saved> {
       print("🔄 Fetching applied jobs...");
 
       final response = await http.get(
-        Uri.parse('$baseUrl/student/fetchappliedjobs'),
+        Uri.parse('$baseUrl2/student/fetchappliedjobs'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $idToken',
