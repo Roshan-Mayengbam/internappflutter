@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../features/core/design_systems/app_colors.dart';
+import '../../../features/core/design_systems/app_typography.dart';
+import '../../../features/core/design_systems/app_spacing.dart';
+import '../../../features/core/design_systems/app_shapes.dart';
 
 class DataTile extends StatelessWidget {
   final String title;
@@ -17,45 +21,46 @@ class DataTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 1.0),
-          borderRadius: BorderRadius.circular(8.0),
+          color: AppColors.card,
+          border: Border.all(color: AppColors.borderSoft, width: 2.0),
+          borderRadius: AppShapes.card,
+          boxShadow: const [
+            BoxShadow(color: AppColors.shadowSharp, offset: Offset(4, 4)),
+          ],
         ),
         child: InkWell(
           onTap: onTap,
-          splashColor: Colors.deepPurple.withOpacity(0.1),
+          splashColor: AppColors.primary.withOpacity(0.1),
+          borderRadius: AppShapes.card,
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildLeadingContent(),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        maxLines: 1,
+                        maxLines: (title.length > 25) ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTypography.jobTitle,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: AppTypography.companyName,
                       ),
                     ],
                   ),
@@ -70,30 +75,44 @@ class DataTile extends StatelessWidget {
 
   Widget _buildLeadingContent() {
     const double size = 50;
-    const BorderRadius borderRadius = BorderRadius.all(Radius.circular(8.0));
+    final borderRadius = AppShapes.pill;
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: borderRadius,
-        child: Image.network(
-          imageUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              width: size,
-              height: size,
-              color: Colors.grey[300],
-              child: const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return _buildPlaceholder(size, borderRadius);
-          },
+      return Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.borderSoft, width: 1.0),
+          borderRadius: borderRadius,
+        ),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: Image.network(
+            imageUrl!,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  color: AppColors.primarySurface,
+                  borderRadius: borderRadius,
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.primary,
+                    ),
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return _buildPlaceholder(size, borderRadius);
+            },
+          ),
         ),
       );
     } else {
@@ -106,10 +125,11 @@ class DataTile extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.deepPurple[100],
+        border: Border.all(color: AppColors.borderSoft, width: 1.0),
+        color: AppColors.primarySurface,
         borderRadius: borderRadius,
       ),
-      child: Icon(Icons.bookmark_border, color: Colors.deepPurple[400]),
+      child: const Icon(Icons.bookmark_border, color: AppColors.primary),
     );
   }
 }

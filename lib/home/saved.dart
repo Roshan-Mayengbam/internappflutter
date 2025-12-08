@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'cardDetails.dart';
 
 import '../common/components/custom_app_bar.dart';
 import '../common/components/custom_button.dart';
@@ -287,6 +286,7 @@ class _SavedState extends State<Saved> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: SafeArea(
         child: isLoading
             ? Center(child: CircularProgressIndicator())

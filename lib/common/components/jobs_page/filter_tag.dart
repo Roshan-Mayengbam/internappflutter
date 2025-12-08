@@ -1,6 +1,9 @@
+// core/widgets/filter_tag.dart
 import 'package:flutter/material.dart';
 
-import 'package:internappflutter/common/constants/filter_tag_constants.dart';
+import '../../../features/core/design_systems/app_colors.dart';
+import '../../../features/core/design_systems/app_shapes.dart';
+import '../../../features/core/design_systems/app_typography.dart';
 
 class FilterTag extends StatelessWidget {
   final String label;
@@ -10,30 +13,22 @@ class FilterTag extends StatelessWidget {
   const FilterTag({
     super.key,
     required this.label,
-    this.isSelected = false,
+    required this.isSelected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Apply tap only if applicable
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          border: FilterTagConstants.border,
-          borderRadius: FilterTagConstants.borderRadius,
+          color: isSelected ? AppColors.accentLime : Colors.white,
+          borderRadius: AppShapes.pill,
+          border: Border.all(color: AppColors.borderStrong, width: 1.2),
         ),
-        child: Container(
-          padding: FilterTagConstants.padding,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? FilterTagConstants.selectedBg
-                : FilterTagConstants.unselectedBg,
-            borderRadius: FilterTagConstants.borderRadius,
-          ),
-          child: Text(label, style: FilterTagConstants.filterText),
-        ),
+        child: Text(label, style: AppTypography.chip),
       ),
     );
   }

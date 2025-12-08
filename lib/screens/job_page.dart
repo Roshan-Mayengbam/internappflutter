@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/package/ViewMores.dart';
 import 'package:internappflutter/screens/hackathon_details.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../common/components/jobs_page/custom_carousel_section.dart';
@@ -215,13 +217,36 @@ class _JobPageState extends State<JobPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: Consumer2<JobProvider, HackathonProvider>(
         builder: (context, jobProvider, hackathonProvider, child) {
           // Show loading indicator
           if ((jobProvider.isLoading && jobProvider.jobs.isEmpty) ||
               (hackathonProvider.isLoading &&
                   hackathonProvider.hackathons.isEmpty)) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    'assets/animations/searching/searching_lottie.json',
+                    width: 300,
+                    height: 300,
+                    repeat: true, // Keep the animation looping
+                    animate: true, // Ensure the animation starts
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Fetching the latest data...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           // Show error message for jobs
@@ -264,12 +289,10 @@ class _JobPageState extends State<JobPage> {
               : allFilteredHackathons.take(initialHackathonsCount).toList();
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(vertical: 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 50),
-
                 // Top Job Picks Section
                 CustomCarouselSection(
                   title: 'Top job picks for you',
@@ -379,6 +402,7 @@ class _JobPageState extends State<JobPage> {
                               allFilteredHackathons, // Pass ALL filtered hackathons
                           isAppliedSection: false,
                           statusPage: false,
+                          hackathonPage: true,
                         ),
                       ),
                     );

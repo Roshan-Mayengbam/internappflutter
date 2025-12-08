@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 
 import 'package:internappflutter/home/home_page.dart';
 
@@ -35,10 +36,12 @@ class _BottomnavbarAlternativeState extends State<BottomnavbarAlternative> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Make body transparent by wrapping in a stack
-      body: IndexedStack(index: _selectedIndex, children: _pages),
-      // Remove background color from scaffold
+      // Use IndexedStack to preserve page state and avoid rebuilding
       extendBody: true, // Extend body behind bottom nav bar
+
+      backgroundColor: AppColors.scaffold,
+      body: IndexedStack(index: _selectedIndex, children: _pages),
+
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,

@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 class ArticleTile extends StatelessWidget {
   final Article article;
@@ -18,24 +22,23 @@ class ArticleTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // Card styling
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
-          boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(6, 6)),
+          color: AppColors.card,
+          borderRadius: AppShapes.card,
+          border: Border.all(color: AppColors.borderSoft, width: 1),
+          boxShadow: [
+            BoxShadow(color: AppColors.shadowSharp, offset: const Offset(4, 4)),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 1. Image (The dominant part)
+            // Image area
             ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
               child: imageUrl.isNotEmpty
                   ? CachedNetworkImage(
@@ -44,7 +47,7 @@ class ArticleTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         height: 150,
-                        color: Colors.grey[200],
+                        color: AppColors.primarySurface,
                         alignment: Alignment.center,
                         child: const CircularProgressIndicator.adaptive(
                           strokeWidth: 2,
@@ -56,17 +59,15 @@ class ArticleTile extends StatelessWidget {
                   : _buildFallbackContent(),
             ),
 
-            // 2. Title (Minimal text below the image)
+            // Title
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
               child: Text(
                 article.webTitle,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  // --- CHANGE MADE HERE ---
-                  fontSize: 12,
-                  // ------------------------
-                  color: Colors.black,
+                style: AppTypography.companyName.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

@@ -13,10 +13,10 @@ dependencies:
   firebase_core: ^4.2.0
   firebase_auth: ^6.0.0
   google_sign_in: ^6.2.1
-  http: ^1.5.0 
+  http: ^1.5.0
   firebase_analytics: ^12.0.0
   cloud_firestore: ^6.0.0
-  flutter_svg: ^2.0.10+1 
+  flutter_svg: ^2.0.10+1
   file_picker: ^10.3.3
   dotted_border: ^3.1.0
   flutter_card_swiper: ^7.0.1
@@ -37,27 +37,28 @@ dependencies:
   lottie: ^3.3.1
   video_player: ^2.10.0
   permission_handler: ^11.3.0
-  device_info_plus: ^10.1.0  # For checking Android version
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.13
+  device_info_plus: ^10.1.0
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-
-
-
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.13
   flutter_launcher_icons: ^0.14.4
-
-
 
 flutter:
   uses-material-design: true
 
   assets:
+    - assets/hyrup/splash_logo.json
+    - assets/animations/empty/empty_lottie.json
+    - assets/animations/searching/searching_lottie.json
+    - assets/animations/error/error_lottie.json
+    - assets/animations/coming_soon/coming_soon_lottie.json
     - assets/bear.gif
     - assets/Union.svg
     - assets/svg/logo.svg
@@ -87,21 +88,6 @@ flutter:
     - assets/cwg.png
     - assets/arrow_outward.png
     - assets/google.png
-    - assets/images/2image1.png
-    - assets/images/girl.png
-    - assets/images/2text2.png
-    - assets/images/JUMP.png
-    - assets/images/IN.png
-    - assets/images/YOUR.png
-    - assets/images/DREAMS.png
-    - assets/images/Star2.png
-    - assets/images/union1.png
-    - assets/images/2image1.png
-    - assets/images/union1.png
-    - assets/images/cwg.png
-    - assets/images/google.png
-    - assets/images/arrow_outward.png
-    - assets/images/TO.png
     - assets/outreach.png
     - assets/inhouse.png
     - assets/campus.png
@@ -113,46 +99,20 @@ flutter:
     - assets/animations/Trophy animation.json
     - assets/jobPeference.json
     - assets/userskills.json
+    - assets/images/job_card/banner_background.png
 
-flutter_icons:
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/jost/Jost-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/jost/Jost-Medium.ttf
+          weight: 500
+
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/hyrup.png"
   adaptive_icon_background: "#ffffff"
   adaptive_icon_foreground: "assets/hyrup.png"
-
-
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/hyrup.png"
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/hyrup.png"
-
-
+   

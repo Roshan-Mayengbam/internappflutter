@@ -4,17 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/chat/chatscreen.dart';
+import 'package:internappflutter/features/core/design_systems/app_colors.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-class AppConstants {
-  static const Color backgroundColor = Colors.white;
-  static const Color borderColor = Colors.blue;
-}
 
 class Carddetails extends StatefulWidget {
   final String jobTitle;
   final String companyName;
-  final String about; // ✅ Declare as a field
+  final String about;
   final String location;
   final String experienceLevel;
   final List<String> requirements;
@@ -26,7 +25,7 @@ class Carddetails extends StatefulWidget {
   final String stipend;
   final String details;
   final String noOfOpenings;
-  final List<String> perks; // ✅ Changed from String? to List<String>
+  final List<String> perks;
   final String mode;
   final List skills;
   final String id;
@@ -38,7 +37,7 @@ class Carddetails extends StatefulWidget {
     super.key,
     required this.jobTitle,
     required this.companyName,
-    required this.about, // ✅ Add to constructor parameters
+    required this.about,
     required this.location,
     required this.experienceLevel,
     required this.requirements,
@@ -66,8 +65,8 @@ class Carddetails extends StatefulWidget {
 class _CarddetailsState extends State<Carddetails> {
   IconData icon = Icons.arrow_back;
   String _errorMessage = '';
-  bool _isApplied = false; // Add this
-  bool _isLoading = false; // Add this
+  bool _isApplied = false;
+  bool _isLoading = false;
   static const String baseUrl =
       'https://hyrup-730899264601.asia-south1.run.app';
   String get recruiterFirebaseId => widget.recruiter?['firebaseId'] ?? '';
@@ -149,46 +148,43 @@ class _CarddetailsState extends State<Carddetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.card,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.card,
         elevation: 0,
         title: GestureDetector(
           onTap: () {
-            Navigator.pop(context); // Go back when pressed
+            Navigator.pop(context);
           },
           child: Container(
             decoration: BoxDecoration(
               boxShadow: const [
                 BoxShadow(
-                  color: Colors.black,
+                  color: AppColors.shadowSharp,
                   offset: Offset(0, 5),
                   blurRadius: 0,
                   spreadRadius: -2,
                 ),
                 BoxShadow(
-                  color: Colors.black,
+                  color: AppColors.shadowSharp,
                   offset: Offset(5, 0),
                   blurRadius: 0,
                   spreadRadius: -2,
                 ),
                 BoxShadow(
-                  color: Colors.black,
+                  color: AppColors.shadowSharp,
                   offset: Offset(5, 5),
                   blurRadius: 0,
                   spreadRadius: -2,
                 ),
               ],
-              color: AppConstants.backgroundColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: const Color.fromARGB(255, 6, 7, 8),
-                width: 2,
-              ),
+              color: AppColors.card,
+              borderRadius: AppShapes.pill,
+              border: Border.all(color: AppColors.borderStrong, width: 2),
             ),
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: const Color.fromARGB(255, 7, 8, 9)),
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Icon(icon, color: AppColors.textPrimary),
           ),
         ),
       ),
@@ -198,15 +194,15 @@ class _CarddetailsState extends State<Carddetails> {
           children: [
             // Header Section
             Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(20),
+              color: AppColors.card,
+              padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Divider(
-                    color: Color.fromARGB(255, 4, 4, 4),
+                  Divider(
+                    color: AppColors.textPrimary,
                     thickness: 1,
-                    height: 30,
+                    height: AppSpacing.xl,
                   ),
                   // Company Name with Badge
                   Row(
@@ -216,150 +212,126 @@ class _CarddetailsState extends State<Carddetails> {
                           widget.companyName.isNotEmpty
                               ? widget.companyName
                               : 'Company',
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow:
-                              TextOverflow.ellipsis, // Adds "..." if too long
+                          style: AppTypography.headingLg,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-
                       const Spacer(),
                       _buildTag(),
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // Job Title
-                  Text(
-                    widget.jobTitle,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Location and Time
-                  Text(
-                    '${widget.location}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(widget.jobTitle, style: AppTypography.jobTitle),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(widget.location, style: AppTypography.bodySm),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Badges
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.yellow[100],
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.yellow[700]!),
+                          color: AppColors.accentLime.withOpacity(0.2),
+                          borderRadius: AppShapes.pill,
+                          border: Border.all(color: AppColors.accentLime),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.check,
                               size: 16,
-                              color: Colors.yellow[700],
+                              color: AppColors.accentLime,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppSpacing.xs),
                             Text(
                               'On site',
-                              style: TextStyle(
-                                color: Colors.yellow[700],
-                                fontWeight: FontWeight.w600,
+                              style: AppTypography.chip.copyWith(
+                                color: AppColors.accentLime,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.yellow[100],
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.yellow[700]!),
+                          color: AppColors.accentLime.withOpacity(0.2),
+                          borderRadius: AppShapes.pill,
+                          border: Border.all(color: AppColors.accentLime),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.check,
                               size: 16,
-                              color: Colors.yellow[700],
+                              color: AppColors.accentLime,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppSpacing.xs),
                             Text(
                               'Full Time',
-                              style: TextStyle(
-                                color: Colors.yellow[700],
-                                fontWeight: FontWeight.w600,
+                              style: AppTypography.chip.copyWith(
+                                color: AppColors.accentLime,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const Spacer(),
-
                       const Spacer(),
                       widget.tagLabel == 'In House'
                           ? Container(
                               decoration: BoxDecoration(
-                                boxShadow: [
-                                  // Bottom shadow
-                                  const BoxShadow(
-                                    color: Colors.black,
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: AppColors.shadowSharp,
                                     offset: Offset(0, 5),
                                     blurRadius: 0,
                                     spreadRadius: -2,
                                   ),
-                                  // Right shadow
-                                  const BoxShadow(
-                                    color: Colors.black,
+                                  BoxShadow(
+                                    color: AppColors.shadowSharp,
                                     offset: Offset(5, 0),
                                     blurRadius: 0,
                                     spreadRadius: -2,
                                   ),
-                                  // Bottom-right corner shadow (to make it symmetric)
-                                  const BoxShadow(
-                                    color: Colors.black,
+                                  BoxShadow(
+                                    color: AppColors.shadowSharp,
                                     offset: Offset(5, 5),
                                     blurRadius: 0,
                                     spreadRadius: -2,
                                   ),
                                 ],
-                                color: AppConstants.backgroundColor,
-                                borderRadius: BorderRadius.circular(10),
-                                border: const Border(
+                                color: AppColors.card,
+                                borderRadius: AppShapes.pill,
+                                border: Border(
                                   top: BorderSide(
-                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    color: AppColors.borderStrong,
                                     width: 1,
-                                  ), // thin
+                                  ),
                                   left: BorderSide(
-                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    color: AppColors.borderStrong,
                                     width: 1,
-                                  ), // thin
+                                  ),
                                   right: BorderSide(
-                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    color: AppColors.borderStrong,
                                     width: 2,
-                                  ), // thick
+                                  ),
                                   bottom: BorderSide(
-                                    color: Color.fromARGB(255, 6, 7, 8),
+                                    color: AppColors.borderStrong,
                                     width: 2,
-                                  ), // thick
+                                  ),
                                 ),
                               ),
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(AppSpacing.sm),
                               child: InkWell(
                                 onTap: () {
-                                  // ✅ Pass the recruiter details to ChatScreen
                                   print('🔍 Current User ID: $currentUserId');
                                   print(
                                     'Recruiter Firebase ID: $recruiterFirebaseId',
@@ -379,14 +351,14 @@ class _CarddetailsState extends State<Carddetails> {
                                 },
                                 child: Icon(
                                   Icons.comment,
-                                  color: const Color.fromARGB(255, 7, 8, 9),
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             )
                           : const SizedBox.shrink(),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Action Buttons
                   Row(
@@ -396,41 +368,41 @@ class _CarddetailsState extends State<Carddetails> {
                           decoration: BoxDecoration(
                             boxShadow: const [
                               BoxShadow(
-                                color: Colors.black,
+                                color: AppColors.shadowSharp,
                                 offset: Offset(0, 6),
                                 blurRadius: 0,
                                 spreadRadius: -2,
                               ),
                               BoxShadow(
-                                color: Colors.black,
+                                color: AppColors.shadowSharp,
                                 offset: Offset(6, 0),
                                 blurRadius: 0,
                                 spreadRadius: -2,
                               ),
                               BoxShadow(
-                                color: Colors.black,
+                                color: AppColors.shadowSharp,
                                 offset: Offset(6, 6),
                                 blurRadius: 0,
                                 spreadRadius: -2,
                               ),
                             ],
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: const Border(
+                            color: AppColors.card,
+                            borderRadius: AppShapes.pill,
+                            border: Border(
                               top: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
+                                color: AppColors.borderStrong,
                                 width: 1,
                               ),
                               left: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
+                                color: AppColors.borderStrong,
                                 width: 1,
                               ),
                               right: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
+                                color: AppColors.borderStrong,
                                 width: 2,
                               ),
                               bottom: BorderSide(
-                                color: Color.fromARGB(255, 6, 7, 8),
+                                color: AppColors.borderStrong,
                                 width: 2,
                               ),
                             ),
@@ -535,10 +507,9 @@ class _CarddetailsState extends State<Carddetails> {
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
+                                              borderRadius: AppShapes.card,
                                               side: const BorderSide(
-                                                color: Colors.black,
+                                                color: AppColors.borderStrong,
                                                 width: 2,
                                               ),
                                             ),
@@ -546,10 +517,12 @@ class _CarddetailsState extends State<Carddetails> {
                                               children: [
                                                 Icon(
                                                   Icons.check_circle,
-                                                  color: Colors.green,
+                                                  color: AppColors.accentLime,
                                                   size: 30,
                                                 ),
-                                                const SizedBox(width: 10),
+                                                const SizedBox(
+                                                  width: AppSpacing.md,
+                                                ),
                                                 const Text('Success!'),
                                               ],
                                             ),
@@ -560,11 +533,11 @@ class _CarddetailsState extends State<Carddetails> {
                                             actions: [
                                               Container(
                                                 decoration: BoxDecoration(
-                                                  color: Colors.lightGreen[300],
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
+                                                  color: AppColors.accentLime,
+                                                  borderRadius: AppShapes.pill,
                                                   border: Border.all(
-                                                    color: Colors.black,
+                                                    color:
+                                                        AppColors.borderStrong,
                                                     width: 2,
                                                   ),
                                                 ),
@@ -572,13 +545,13 @@ class _CarddetailsState extends State<Carddetails> {
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                   },
-                                                  child: const Text(
+                                                  child: Text(
                                                     'OK',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                                    style: AppTypography.chip
+                                                        .copyWith(
+                                                          color: AppColors
+                                                              .textPrimary,
+                                                        ),
                                                   ),
                                                 ),
                                               ),
@@ -590,21 +563,22 @@ class _CarddetailsState extends State<Carddetails> {
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
+                                              borderRadius: AppShapes.card,
                                               side: const BorderSide(
-                                                color: Colors.black,
+                                                color: AppColors.borderStrong,
                                                 width: 2,
                                               ),
                                             ),
                                             title: Row(
                                               children: [
-                                                Icon(
+                                                const Icon(
                                                   Icons.error,
                                                   color: Colors.red,
                                                   size: 30,
                                                 ),
-                                                const SizedBox(width: 10),
+                                                const SizedBox(
+                                                  width: AppSpacing.md,
+                                                ),
                                                 const Text('Error'),
                                               ],
                                             ),
@@ -618,10 +592,10 @@ class _CarddetailsState extends State<Carddetails> {
                                               Container(
                                                 decoration: BoxDecoration(
                                                   color: Colors.red[300],
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
+                                                  borderRadius: AppShapes.pill,
                                                   border: Border.all(
-                                                    color: Colors.black,
+                                                    color:
+                                                        AppColors.borderStrong,
                                                     width: 2,
                                                   ),
                                                 ),
@@ -629,13 +603,13 @@ class _CarddetailsState extends State<Carddetails> {
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                   },
-                                                  child: const Text(
+                                                  child: Text(
                                                     'OK',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                                    style: AppTypography.chip
+                                                        .copyWith(
+                                                          color: AppColors
+                                                              .textPrimary,
+                                                        ),
                                                   ),
                                                 ),
                                               ),
@@ -647,12 +621,14 @@ class _CarddetailsState extends State<Carddetails> {
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isApplied
-                                  ? Colors.grey[400]
-                                  : Colors.lightGreen[300],
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ? AppColors.borderSoft
+                                  : AppColors.accentLime,
+                              foregroundColor: AppColors.textPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: AppShapes.pill,
                               ),
                               elevation: 0,
                             ),
@@ -663,125 +639,45 @@ class _CarddetailsState extends State<Carddetails> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.black,
+                                        AppColors.textPrimary,
                                       ),
                                     ),
                                   )
                                 : Text(
                                     _isApplied ? 'Applied' : 'Apply Now',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                    style: AppTypography.chip.copyWith(
                                       fontSize: 16,
                                     ),
                                   ),
                           ),
                         ),
                       ),
-
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(0, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 0),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(6, 6),
-                              blurRadius: 0,
-                              spreadRadius: -2,
-                            ),
-                          ],
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: const Border(
-                            top: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ),
-                            left: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 1,
-                            ),
-                            right: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ),
-                            bottom: BorderSide(
-                              color: Color.fromARGB(255, 6, 7, 8),
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'No. of',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.noOfOpenings,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Openings',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      _buildOpeningsCard(),
                     ],
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.xl),
 
             // About the job Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'About the job',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
+                  Text('About the job', style: AppTypography.jobTitle),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Job Details Grid
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(AppSpacing.xl),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
+                      color: AppColors.card,
+                      borderRadius: AppShapes.card,
+                      border: Border.all(color: AppColors.borderSoft),
                     ),
                     child: Column(
                       children: [
@@ -793,7 +689,7 @@ class _CarddetailsState extends State<Carddetails> {
                                 widget.employmentType,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: _buildInfoCard(
                                 'Duration',
@@ -802,11 +698,11 @@ class _CarddetailsState extends State<Carddetails> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.md),
                         Row(
                           children: [
                             Expanded(child: _buildInfoCard('Mode', 'Online')),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: _buildInfoCard(
                                 'Stipend',
@@ -815,34 +711,25 @@ class _CarddetailsState extends State<Carddetails> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-
-                        // Skills Section
-                        // Replace the Skills Section in your Carddetails widget with this:
+                        const SizedBox(height: AppSpacing.xl),
 
                         // Skills Section
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(AppSpacing.lg),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.borderSoft),
+                            borderRadius: AppShapes.card,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Skills:',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
+                              Text('Skills:', style: AppTypography.jobTitle),
+                              const SizedBox(height: AppSpacing.md),
                               widget.skills.isNotEmpty
                                   ? Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
+                                      spacing: AppSpacing.sm,
+                                      runSpacing: AppSpacing.sm,
                                       children: widget.skills
                                           .map(
                                             (skill) => _buildSkillChip(
@@ -853,10 +740,7 @@ class _CarddetailsState extends State<Carddetails> {
                                     )
                                   : Text(
                                       'No skills specified',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
+                                      style: AppTypography.bodySm,
                                     ),
                             ],
                           ),
@@ -865,215 +749,96 @@ class _CarddetailsState extends State<Carddetails> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Roles and Responsibility
-                  const Text(
+                  Text(
                     'Roles and Responsibility:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: AppTypography.jobTitle,
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(0, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 0),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: const Border(
-                        top: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        left: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        right: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                        bottom: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      widget.rolesAndResponsibilities,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[800],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildDescriptionCard(widget.rolesAndResponsibilities),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Perks
-                  const Text(
-                    'Perks:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  Text('Perks:', style: AppTypography.jobTitle),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   for (var perk in widget.perks) ...[
                     _buildPerkButton(perk),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.sm),
                   ],
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Details
-                  const Text(
-                    'Details :',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(0, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 0),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: const Border(
-                        top: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        left: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        right: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                        bottom: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      widget.details,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[800],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
+                  Text('Details :', style: AppTypography.jobTitle),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildDescriptionCard(widget.details),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // About Company
-                  const Text(
-                    'About:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(0, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 0),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Colors.black,
-                          offset: Offset(6, 6),
-                          blurRadius: 0,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: const Border(
-                        top: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        left: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 1,
-                        ),
-                        right: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                        bottom: BorderSide(
-                          color: Color.fromARGB(255, 6, 7, 8),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      widget.about,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[800],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
+                  Text('About:', style: AppTypography.jobTitle),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildDescriptionCard(widget.about),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOpeningsCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.lg,
+      ),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(0, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(6, 0),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+        ],
+        color: AppColors.card,
+        borderRadius: AppShapes.pill,
+        border: const Border(
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('No. of', style: AppTypography.bodySm),
+          const SizedBox(height: AppSpacing.xs),
+          Text(widget.noOfOpenings, style: AppTypography.jobTitle),
+          const SizedBox(height: AppSpacing.xs),
+          Text('Openings', style: AppTypography.bodySm),
+        ],
       ),
     );
   }
@@ -1088,46 +853,40 @@ class _CarddetailsState extends State<Carddetails> {
       imagePath = 'assets/outreach.png';
     }
 
-    return Image.asset(
-      // ✅ No Positioned for Row
-      imagePath,
-      height: 50,
-      width: 150,
-      fit: BoxFit.contain,
-    );
+    return Image.asset(imagePath, height: 50, width: 150, fit: BoxFit.contain);
   }
 
   Widget _buildInfoCard(String title, String value) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         boxShadow: const [
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(0, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 0),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
         ],
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.card,
+        borderRadius: AppShapes.pill,
         border: const Border(
-          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
         ),
       ),
       child: Column(
@@ -1136,14 +895,14 @@ class _CarddetailsState extends State<Carddetails> {
             title,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            style: AppTypography.chip,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.md),
           Text(
             value,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: AppTypography.jobTitle,
           ),
         ],
       ),
@@ -1152,87 +911,130 @@ class _CarddetailsState extends State<Carddetails> {
 
   Widget _buildSkillChip(String skill) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         boxShadow: const [
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(0, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 0),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
         ],
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.card,
+        borderRadius: AppShapes.pill,
         border: const Border(
-          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
         ),
       ),
       child: Text(
         skill,
-        style: TextStyle(
-          color: Colors.blue[400],
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
+        style: AppTypography.chip.copyWith(color: AppColors.primary),
       ),
     );
   }
 
   Widget _buildPerkButton(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         boxShadow: const [
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(0, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 0),
             blurRadius: 0,
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black,
+            color: AppColors.shadowSharp,
             offset: Offset(6, 6),
             blurRadius: 0,
             spreadRadius: -2,
           ),
         ],
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
+        color: AppColors.card,
+        borderRadius: AppShapes.pill,
         border: const Border(
-          top: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          left: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 1),
-          right: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
-          bottom: BorderSide(color: Color.fromARGB(255, 6, 7, 8), width: 2),
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
         ),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: Colors.blue[400],
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
+        style: AppTypography.chip.copyWith(color: AppColors.primary),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionCard(String description) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(0, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(6, 0),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: AppColors.shadowSharp,
+            offset: Offset(6, 6),
+            blurRadius: 0,
+            spreadRadius: -2,
+          ),
+        ],
+        color: AppColors.card,
+        borderRadius: AppShapes.card,
+        border: const Border(
+          top: BorderSide(color: AppColors.borderStrong, width: 1),
+          left: BorderSide(color: AppColors.borderStrong, width: 1),
+          right: BorderSide(color: AppColors.borderStrong, width: 2),
+          bottom: BorderSide(color: AppColors.borderStrong, width: 2),
+        ),
+      ),
+      child: Text(
+        description,
+        style: AppTypography.bodySm.copyWith(
+          color: AppColors.textPrimary,
+          height: 1.5,
         ),
       ),
     );

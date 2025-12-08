@@ -29,6 +29,53 @@ class JobCardConstants {
     end: Alignment.bottomRight,
   );
 
+  static const String _fontFamily = 'Jost';
+
+  /// Role Name
+  static const TextStyle roleName = TextStyle(
+    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w500,
+    fontSize: 43.0,
+    height: 1.3, // 130%
+    letterSpacing: 0.0,
+  );
+
+  /// Company Name
+  static const TextStyle companyName = TextStyle(
+    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 28.0,
+    height: 1.3, // 130%
+    letterSpacing: 0.0,
+  );
+
+  /// Role - Subtitle
+  static const TextStyle roleSubtitle = TextStyle(
+    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 20.0,
+    height: 1.0, // 100%
+    letterSpacing: 0.0,
+  );
+
+  /// Tag Text
+  static const TextStyle tagText = TextStyle(
+    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 16.0,
+    height: 1.0, // 100%
+    letterSpacing: 0.0,
+  );
+
+  /// Button Text
+  static const TextStyle buttonText = TextStyle(
+    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w400,
+    fontSize: 26.0,
+    height: 1.0, // 100%
+    letterSpacing: 0.0,
+  );
+
   // Job title style
   static const double jobFontSize =
       18; // Reduced font size to help with overflow

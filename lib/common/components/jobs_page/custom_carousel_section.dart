@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
+import 'package:internappflutter/features/core/design_systems/app_typography.dart';
+import '../../../features/core/design_systems/app_colors.dart';
+import '../../../features/core/design_systems/app_shapes.dart';
 import 'filter_tag.dart';
 import 'job_carousel_card.dart';
+import 'package:lottie/lottie.dart';
 
 // Reusable Custom Carousel Section
 class CustomCarouselSection extends StatelessWidget {
@@ -40,38 +45,33 @@ class CustomCarouselSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'jost',
-            ),
-          ),
+          Text(title, style: AppTypography.headingLg),
           const SizedBox(height: 4),
-
           // Subtitle
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-              fontFamily: "jost",
-            ),
-          ),
+          Text(subtitle, style: AppTypography.bodySm.copyWith(fontSize: 14)),
 
           if (onViewMore != null && items.isNotEmpty)
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
+              child: ElevatedButton(
                 onPressed: onViewMore,
-                child: const Text(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accentLime,
+                  foregroundColor: AppColors.card,
+                  shape: RoundedRectangleBorder(borderRadius: AppShapes.pill),
+                  side: BorderSide(color: AppColors.borderStrong),
+                  elevation: 4,
+                  shadowColor: AppColors.shadowSoft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                ),
+                child: Text(
                   "View More",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                    decoration: TextDecoration.underline,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 12,
+                    color: AppColors.borderStrong,
                   ),
                 ),
               ),
@@ -120,6 +120,15 @@ class CustomCarouselSection extends StatelessWidget {
                           size: 80,
                           color: Colors.grey.shade300,
                         ),
+
+                        Lottie.asset(
+                          'assets/animations/empty/empty_lottie.json',
+                          width: 200,
+                          height: 200,
+                          repeat: false,
+                          animate: true,
+                        ),
+
                         const SizedBox(height: 20),
                         Text(
                           isHackathonPage
@@ -139,7 +148,7 @@ class CustomCarouselSection extends StatelessWidget {
                   ),
                 )
               : SizedBox(
-                  height: 300,
+                  height: 250,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: items.length,

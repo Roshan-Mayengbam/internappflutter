@@ -218,7 +218,7 @@ class _UploadScreenState extends State<UploadScreen> {
                       child: LinearProgressIndicator(
                         value: 0.6,
                         minHeight: 12,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: const Color(0xFFE0E0E0),
                         color: const Color.fromARGB(255, 97, 251, 20),
                       ),
                     ),

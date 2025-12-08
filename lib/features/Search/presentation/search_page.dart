@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/screens/hackathon_details.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -13,6 +14,10 @@ import 'package:internappflutter/common/constants/search_page/search_page_consta
 import '../../AvailableHackathons/domain/entities/hackathon.dart';
 import '../../AvailableJobs/domain/entities/job.dart';
 import '../../AvailableJobs/presentation/provider/job_provider.dart';
+import '../../core/design_systems/app_typography.dart';
+import '../../core/design_systems/app_colors.dart';
+import '../../core/design_systems/app_spacing.dart';
+import '../../core/design_systems/app_shapes.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -121,47 +126,93 @@ class _SearchPageState extends State<SearchPage> {
     switch (state) {
       case JobState.loading:
       case JobState.initial:
-        return const Center(child: CircularProgressIndicator());
-
+        return Center(
+          child: Lottie.asset(
+            'assets/animations/searching/searching_lottie.json',
+            width: 250,
+            height: 250,
+            repeat: true,
+            animate: true,
+          ),
+        );
       case JobState.error:
         return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Text(
-              'Error fetching jobs: ${jobProvider.errorMessage}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/error/error_lottie.json',
+                  width: 250,
+                  height: 250,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Error fetching jobs: ${jobProvider.errorMessage}',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 14,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         );
-
       case JobState.empty:
         return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Text(
-              currentQuery != null && currentQuery.isNotEmpty
-                  ? 'No results found for "$currentQuery".'
-                  : 'No jobs are currently available.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/empty/empty_lottie.lottie',
+                  width: 200,
+                  height: 200,
+                  repeat: true,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  currentQuery != null && currentQuery.isNotEmpty
+                      ? 'No results found for "$currentQuery".'
+                      : 'No jobs are currently available.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         );
 
       case JobState.loaded:
       case JobState.loadingMore:
-        // Success: Display list of jobs
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
               child: Text(
                 currentQuery != null && currentQuery.isNotEmpty
                     ? '$totalJobs results for "$currentQuery"'
                     : 'Showing $totalJobs jobs',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
             Expanded(
@@ -175,7 +226,7 @@ class _SearchPageState extends State<SearchPage> {
                     jobProvider.fetchJobs(isLoadMore: true);
                     return const Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: EdgeInsets.all(AppSpacing.lg),
                         child: CircularProgressIndicator(),
                       ),
                     );
@@ -197,56 +248,99 @@ class _SearchPageState extends State<SearchPage> {
     switch (state) {
       case HackathonState.loading:
       case HackathonState.initial:
-        // 1. Loading State: Display a circular indicator
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: Lottie.asset(
+            'assets/animations/searching/searching_lottie.json',
+            width: 250,
+            height: 250,
+            repeat: true,
+            animate: true,
+          ),
+        );
 
       case HackathonState.error:
-        // 2. Error State: Display the error message
         return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Text(
-              'Error fetching hackathons: ${hackathonProvider.errorMessage}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/error/error_lottie.json',
+                  width: 250,
+                  height: 250,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Error fetching jobs: ${hackathonProvider.errorMessage}',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 14,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         );
 
       case HackathonState.empty:
-        // 3. Empty State: Display a "No results" message based on the query
         return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Text(
-              currentQuery != null && currentQuery.isNotEmpty
-                  ? 'No results found for "$currentQuery". 🧐'
-                  : 'No hackathons are currently scheduled.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/empty/empty_lottie.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                  animate: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  currentQuery != null && currentQuery.isNotEmpty
+                      ? 'No results found for "$currentQuery".'
+                      : 'No jobs are currently available.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(
+                    fontSize: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         );
 
       case HackathonState.loaded:
-        // 4. Loaded State: Display the filtered list
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Show the result count and query
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
               child: Text(
                 currentQuery != null && currentQuery.isNotEmpty
                     ? '$totalHackathons results for "$currentQuery"'
                     : 'Showing $totalHackathons hackathons',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
-            // List View: Display the hackathon tiles
             Expanded(
               child: ListView.builder(
-                // Assuming no 'load more' functionality yet, use list length directly
                 itemCount: hackathons.length,
                 itemBuilder: (context, index) {
                   final hackathon = hackathons[index];
@@ -264,6 +358,7 @@ class _SearchPageState extends State<SearchPage> {
     final filterSlug = _selectedSearchCategory.searchFilter;
 
     return Scaffold(
+      backgroundColor: AppColors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,13 +368,13 @@ class _SearchPageState extends State<SearchPage> {
               controller: _searchController,
               onSubmitted: _handleSearchSubmission,
             ),
-
+            SizedBox(height: AppSpacing.md),
             // 2. Filter Group
             SearchFilterGroup(
               selectedFilter: _selectedSearchCategory,
               onFilterSelected: _handleCategorySelection,
             ),
-
+            SizedBox(height: AppSpacing.sm),
             // 3. Search Results Section (Content)
             (filterSlug == 'jobs')
                 ? Expanded(
@@ -302,7 +397,9 @@ class _SearchPageState extends State<SearchPage> {
                       child: Text(
                         'Showing results for "${_selectedSearchCategory.label}" scope.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
@@ -367,7 +464,15 @@ class _JobListItem extends StatelessWidget {
           jobType: job.jobType,
           about: job.recruiter.company.description ?? "Description Not found",
           salaryRange: "${job.salaryRange.max} - ${job.salaryRange.min}",
-          perks: job.perks!.split(" "),
+          perks: job.perks?.isNotEmpty == true
+              ? job.perks!
+                    .split(RegExp(r'[.,]')) // Split using regex for . or ,
+                    .map((s) => s.trim()) // Remove leading/trailing whitespace
+                    .where((s) => s.isNotEmpty)
+                    .toList()
+              : [
+                  'Not specified',
+                ], // Return a List of strings or ['Not specified']
         ),
       ),
     );
@@ -375,14 +480,11 @@ class _JobListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 0.0),
-      child: DataTile(
-        title: job.title,
-        description: _buildDescriptionSummary(),
-        imageUrl: job.recruiter.company.logo,
-        onTap: () => _handleTap(context),
-      ),
+    return DataTile(
+      title: job.title,
+      description: _buildDescriptionSummary(),
+      imageUrl: job.recruiter.company.logo,
+      onTap: () => _handleTap(context),
     );
   }
 }
