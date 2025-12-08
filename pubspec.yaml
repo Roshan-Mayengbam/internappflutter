@@ -74,20 +74,20 @@ flutter:
     - assets/images/UI.png
     - assets/images/Lumel_Logo.png
     - assets/puzzle.png
-    - assets/girl.png
-    - assets/2image1.png
-    - assets/2text2.png
-    - assets/2text1.png
-    - assets/JUMP.png
-    - assets/IN.png
-    - assets/Star2.png
-    - assets/YOUR.png
-    - assets/DREAMS.png
-    - assets/TO.png
-    - assets/union1.png
-    - assets/cwg.png
-    - assets/arrow_outward.png
-    - assets/google.png
+    - assets/images/girl.png
+    - assets/images/2image1.png
+    - assets/images/2text2.png
+    - assets/images/2text1.png
+    - assets/images/JUMP.png
+    - assets/images/IN.png
+    - assets/images/Star2.png
+    - assets/images/YOUR.png
+    - assets/images/DREAMS.png
+    - assets/images/TO.png
+    - assets/images/union1.png
+    - assets/images/cwg.png
+    - assets/images/arrow_outward.png
+    - assets/images/google.png
     - assets/outreach.png
     - assets/inhouse.png
     - assets/campus.png
