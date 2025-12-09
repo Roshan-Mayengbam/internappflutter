@@ -11,6 +11,9 @@ import 'package:path/path.dart' as path;
 import 'package:internappflutter/chat/fileshow.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -807,32 +810,160 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future<void> _downloadFile(String fileUrl, String fileName) async {
+    try {
+      // Request storage permission
+      final hasPermission = await _requestPermissions();
+      if (!hasPermission) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Storage permission denied'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Get downloads directory
+      final Directory? downloadsDir = await getDownloadsDirectory();
+      if (downloadsDir == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not access downloads directory'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final String filePath = '${downloadsDir.path}/$fileName';
+      final File file = File(filePath);
+
+      // Show download progress dialog
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Downloading'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text('Downloading: $fileName'),
+            ],
+          ),
+        ),
+      );
+
+      // Download file using Dio
+      final Dio dio = Dio();
+      await dio.download(
+        fileUrl,
+        filePath,
+        onReceiveProgress: (received, total) {
+          print('Download progress: ${(received / total * 100).toStringAsFixed(0)}%');
+        },
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context); // Close progress dialog
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File downloaded to: $filePath'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      print('✅ File downloaded successfully: $filePath');
+    } on DioException catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close progress dialog
+      print('❌ Download error: ${e.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Download failed: ${e.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close progress dialog
+      print('❌ Error downloading file: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error downloading file: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _openFileInBrowser(String fileUrl) async {
+    try {
+      final Uri url = Uri.parse(fileUrl);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+        print('✅ File opened in browser');
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open file'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      print('❌ Error opening file: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error opening file: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _openFile(String fileUrl, String fileName) async {
     try {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('File'),
+          title: const Text('File Options'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('File: $fileName'),
+              Text(
+                'File: $fileName',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 16),
-              const Text('Options:'),
+              const Text('Choose an action:'),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Download functionality coming soon'),
-                  ),
-                );
+                _downloadFile(fileUrl, fileName);
               },
               child: const Text('Download'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openFileInBrowser(fileUrl);
+              },
+              child: const Text('Open'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -842,7 +973,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } catch (e) {
-      print('Error opening file: $e');
+      print('Error opening file dialog: $e');
     }
   }
 

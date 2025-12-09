@@ -802,11 +802,11 @@ class _CarddetailsState extends State<Carddetails> {
                   const SizedBox(height: AppSpacing.xl),
 
                   // About Company
-                  Text('About:', style: AppTypography.jobTitle),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildDescriptionCard(widget.about),
+                  // Text('About:', style: AppTypography.jobTitle),
+                  // const SizedBox(height: AppSpacing.md),
+                  // _buildDescriptionCard(widget.about),
 
-                  const SizedBox(height: AppSpacing.xxl),
+                  // const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
             ),

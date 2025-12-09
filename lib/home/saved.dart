@@ -333,7 +333,9 @@ class _SavedState extends State<Saved> {
                     CustomCarouselSection(
                       subtitle: 'Saved Jobs',
                       title: 'Your saved jobs',
-                      filters: ['all', 'company', 'on-campus', 'external'],
+                      filters: [
+                        // 'all', 'company', 'on-campus', 'external'
+                      ],
                       selectedFilter: 'all',
                       isAppliedSection: false,
                       onFilterTap: (filter) {
@@ -411,11 +413,11 @@ class _SavedState extends State<Saved> {
                       subtitle: 'Applied Jobs',
                       title: 'Your applied jobs',
                       filters: [
-                        'all',
-                        'applied',
-                        'shortlisted',
-                        'rejected',
-                        'hired',
+                        // 'all',
+                        // 'applied',
+                        // 'shortlisted',
+                        // 'rejected',
+                        // 'hired',
                       ],
                       selectedFilter: 'all',
                       onFilterTap: (filter) {},
