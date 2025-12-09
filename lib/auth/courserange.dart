@@ -1,6 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:internappflutter/aboutYou/uploadProfilePic.dart';
-import 'package:internappflutter/auth/collegedetails.dart';
 import 'package:internappflutter/auth/skills.dart'; // Import Skills page instead of experience
 import 'package:internappflutter/models/usermodel.dart';
 
@@ -28,11 +27,12 @@ class _CourseRangePageState extends State<CourseRangePage> {
   @override
   void initState() {
     super.initState();
-    // Debug print
+    // Debug if (kDebugMode) print
     if (widget.extendedUserModel != null) {
-      print("=== RECEIVED DATA IN COURSE RANGE PAGE (MODIFIED UI) ===");
-      print("Name: ${widget.extendedUserModel!.name}");
-      print("===============================");
+      if (kDebugMode)
+        print("=== RECEIVED DATA IN COURSE RANGE PAGE (MODIFIED UI) ===");
+      if (kDebugMode) print("Name: ${widget.extendedUserModel!.name}");
+      if (kDebugMode) print("===============================");
     }
   }
 
@@ -64,7 +64,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
             child: YearPicker(
               firstDate: DateTime(minYear),
               lastDate: DateTime(maxYear),
-              selectedDate: selectedDate!, // Must be non-null
+              selectedDate: selectedDate, // Must be non-null
               onChanged: (DateTime newDate) {
                 // When a year is selected, update the selectedDate and close the dialog
                 selectedDate = newDate;
@@ -92,7 +92,7 @@ class _CourseRangePageState extends State<CourseRangePage> {
       setState(() {
         selectedCourseRange = pickedDate.year.toString();
         _yearController.text = selectedCourseRange!;
-        print("Selected course year: $selectedCourseRange");
+        if (kDebugMode) print("Selected course year: $selectedCourseRange");
       });
     }
   }
@@ -287,9 +287,12 @@ class _CourseRangePageState extends State<CourseRangePage> {
                 year: selectedCourseRange!,
               );
 
-              print("=== NAVIGATION DATA (USING YOUR MODEL) ===");
-              print("Full Model: ${courseRangeModel.toString()}");
-              print("===========================================");
+              if (kDebugMode)
+                print("=== NAVIGATION DATA (USING YOUR MODEL) ===");
+              if (kDebugMode)
+                print("Full Model: ${courseRangeModel.toString()}");
+              if (kDebugMode)
+                print("===========================================");
 
               // Navigate to Skills page
               Navigator.push(

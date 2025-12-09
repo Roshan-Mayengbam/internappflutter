@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/auth/project.dart';
 import 'package:internappflutter/models/usermodel.dart';
@@ -170,28 +171,28 @@ class _ExperiencePageState extends State<ExperiencePage> {
       }
 
       // ✅ Print everything
-      print("---- Navigating to ProjectsPage ----");
-      print("Total Experiences: ${savedExperiences.length}");
+      if (kDebugMode) print("---- Navigating to ProjectsPage ----");
+      if (kDebugMode) print("Total Experiences: ${savedExperiences.length}");
       if (savedExperiences.isNotEmpty) {
-        print("Latest Experience: ${savedExperiences.first}");
+        if (kDebugMode) print("Latest Experience: ${savedExperiences.first}");
       }
-      print("---- UserExperience Details ----");
-      print("Name: ${userExperience.name}");
-      print("Email: ${userExperience.email}");
-      print("Phone: ${userExperience.phone}");
-      print("UID: ${userExperience.uid}");
-      print("Role: ${userExperience.role}");
-      print("College: ${userExperience.collegeName}");
-      print("University: ${userExperience.university}");
-      print("Degree: ${userExperience.degree}");
-      print("College Email: ${userExperience.collegeEmailId}");
-      print("Year: ${userExperience.year}");
-      print("Skills: ${userExperience.userSkills}");
-      print("Preferences/Jobs: ${userExperience.preferences}");
-      print("Organisation: ${userExperience.organisation}");
-      print("Position: ${userExperience.position}");
-      print("Date: ${userExperience.date}");
-      print("Description: ${userExperience.description}");
+      if (kDebugMode) print("---- UserExperience Details ----");
+      if (kDebugMode) print("Name: ${userExperience.name}");
+      if (kDebugMode) print("Email: ${userExperience.email}");
+      if (kDebugMode) print("Phone: ${userExperience.phone}");
+      if (kDebugMode) print("UID: ${userExperience.uid}");
+      if (kDebugMode) print("Role: ${userExperience.role}");
+      if (kDebugMode) print("College: ${userExperience.collegeName}");
+      if (kDebugMode) print("University: ${userExperience.university}");
+      if (kDebugMode) print("Degree: ${userExperience.degree}");
+      if (kDebugMode) print("College Email: ${userExperience.collegeEmailId}");
+      if (kDebugMode) print("Year: ${userExperience.year}");
+      if (kDebugMode) print("Skills: ${userExperience.userSkills}");
+      if (kDebugMode) print("Preferences/Jobs: ${userExperience.preferences}");
+      if (kDebugMode) print("Organisation: ${userExperience.organisation}");
+      if (kDebugMode) print("Position: ${userExperience.position}");
+      if (kDebugMode) print("Date: ${userExperience.date}");
+      if (kDebugMode) print("Description: ${userExperience.description}");
     }
 
     Navigator.push(

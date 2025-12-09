@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internappflutter/auth/page2.dart';
-import 'package:internappflutter/auth/signup.dart';
 
 class ProfilePage2 extends StatelessWidget {
   const ProfilePage2({Key? key}) : super(key: key);

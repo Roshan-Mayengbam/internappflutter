@@ -5,22 +5,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/features/core/network/network_service.dart';
 import 'package:internappflutter/features/core/network/network_service_impl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:internappflutter/features/AvailableHackathons/data/datasource/hackathon_datasource.dart';
 import 'package:internappflutter/features/AvailableHackathons/data/repository/hackathon_repo_impl.dart';
 import 'package:internappflutter/features/AvailableHackathons/domain/usecases/fetch_similar_hackathons.dart';
 import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/auth/registerpage.dart';
@@ -29,7 +23,6 @@ import 'package:internappflutter/bottomnavbar.dart';
 import 'package:internappflutter/firebase_options.dart';
 import 'package:internappflutter/models/jobs.dart';
 import 'package:internappflutter/screens/hackathon.dart';
-import 'package:provider/provider.dart';
 
 // Imports for the NEW provider (JProvider)
 import 'package:internappflutter/features/AvailableJobs/data/datasources/job_response_remote_datasource.dart';
@@ -55,7 +48,7 @@ void main() async {
     );
   } catch (e) {
     if (kDebugMode) {
-      print('Error initializing Firebase: $e');
+      if (kDebugMode) print('Error initializing Firebase: $e');
     }
   }
 
@@ -160,13 +153,13 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        print("❌ No authenticated user found");
+        if (kDebugMode) print("❌ No authenticated user found");
         return null;
       }
 
-      print("🔑 Getting ID token...");
+      if (kDebugMode) print("🔑 Getting ID token...");
       final idToken = await currentUser.getIdToken();
-      print("✅ ID token obtained");
+      if (kDebugMode) print("✅ ID token obtained");
 
       final response = await http
           .get(
@@ -178,27 +171,29 @@ class _SplashScreenState extends State<SplashScreen> {
           )
           .timeout(Duration(seconds: 30));
 
-      print("📡 Backend response status: ${response.statusCode}");
-      print("📄 Backend response body: ${response.body}");
+      if (kDebugMode) {
+        print("📡 Backend response status: ${response.statusCode}");
+      }
+      if (kDebugMode) print("📄 Backend response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData['exists'] == true &&
             responseData.containsKey('user')) {
-          print("✅ User exists in database");
+          if (kDebugMode) print("✅ User exists in database");
           return {"exists": true, "user": responseData['user']};
         } else if (responseData['exists'] == false) {
-          print("👤 User does not exist in database");
+          if (kDebugMode) print("👤 User does not exist in database");
           return {"exists": false};
         }
       } else if (response.statusCode == 404) {
-        print("👤 User not found in database (404)");
+        if (kDebugMode) print("👤 User not found in database (404)");
         return {"exists": false};
       }
 
       return null;
     } catch (e) {
-      print("❌ Error checking user: $e");
+      if (kDebugMode) print("❌ Error checking user: $e");
       return null;
     }
   }
@@ -209,7 +204,7 @@ class _SplashScreenState extends State<SplashScreen> {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
-        print("❌ No Firebase user - redirecting to login");
+        if (kDebugMode) print("❌ No Firebase user - redirecting to login");
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -218,13 +213,15 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      print("✅ Firebase user found: ${user.uid}");
+      if (kDebugMode) print("✅ Firebase user found: ${user.uid}");
 
       // Check backend database
       final userCheckResult = await _checkIfUserExists();
 
       if (userCheckResult == null) {
-        print("❌ Error checking backend - redirecting to login");
+        if (kDebugMode) {
+          print("❌ Error checking backend - redirecting to login");
+        }
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -236,7 +233,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
 
       if (userCheckResult['exists'] == true) {
-        print("✅ User exists - going to main app");
+        if (kDebugMode) print("✅ User exists - going to main app");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -245,14 +242,14 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         );
       } else {
-        print("⚠️ User needs registration");
+        if (kDebugMode) print("⚠️ User needs registration");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Page2()),
         );
       }
     } catch (e) {
-      print("❌ Error: $e");
+      if (kDebugMode) print("❌ Error: $e");
       if (!mounted) return;
       Navigator.pushReplacement(
         context,

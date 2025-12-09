@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +14,6 @@ import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/screens/edit_profile_screen.dart';
 import 'package:internappflutter/screens/resume_edit_screen.dart';
 import 'package:internappflutter/skillVerify/SkillVerification.dart';
-import 'package:internappflutter/skillVerify/TestStart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreenPage extends StatefulWidget {
@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
         return;
       }
 
-      print("🔄 Fetching user details...");
+      if (kDebugMode) print("🔄 Fetching user details...");
 
       final response = await http.post(
         Uri.parse('$baseUrl/student/StudentDetails'),
@@ -100,14 +100,16 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
           userData = data['user'];
           isLoading = false;
         });
-        print("✅ Fetched user details: $userData");
+        if (kDebugMode) print("✅ Fetched user details: $userData");
       } else {
         setState(() {
           errorMessage =
               'Failed to load Student details: ${response.statusCode}';
           isLoading = false;
         });
-        print("❌ Failed to load Student details: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Failed to load Student details: ${response.statusCode}");
+        }
         // Show a snackbar instead
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +128,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
         errorMessage = 'Error: ${e.toString()}';
         isLoading = false;
       });
-      print("❌ Error fetching Student details: ${e.toString()}");
+      if (kDebugMode) {
+        print("❌ Error fetching Student details: ${e.toString()}");
+      }
       // Show a snackbar for errors
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -172,7 +176,9 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
       // Backend sends Map: {"React.js": {"level": "intermediate"}}
       skillsList = rawSkills.entries.toList();
     } else if (rawSkills != null) {
-      print("⚠️ user_skills is not a Map: ${rawSkills.runtimeType}");
+      if (kDebugMode) {
+        print("⚠️ user_skills is not a Map: ${rawSkills.runtimeType}");
+      }
     }
 
     return Scaffold(
@@ -788,7 +794,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
                         mode: LaunchMode.externalApplication,
                       );
                     } else {
-                      print('Could not launch $link');
+                      if (kDebugMode) print('Could not launch $link');
                     }
                   },
                   style: ElevatedButton.styleFrom(

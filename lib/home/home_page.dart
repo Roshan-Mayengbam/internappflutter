@@ -1,8 +1,6 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:internappflutter/auth/page2.dart';
 import 'package:internappflutter/chat/chatpage.dart';
 import 'package:internappflutter/home/saved.dart';
 import 'package:provider/provider.dart';
@@ -116,7 +114,9 @@ class HomePageState extends State<HomePage> {
 
   void _handleJobAction(String jobId, String jobType, bool isLiked) async {
     if (isLiked) {
-      print("Attempting to apply for job: $jobId (Type: $jobType)");
+      if (kDebugMode) {
+        print("Attempting to apply for job: $jobId (Type: $jobType)");
+      }
       context.read<JobProvider>().clearError();
       _hasShownError = false;
       await context.read<JobProvider>().applyJob(jobId, jobType);
@@ -478,9 +478,11 @@ class HomePageState extends State<HomePage> {
                                 ) {
                                   // Check if we're near the end
                                   if (previousIndex >= displayJobs.length - 2) {
-                                    print(
-                                      "Near end of cards! Fetching new jobs...",
-                                    );
+                                    if (kDebugMode) {
+                                      print(
+                                        "Near end of cards! Fetching new jobs...",
+                                      );
+                                    }
                                     context.read<JobProvider>().fetchJobs();
                                   }
 
@@ -496,7 +498,7 @@ class HomePageState extends State<HomePage> {
                                   _handleJobAction(jobId, jobType, isLiked);
                                 },
                             onEnd: () {
-                              print("All cards swiped!");
+                              if (kDebugMode) print("All cards swiped!");
                               context.read<JobProvider>().fetchJobs();
                             },
                             cardBuilder: (BuildContext context, int index) {

@@ -1,6 +1,5 @@
 import 'dart:io';
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -52,10 +51,10 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       }
 
-      print("Pre-populated data:");
-      print("Name: ${fullNameController.text}");
-      print("Email: ${emailController.text}");
-      print("Phone: ${phoneController.text}");
+      if (kDebugMode) print("Pre-populated data:");
+      if (kDebugMode) print("Name: ${fullNameController.text}");
+      if (kDebugMode) print("Email: ${emailController.text}");
+      if (kDebugMode) print("Phone: ${phoneController.text}");
     }
   }
 
@@ -459,7 +458,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 role: widget.userModel?.role ?? 'Student',
               );
 
-              print("Updated user model: ${updatedUserModel.toString()}");
+              if (kDebugMode) {
+                print("Updated user model: ${updatedUserModel.toString()}");
+              }
 
               Navigator.push(
                 context,

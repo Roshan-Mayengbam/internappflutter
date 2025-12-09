@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -226,8 +227,9 @@ class Job {
       final parts = <String>[];
       if (location['city'] != null) parts.add(location['city'].toString());
       if (location['state'] != null) parts.add(location['state'].toString());
-      if (location['country'] != null)
+      if (location['country'] != null) {
         parts.add(location['country'].toString());
+      }
       return parts.join(', ');
     }
     return 'Location not specified';
@@ -350,7 +352,7 @@ class JobProvider with ChangeNotifier {
 
   Future<void> fetchJobs() async {
     if (_isRequestInProgress || _isLoading) {
-      print("🚫 Request already in progress, skipping...");
+      if (kDebugMode) print("🚫 Request already in progress, skipping...");
       return;
     }
 
@@ -372,7 +374,7 @@ class JobProvider with ChangeNotifier {
         return;
       }
 
-      print("🔄 Fetching jobs with token...");
+      if (kDebugMode) print("🔄 Fetching jobs with token...");
 
       // Fetch both opportunities and recruiter jobs in parallel
       final responses = await Future.wait([
@@ -395,15 +397,19 @@ class JobProvider with ChangeNotifier {
       final response = responses[0];
       final response2 = responses[1];
 
-      print("📡 Opportunities Response Status: ${response.statusCode}");
-      print("📡 Recruiter Jobs Response Status: ${response2.statusCode}");
+      if (kDebugMode) {
+        print("📡 Opportunities Response Status: ${response.statusCode}");
+      }
+      if (kDebugMode) {
+        print("📡 Recruiter Jobs Response Status: ${response2.statusCode}");
+      }
 
       List<Job> allJobs = [];
 
       // Process opportunities response
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        print(responseData);
+        if (kDebugMode) print(responseData);
 
         if (responseData['success'] == true) {
           final List<dynamic> opportunitiesData =
@@ -416,7 +422,9 @@ class JobProvider with ChangeNotifier {
           _userSkills = List<String>.from(responseData['userSkills'] ?? []);
           _hasUserSkills = responseData['hasUserSkills'] ?? false;
 
-          print("✅ Opportunities fetched: ${opportunitiesData.length}");
+          if (kDebugMode) {
+            print("✅ Opportunities fetched: ${opportunitiesData.length}");
+          }
         }
       } else if (response.statusCode == 401) {
         _errorMessage = 'Authentication failed. Please login again.';
@@ -430,7 +438,7 @@ class JobProvider with ChangeNotifier {
       // Process recruiter jobs response
       if (response2.statusCode == 200) {
         final Map<String, dynamic> responseData2 = json.decode(response2.body);
-        print(responseData2);
+        if (kDebugMode) print(responseData2);
 
         if (responseData2['success'] == true) {
           final List<dynamic> recruiterJobsData =
@@ -439,20 +447,22 @@ class JobProvider with ChangeNotifier {
             recruiterJobsData.map((jobJson) => Job.fromJson(jobJson)).toList(),
           );
 
-          print("✅ Recruiter jobs fetched: ${recruiterJobsData.length}");
+          if (kDebugMode) {
+            print("✅ Recruiter jobs fetched: ${recruiterJobsData.length}");
+          }
         }
       }
 
       _jobs = allJobs;
 
-      print("📊 Total jobs fetched: ${_jobs.length}");
-      print("🎯 Search strategy: $_searchStrategy");
-      print("🛠️ User skills: $_userSkills");
-      print("💡 Has user skills: $_hasUserSkills");
+      if (kDebugMode) print("📊 Total jobs fetched: ${_jobs.length}");
+      if (kDebugMode) print("🎯 Search strategy: $_searchStrategy");
+      if (kDebugMode) print("🛠️ User skills: $_userSkills");
+      if (kDebugMode) print("💡 Has user skills: $_hasUserSkills");
 
       _errorMessage = null;
     } catch (e) {
-      print("⚠️ Exception occurred while fetching Jobs");
+      if (kDebugMode) print("⚠️ Exception occurred while fetching Jobs");
       _errorMessage =
           'Network error: Please check your connection and try again.';
     } finally {
@@ -463,9 +473,9 @@ class JobProvider with ChangeNotifier {
   }
 
   Future<void> applyJob(String jobId, String jobType) async {
-    print("🔄 Starting job application...");
-    print("📋 Job ID: $jobId");
-    print("🏢 Job Type: $jobType");
+    if (kDebugMode) print("🔄 Starting job application...");
+    if (kDebugMode) print("📋 Job ID: $jobId");
+    if (kDebugMode) print("🏢 Job Type: $jobType");
 
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -485,7 +495,7 @@ class JobProvider with ChangeNotifier {
       // Updated URL to include jobType
       final url = '$baseUrl/student/jobs/$jobId/$jobType/apply';
 
-      print("🌐 API URL: $url");
+      if (kDebugMode) print("🌐 API URL: $url");
 
       final response = await http.post(
         Uri.parse(url),
@@ -496,20 +506,22 @@ class JobProvider with ChangeNotifier {
         body: jsonEncode({}),
       );
 
-      print("📡 Response Status: ${response.statusCode}");
-      print("📄 Response Body: ${response.body}");
+      if (kDebugMode) print("📡 Response Status: ${response.statusCode}");
+      if (kDebugMode) print("📄 Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("✅ Application submitted successfully");
+        if (kDebugMode) print("✅ Application submitted successfully");
         _errorMessage = null;
       } else {
-        print("❌ Application failed with status: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Application failed with status: ${response.statusCode}");
+        }
         final errorData = json.decode(response.body);
         _errorMessage =
             errorData['message'] ?? "Failed to apply: ${response.statusCode}";
       }
     } catch (e) {
-      print("⚠️ Exception occurred: $e");
+      if (kDebugMode) print("⚠️ Exception occurred: $e");
       _errorMessage = "Error occurred when applying to job";
     }
 

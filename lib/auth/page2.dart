@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internappflutter/auth/registerpage.dart';
 
 import '../bottomnavbar.dart';
@@ -26,7 +26,7 @@ class _Page2State extends State<Page2> {
       final user = await _authService.signInWithGoogle();
 
       if (user != null) {
-        print("🔐 User signed in successfully: ${user.email}");
+        if (kDebugMode) print("🔐 User signed in successfully: ${user.email}");
 
         // Dummy implementation for check, replace with actual logic
         // This is where you connect to your database (Firestore/Supabase/etc.)
@@ -86,7 +86,7 @@ class _Page2State extends State<Page2> {
         _showErrorSnackBar("Sign-in failed. Please try again.");
       }
     } catch (e) {
-      print("❌ Sign-in exception: $e");
+      if (kDebugMode) print("❌ Sign-in exception: $e");
       await _authService.signOut();
       _showErrorSnackBar("Sign-in error: ${e.toString()}");
     } finally {

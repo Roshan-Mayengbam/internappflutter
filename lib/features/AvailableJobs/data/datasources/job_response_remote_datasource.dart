@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:internappflutter/common/constants/app_constants.dart';
@@ -57,7 +57,7 @@ class JobRemoteDataSourceImpl implements JobRemoteDataSource {
       "$_baseUrl/jobs",
     ).replace(queryParameters: queryParameters);
 
-    print("$uri");
+    if (kDebugMode) print("$uri");
 
     try {
       final response = await client.get(

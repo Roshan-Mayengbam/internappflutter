@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as path;
@@ -93,7 +94,7 @@ class _FileshowState extends State<Fileshow> {
         );
       }
     } catch (e) {
-      print('❌ Error uploading file: $e');
+      if (kDebugMode) print('❌ Error uploading file: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
@@ -132,7 +133,7 @@ class _FileshowState extends State<Fileshow> {
         'lastMessageTime': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
-      print('❌ Firestore error: $e');
+      if (kDebugMode) print('❌ Firestore error: $e');
       rethrow;
     }
   }

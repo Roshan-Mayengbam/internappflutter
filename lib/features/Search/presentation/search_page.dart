@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:internappflutter/features/AvailableHackathons/presentation/provider/hackathon_provider.dart';
 import 'package:internappflutter/home/cardDetails.dart';
 import 'package:internappflutter/screens/hackathon_details.dart';
@@ -17,7 +17,6 @@ import '../../AvailableJobs/presentation/provider/job_provider.dart';
 import '../../core/design_systems/app_typography.dart';
 import '../../core/design_systems/app_colors.dart';
 import '../../core/design_systems/app_spacing.dart';
-import '../../core/design_systems/app_shapes.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -106,9 +105,9 @@ class _SearchPageState extends State<SearchPage> {
     final filterSlug = _selectedSearchCategory.searchFilter;
     final query = isInitialLoad ? null : _currentSearchQuery;
 
-    print('--- Executing Search ---');
-    print('Scope: $filterSlug');
-    print('Query: "$query"');
+    if (kDebugMode) print('--- Executing Search ---');
+    if (kDebugMode) print('Scope: $filterSlug');
+    if (kDebugMode) print('Query: "$query"');
 
     if (filterSlug == 'jobs') {
       jobProvider.fetchJobs(searchString: query);
@@ -434,7 +433,7 @@ class _JobListItem extends StatelessWidget {
         ? 'External'
         : 'In House';
 
-    print(job.perks);
+    if (kDebugMode) print(job.perks);
 
     Navigator.push(
       context,

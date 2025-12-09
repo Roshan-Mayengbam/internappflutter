@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/models/hackathon.dart';
@@ -45,8 +46,10 @@ class HackathonProvider extends ChangeNotifier {
         },
       );
 
-      print('Hackathon API Response Status: ${response.statusCode}');
-      print('Hackathon API Response Body: ${response.body}');
+      if (kDebugMode) {
+        print('Hackathon API Response Status: ${response.statusCode}');
+      }
+      if (kDebugMode) print('Hackathon API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -65,23 +68,25 @@ class HackathonProvider extends ChangeNotifier {
               final hackathon = Hackathon.fromJson(hackathonJson);
               _hackathons.add(hackathon);
             } catch (e) {
-              print('Error parsing hackathon: $e');
-              print('Problematic JSON: $hackathonJson');
+              if (kDebugMode) print('Error parsing hackathon: $e');
+              if (kDebugMode) print('Problematic JSON: $hackathonJson');
               // Continue parsing other hackathons
             }
           }
 
           _errorMessage = null;
-          print('Successfully parsed ${_hackathons.length} hackathons');
+          if (kDebugMode) {
+            print('Successfully parsed ${_hackathons.length} hackathons');
+          }
         }
       } else {
         _errorMessage = 'Failed to load hackathons: ${response.statusCode}';
-        print('Error response: ${response.body}');
+        if (kDebugMode) print('Error response: ${response.body}');
       }
     } catch (e, stackTrace) {
       _errorMessage = 'Error fetching hackathons';
-      print('Error: $e');
-      print('Stack trace: $stackTrace');
+      if (kDebugMode) print('Error: $e');
+      if (kDebugMode) print('Stack trace: $stackTrace');
     } finally {
       _isLoading = false;
       notifyListeners();
