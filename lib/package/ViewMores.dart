@@ -109,7 +109,7 @@ class ViewMores extends StatelessWidget {
                                     tagLabel: item['tagLabel'],
                                     employmentType: item['jobType'] ?? '',
                                     rolesAndResponsibilities:
-                                        item['description'] ?? '',
+                                        item['rolesAndResponsibilities'] ?? '',
                                     duration:
                                         item['duration'] ?? 'Not specified',
                                     stipend:
@@ -134,6 +134,7 @@ class ViewMores extends StatelessWidget {
                                     perks: List<String>.from(
                                       item['perks'] ?? [],
                                     ),
+                                    description: item['description'] ?? '',
                                   ),
                                 ),
                               );

@@ -24,6 +24,7 @@ class Carddetails extends StatefulWidget {
   final String duration;
   final String stipend;
   final String details;
+  final String description;
   final String noOfOpenings;
   final List<String> perks;
   final String mode;
@@ -56,6 +57,7 @@ class Carddetails extends StatefulWidget {
     this.recruiter,
     required this.salaryRange,
     required this.perks,
+    required this.description,
   });
 
   @override
@@ -77,13 +79,31 @@ class _CarddetailsState extends State<Carddetails> {
   }
 
   String get _formattedStipendK {
-    final clean = widget.stipend.replaceAll(RegExp(r'[^0-9.]'), '');
-    if (clean.isEmpty) return widget.stipend;
-    final double? amount = double.tryParse(clean);
-    if (amount == null || amount == 0) return widget.stipend;
-    final double k = amount / 1000.0;
-    final String kStr = k % 1 == 0 ? k.toStringAsFixed(0) : k.toStringAsFixed(1);
-    return '₹${kStr}k';
+    final sr = widget.salaryRange;
+    if (sr.trim().isEmpty) return sr;
+
+    // Find numeric values (allow commas and decimals)
+    final matches = RegExp(r'[\d,]+(?:\.\d+)?').allMatches(sr);
+    if (matches.isEmpty) return sr;
+
+    List<String> parts = matches.map((m) => m.group(0)!).toList();
+    List<String> formatted = [];
+
+    for (var p in parts.take(2)) {
+      final clean = p.replaceAll(',', '');
+      final double? amount = double.tryParse(clean);
+      if (amount == null) {
+        formatted.add(p);
+        continue;
+      }
+      final double k = amount / 1000.0;
+      final String kStr = k % 1 == 0
+          ? k.toStringAsFixed(0)
+          : k.toStringAsFixed(1);
+      formatted.add('₹${kStr}k');
+    }
+
+    return formatted.length == 1 ? formatted.first : formatted.join(' - ');
   }
 
   Future<void> applyJob(String jobId, String jobType) async {
@@ -693,7 +713,7 @@ class _CarddetailsState extends State<Carddetails> {
                             Expanded(
                               child: _buildInfoCard(
                                 'Duration',
-                                widget.duration,
+                                '${widget.duration} months',
                               ),
                             ),
                           ],
@@ -701,7 +721,9 @@ class _CarddetailsState extends State<Carddetails> {
                         const SizedBox(height: AppSpacing.md),
                         Row(
                           children: [
-                            Expanded(child: _buildInfoCard('Mode', 'Online')),
+                            Expanded(
+                              child: _buildInfoCard('Mode', widget.mode),
+                            ),
                             const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: _buildInfoCard(
@@ -775,7 +797,7 @@ class _CarddetailsState extends State<Carddetails> {
                   // Details
                   Text('Details :', style: AppTypography.jobTitle),
                   const SizedBox(height: AppSpacing.md),
-                  _buildDescriptionCard(widget.details),
+                  _buildDescriptionCard(widget.description),
 
                   const SizedBox(height: AppSpacing.xl),
 

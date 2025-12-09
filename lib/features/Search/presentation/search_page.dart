@@ -470,9 +470,9 @@ class _JobListItem extends StatelessWidget {
                     .map((s) => s.trim()) // Remove leading/trailing whitespace
                     .where((s) => s.isNotEmpty)
                     .toList()
-              : [
-                  'Not specified',
-                ], // Return a List of strings or ['Not specified']
+              : ['Not specified'],
+          description:
+              job.description, // Return a List of strings or ['Not specified']
         ),
       ),
     );

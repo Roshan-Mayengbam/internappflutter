@@ -24,6 +24,7 @@ class JobCard extends StatefulWidget {
   final String noOfOpenings;
   final String mode;
   final String jobType;
+  final String description;
   final Map<String, dynamic>? recruiter;
 
   const JobCard({
@@ -51,6 +52,8 @@ class JobCard extends StatefulWidget {
     this.recruiter,
     required this.salaryRange,
     required this.perks,
+
+    required this.description,
   });
 
   @override
@@ -190,6 +193,7 @@ class _JobCardState extends State<JobCard> {
                 recruiter: widget.recruiter,
                 salaryRange: widget.salaryRange,
                 perks: [...widget.perks],
+                description: widget.description,
               ),
             ),
           );
@@ -254,6 +258,7 @@ class _JobCardState extends State<JobCard> {
                               recruiter: widget.recruiter,
                               salaryRange: widget.salaryRange,
                               perks: [...widget.perks],
+                              description: widget.description,
                             ),
                           ),
                         );

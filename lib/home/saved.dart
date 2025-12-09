@@ -259,7 +259,7 @@ class _SavedState extends State<Saved> {
             job.rolesAndResponsibilities?.isNotEmpty == true
             ? job.rolesAndResponsibilities
             : 'Not specified',
-        'perks': job.perks?.isNotEmpty == true ? job.perks : 'Not specified',
+        'perks': job.perks.isNotEmpty ? job.perks : <String>[],
         'details': job.details?.isNotEmpty == true
             ? job.details
             : 'Not specified',
@@ -372,7 +372,7 @@ class _SavedState extends State<Saved> {
                               employmentType:
                                   job['employmentType'] ?? 'Not specified',
                               rolesAndResponsibilities:
-                                  job['description'] ??
+                                  job['rolesAndResponsibilities'] ??
                                   'No description available',
                               duration: job['duration'] ?? 'Not specified',
                               stipend:
@@ -392,7 +392,12 @@ class _SavedState extends State<Saved> {
                                   job['about'] ?? 'description not available',
                               salaryRange:
                                   job['salaryRange'] ?? 'Not specified',
-                              perks: [],
+                              perks: job['perks'] != null
+                                  ? List<String>.from(job['perks'])
+                                  : <String>[],
+                              description:
+                                  job['description'] ??
+                                  'No description available',
                             ),
                           ),
                         );
@@ -433,6 +438,7 @@ class _SavedState extends State<Saved> {
                         );
                       },
                       onItemTap: (job) {
+                        print("Tapped applied job: $job");
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => Carddetails(
@@ -452,7 +458,7 @@ class _SavedState extends State<Saved> {
                               tagLabel: job['tagLabel'],
                               employmentType: job['jobType'] ?? 'Not specified',
                               rolesAndResponsibilities:
-                                  job['description'] ??
+                                  job['rolesAndResponsibilities'] ??
                                   'No description available',
                               duration: job['duration'] ?? 'Not specified',
                               stipend:
@@ -471,7 +477,12 @@ class _SavedState extends State<Saved> {
                               recruiter: job["recruiter"],
                               salaryRange:
                                   job['salaryRange'] ?? 'Not specified',
-                              perks: [],
+                              description:
+                                  job['description'] ??
+                                  'No description available',
+                              perks: job['perks'] != null
+                                  ? List<String>.from(job['perks'])
+                                  : <String>[],
                             ),
                           ),
                         );

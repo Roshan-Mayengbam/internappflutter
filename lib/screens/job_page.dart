@@ -341,7 +341,8 @@ class _JobPageState extends State<JobPage> {
                           websiteUrl: job['websiteUrl'] ?? '',
                           tagLabel: job['tagLabel'],
                           employmentType: job['jobType'] ?? '',
-                          rolesAndResponsibilities: job['description'] ?? '',
+                          rolesAndResponsibilities:
+                              job['rolesAndResponsibilities'] ?? '',
                           duration:
                               jobProvider.jobs
                                   .firstWhere((j) => j.id == job['jobId'])
@@ -369,6 +370,7 @@ class _JobPageState extends State<JobPage> {
                           salaryRange:
                               job['salaryRange'] ?? 'salary not available',
                           perks: job['perks'] ?? 'perks not available',
+                          description: job['description'] ?? '',
                         ),
                       ),
                     );

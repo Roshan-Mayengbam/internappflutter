@@ -572,6 +572,7 @@ class HomePageState extends State<HomePage> {
       about: job['about'] ?? 'description not available',
       salaryRange: job['salaryRange'] ?? 'salary not available',
       perks: perksList,
+      description: job['description'] ?? 'description not available',
     );
   }
 }
