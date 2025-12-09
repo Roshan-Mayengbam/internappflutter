@@ -135,6 +135,8 @@ class ViewMores extends StatelessWidget {
                                       item['perks'] ?? [],
                                     ),
                                     description: item['description'] ?? '',
+                                    applicationStatus: item['applicationStatus'],
+                                    matchScore: item['matchScore'],
                                   ),
                                 ),
                               );

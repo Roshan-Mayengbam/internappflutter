@@ -33,6 +33,8 @@ class Carddetails extends StatefulWidget {
   final String jobType;
   final Map<String, dynamic>? recruiter;
   final String salaryRange;
+  final String? applicationStatus;
+  final int? matchScore;
 
   const Carddetails({
     super.key,
@@ -58,6 +60,8 @@ class Carddetails extends StatefulWidget {
     required this.salaryRange,
     required this.perks,
     required this.description,
+    this.applicationStatus,
+    this.matchScore,
   });
 
   @override
@@ -428,7 +432,10 @@ class _CarddetailsState extends State<Carddetails> {
                             ),
                           ),
                           child: ElevatedButton(
-                            onPressed: _isApplied || _isLoading
+                            onPressed:
+                                (widget.applicationStatus != null ||
+                                    _isApplied ||
+                                    _isLoading)
                                 ? null
                                 : () async {
                                     print("Tag Label: ${widget.tagLabel}");
@@ -640,9 +647,7 @@ class _CarddetailsState extends State<Carddetails> {
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _isApplied
-                                  ? AppColors.borderSoft
-                                  : AppColors.accentLime,
+                              backgroundColor: _getButtonColor(),
                               foregroundColor: AppColors.textPrimary,
                               padding: const EdgeInsets.symmetric(
                                 vertical: AppSpacing.lg,
@@ -664,7 +669,7 @@ class _CarddetailsState extends State<Carddetails> {
                                     ),
                                   )
                                 : Text(
-                                    _isApplied ? 'Applied' : 'Apply Now',
+                                    _getButtonText(),
                                     style: AppTypography.chip.copyWith(
                                       fontSize: 16,
                                     ),
@@ -1060,5 +1065,47 @@ class _CarddetailsState extends State<Carddetails> {
         ),
       ),
     );
+  }
+
+  String _getButtonText() {
+    if (widget.applicationStatus != null) {
+      final status = widget.applicationStatus!.toUpperCase();
+      switch (status) {
+        case 'applied':
+          return 'APPLIED';
+        case 'shortlisted':
+          return 'SHORTLISTED';
+        case 'rejected':
+          return 'REJECTED';
+        case 'hired':
+          return 'HIRED';
+        case 'pending':
+          return 'PENDING';
+        default:
+          return status.toUpperCase();
+      }
+    }
+    return _isApplied ? 'APPLIED' : 'APPLY NOW';
+  }
+
+  Color _getButtonColor() {
+    if (widget.applicationStatus != null) {
+      final status = widget.applicationStatus!.toUpperCase();
+      switch (status) {
+        case 'applied':
+          return AppColors.accentLime; // Green
+        case 'shortlisted':
+          return Colors.blue; // Blue
+        case 'rejected':
+          return Colors.red; // Red
+        case 'hired':
+          return AppColors.accentLime; // Green
+        case 'pending':
+          return Colors.grey; // Grey
+        default:
+          return AppColors.accentLime;
+      }
+    }
+    return AppColors.accentLime; // Default green for Apply Now
   }
 }

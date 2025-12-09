@@ -347,7 +347,7 @@ class _SavedState extends State<Saved> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
-                              items: jobsToDisplayFormat(savedJobs),
+                              items: jobsToDisplayFormat(savedJobs, isApplied: false),
                               isAppliedSection: false,
                               statusPage: true,
                             ),
@@ -485,6 +485,8 @@ class _SavedState extends State<Saved> {
                               perks: job['perks'] != null
                                   ? List<String>.from(job['perks'])
                                   : <String>[],
+                              applicationStatus: job['applicationStatus'],
+                              matchScore: job['matchScore'],
                             ),
                           ),
                         );
