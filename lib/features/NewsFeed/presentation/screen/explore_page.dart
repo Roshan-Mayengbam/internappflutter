@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/features/Search/presentation/search_page.dart';
 import 'package:lottie/lottie.dart';
@@ -85,7 +86,7 @@ class ExplorePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => ChatPage()),
               ),
               onNotificationPressed: () {
-                print("Pressed Notifications button");
+                if (kDebugMode) print("Pressed Notifications button");
               },
             ),
             SizedBox(height: AppSpacing.xl * 2),

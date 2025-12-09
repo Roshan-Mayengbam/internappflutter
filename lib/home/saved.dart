@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/home/cardDetails.dart';
@@ -6,7 +7,6 @@ import 'package:internappflutter/package/ViewMores.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../common/components/custom_app_bar.dart';
 import '../common/components/custom_button.dart';
 import '../common/components/jobs_page/custom_carousel_section.dart';
 import '../models/jobs.dart';
@@ -55,7 +55,7 @@ class _SavedState extends State<Saved> {
         return;
       }
 
-      print("🔄 Fetching saved jobs...");
+      if (kDebugMode) print("🔄 Fetching saved jobs...");
 
       final response = await http.get(
         Uri.parse('$baseUrl2/student/saves'),
@@ -68,20 +68,22 @@ class _SavedState extends State<Saved> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          print("✅ Saved jobs: $data");
+          if (kDebugMode) print("✅ Saved jobs: $data");
           List<dynamic> savesData = data['saves'] ?? [];
           savedJobs = savesData
               .map((jobJson) => Job.fromJson(jobJson))
               .toList();
 
           // ✅ REMOVED ALL SORTING - backend already sorted by savedAt
-          print("✅ Loaded ${savedJobs.length} saved jobs");
+          if (kDebugMode) print("✅ Loaded ${savedJobs.length} saved jobs");
         });
       } else {
-        print("❌ Failed to load saved jobs: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Failed to load saved jobs: ${response.statusCode}");
+        }
       }
     } catch (e) {
-      print("❌ Error fetching saved jobs: ${e.toString()}");
+      if (kDebugMode) print("❌ Error fetching saved jobs: ${e.toString()}");
     }
   }
 
@@ -109,7 +111,7 @@ class _SavedState extends State<Saved> {
         return;
       }
 
-      print("🔄 Fetching applied jobs...");
+      if (kDebugMode) print("🔄 Fetching applied jobs...");
 
       final response = await http.get(
         Uri.parse('$baseUrl2/student/fetchappliedjobs'),
@@ -122,7 +124,7 @@ class _SavedState extends State<Saved> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          print("✅ Applied jobs: $data");
+          if (kDebugMode) print("✅ Applied jobs: $data");
           // Store full applications data
           appliedApplications = data['applications'] ?? [];
 
@@ -141,14 +143,16 @@ class _SavedState extends State<Saved> {
           errorMessage = 'Failed to load applied jobs: ${response.statusCode}';
           isLoading = false;
         });
-        print("❌ Failed to load applied jobs: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Failed to load applied jobs: ${response.statusCode}");
+        }
       }
     } catch (e) {
       setState(() {
         errorMessage = 'Error: ${e.toString()}';
         isLoading = false;
       });
-      print("❌ Error fetching applied jobs: ${e.toString()}");
+      if (kDebugMode) print("❌ Error fetching applied jobs: ${e.toString()}");
     }
   }
 
@@ -163,7 +167,7 @@ class _SavedState extends State<Saved> {
         return app['status'].toString();
       }
     } catch (e) {
-      print("❌ Error getting status: $e");
+      if (kDebugMode) print("❌ Error getting status: $e");
     }
     return 'applied';
   }
@@ -179,7 +183,7 @@ class _SavedState extends State<Saved> {
         return app['matchScore'] as int;
       }
     } catch (e) {
-      print("❌ Error getting match score: $e");
+      if (kDebugMode) print("❌ Error getting match score: $e");
     }
     return null;
   }
@@ -347,7 +351,10 @@ class _SavedState extends State<Saved> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ViewMores(
-                              items: jobsToDisplayFormat(savedJobs, isApplied: false),
+                              items: jobsToDisplayFormat(
+                                savedJobs,
+                                isApplied: false,
+                              ),
                               isAppliedSection: false,
                               statusPage: true,
                             ),
@@ -409,89 +416,98 @@ class _SavedState extends State<Saved> {
 
                     const SizedBox(height: 20),
 
-                    CustomCarouselSection(
-                      subtitle: 'Applied Jobs',
-                      title: 'Your applied jobs',
-                      filters: [
-                        // 'all',
-                        // 'applied',
-                        // 'shortlisted',
-                        // 'rejected',
-                        // 'hired',
-                      ],
-                      selectedFilter: 'all',
-                      onFilterTap: (filter) {},
-                      items: jobsToDisplayFormat(appliedJobs, isApplied: true),
-                      isAppliedSection: true,
-                      statusPage: true,
-                      onViewMore: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ViewMores(
-                              items: jobsToDisplayFormat(
-                                appliedJobs,
-                                isApplied: true,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: CustomCarouselSection(
+                        subtitle: 'Applied Jobs',
+                        title: 'Your applied jobs',
+                        filters: [
+                          // 'all',
+                          // 'applied',
+                          // 'shortlisted',
+                          // 'rejected',
+                          // 'hired',
+                        ],
+                        selectedFilter: 'all',
+                        onFilterTap: (filter) {},
+                        items: jobsToDisplayFormat(
+                          appliedJobs,
+                          isApplied: true,
+                        ),
+                        isAppliedSection: true,
+                        statusPage: true,
+                        onViewMore: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewMores(
+                                items: jobsToDisplayFormat(
+                                  appliedJobs,
+                                  isApplied: true,
+                                ),
+                                statusPage: true,
+                                isAppliedSection: true,
                               ),
-                              statusPage: true,
-                              isAppliedSection: true,
                             ),
-                          ),
-                        );
-                      },
-                      onItemTap: (job) {
-                        print("Tapped applied job: $job");
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => Carddetails(
-                              jobTitle: job['jobTitle'] ?? 'No Title',
-                              companyName:
-                                  job['companyName'] ?? 'Unknown Company',
-                              about:
-                                  job['about'] ?? 'description not available',
-                              location:
-                                  job['location'] ?? 'Location not specified',
-                              experienceLevel:
-                                  job['experienceLevel'] ?? 'Not specified',
-                              requirements: job['requirements'] != null
-                                  ? List<String>.from(job['requirements'])
-                                  : <String>[],
-                              websiteUrl: job['websiteUrl'] ?? '',
-                              tagLabel: job['tagLabel'],
-                              employmentType: job['jobType'] ?? 'Not specified',
-                              rolesAndResponsibilities:
-                                  job['rolesAndResponsibilities'] ??
-                                  'No description available',
-                              duration: job['duration'] ?? 'Not specified',
-                              stipend:
-                                  job['stipend']?.toString() ?? 'Not specified',
-                              details:
-                                  job['description'] ?? 'No details available',
-                              noOfOpenings:
-                                  job['noOfOpenings']?.toString() ??
-                                  'Not specified',
-                              mode: job['mode'] ?? 'Not specified',
-                              skills: job['skills'] != null
-                                  ? List<String>.from(job['skills'])
-                                  : <String>[],
-                              id: job['jobId'] ?? '',
-                              jobType: job['jobType'] ?? 'Not specified',
-                              recruiter: job["recruiter"],
-                              salaryRange:
-                                  job['salaryRange'] ?? 'Not specified',
-                              description:
-                                  job['description'] ??
-                                  'No description available',
-                              perks: job['perks'] != null
-                                  ? List<String>.from(job['perks'])
-                                  : <String>[],
-                              applicationStatus: job['applicationStatus'],
-                              matchScore: job['matchScore'],
+                          );
+                        },
+                        onItemTap: (job) {
+                          if (kDebugMode) print("Tapped applied job: $job");
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => Carddetails(
+                                jobTitle: job['jobTitle'] ?? 'No Title',
+                                companyName:
+                                    job['companyName'] ?? 'Unknown Company',
+                                about:
+                                    job['about'] ?? 'description not available',
+                                location:
+                                    job['location'] ?? 'Location not specified',
+                                experienceLevel:
+                                    job['experienceLevel'] ?? 'Not specified',
+                                requirements: job['requirements'] != null
+                                    ? List<String>.from(job['requirements'])
+                                    : <String>[],
+                                websiteUrl: job['websiteUrl'] ?? '',
+                                tagLabel: job['tagLabel'],
+                                employmentType:
+                                    job['jobType'] ?? 'Not specified',
+                                rolesAndResponsibilities:
+                                    job['rolesAndResponsibilities'] ??
+                                    'No description available',
+                                duration: job['duration'] ?? 'Not specified',
+                                stipend:
+                                    job['stipend']?.toString() ??
+                                    'Not specified',
+                                details:
+                                    job['description'] ??
+                                    'No details available',
+                                noOfOpenings:
+                                    job['noOfOpenings']?.toString() ??
+                                    'Not specified',
+                                mode: job['mode'] ?? 'Not specified',
+                                skills: job['skills'] != null
+                                    ? List<String>.from(job['skills'])
+                                    : <String>[],
+                                id: job['jobId'] ?? '',
+                                jobType: job['jobType'] ?? 'Not specified',
+                                recruiter: job["recruiter"],
+                                salaryRange:
+                                    job['salaryRange'] ?? 'Not specified',
+                                description:
+                                    job['description'] ??
+                                    'No description available',
+                                perks: job['perks'] != null
+                                    ? List<String>.from(job['perks'])
+                                    : <String>[],
+                                applicationStatus: job['applicationStatus'],
+                                matchScore: job['matchScore'],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      onCarouselTap: (String p1) {},
+                          );
+                        },
+                        onCarouselTap: (String p1) {},
+                      ),
                     ),
                   ],
                 ),

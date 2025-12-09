@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/home/cardDetails.dart';
@@ -11,7 +12,6 @@ import 'package:provider/provider.dart';
 import '../common/components/jobs_page/custom_carousel_section.dart';
 import '../models/hackathon.dart';
 import 'hackathon.dart';
-import 'hackathon_details.dart';
 
 class JobPage extends StatefulWidget {
   const JobPage({super.key});
@@ -322,13 +322,19 @@ class _JobPageState extends State<JobPage> {
                   statusPage: false,
                   items: jobsList,
                   onItemTap: (job) {
-                    print("---- Navigating to Carddetails ----");
-                    print("Job Title: ${job['jobTitle']}");
-                    print("Company Name: ${job['companyName']}");
-                    print("Location: ${job['location']}");
-                    print("Website URL: ${job['websiteUrl']}");
-                    print("Job Type: ${job['jobType']}");
-                    print("-----------------------------------");
+                    if (kDebugMode) {
+                      print("---- Navigating to Carddetails ----");
+                    }
+                    if (kDebugMode) print("Job Title: ${job['jobTitle']}");
+                    if (kDebugMode) {
+                      print("Company Name: ${job['companyName']}");
+                    }
+                    if (kDebugMode) print("Location: ${job['location']}");
+                    if (kDebugMode) print("Website URL: ${job['websiteUrl']}");
+                    if (kDebugMode) print("Job Type: ${job['jobType']}");
+                    if (kDebugMode) {
+                      print("-----------------------------------");
+                    }
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -411,11 +417,21 @@ class _JobPageState extends State<JobPage> {
                   },
                   items: filteredHackathons,
                   onItemTap: (hackathon) {
-                    print("---- Navigating to HackathonDetailsScreen ----");
-                    print("Hackathon Title: ${hackathon['jobTitle']}");
-                    print("Organizer: ${hackathon['companyName']}");
-                    print("Website URL: ${hackathon['websiteUrl']}");
-                    print("---------------------------------------------");
+                    if (kDebugMode) {
+                      print("---- Navigating to HackathonDetailsScreen ----");
+                    }
+                    if (kDebugMode) {
+                      print("Hackathon Title: ${hackathon['jobTitle']}");
+                    }
+                    if (kDebugMode) {
+                      print("Organizer: ${hackathon['companyName']}");
+                    }
+                    if (kDebugMode) {
+                      print("Website URL: ${hackathon['websiteUrl']}");
+                    }
+                    if (kDebugMode) {
+                      print("---------------------------------------------");
+                    }
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -451,7 +467,7 @@ class _JobPageState extends State<JobPage> {
                   },
 
                   onCarouselTap: (hackathonId) {
-                    print("Tapped hackathon: $hackathonId");
+                    if (kDebugMode) print("Tapped hackathon: $hackathonId");
                     // Navigate to hackathon details page if you have one
                   },
                 ),

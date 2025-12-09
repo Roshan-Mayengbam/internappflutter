@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/skillVerify/SkillVerification.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
@@ -33,8 +33,8 @@ class _TestSuccessPageState extends State<TestSuccessPage>
   @override
   void initState() {
     super.initState();
-    print(widget.TestResult);
-    print(widget.userlevel);
+    if (kDebugMode) print(widget.TestResult);
+    if (kDebugMode) print(widget.userlevel);
     _controller = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -69,8 +69,10 @@ class _TestSuccessPageState extends State<TestSuccessPage>
       const String apiUrl =
           'https://hyrup-730899264601.asia-south1.run.app/student/verifySkills';
 
-      print('Sending request to: $apiUrl');
-      print('Skill: ${widget.userskill}, Level: ${widget.userlevel}');
+      if (kDebugMode) print('Sending request to: $apiUrl');
+      if (kDebugMode) {
+        print('Skill: ${widget.userskill}, Level: ${widget.userlevel}');
+      }
 
       final response = await http
           .put(
@@ -92,22 +94,22 @@ class _TestSuccessPageState extends State<TestSuccessPage>
             },
           );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) print('Response status: ${response.statusCode}');
+      if (kDebugMode) print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         setState(() {
           _updateSuccess = true;
           _isUpdating = false;
         });
-        print('Skill level updated successfully');
+        if (kDebugMode) print('Skill level updated successfully');
       } else {
         throw Exception(
           'Failed to update skill (${response.statusCode}): ${response.body}',
         );
       }
     } catch (e) {
-      print('Error updating skill level: $e');
+      if (kDebugMode) print('Error updating skill level: $e');
       setState(() {
         _isUpdating = false;
       });

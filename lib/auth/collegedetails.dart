@@ -1,10 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:internappflutter/auth/courserange.dart';
-import 'package:internappflutter/auth/skills.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
 class Collegedetails extends StatefulWidget {
@@ -56,10 +56,10 @@ class _CollegedetailsState extends State<Collegedetails> {
     super.initState();
     _loadDegreesFromJson();
     if (widget.userModel != null) {
-      print("Received user data in CollegeDetails:");
-      print("Name: ${widget.userModel!.name}");
-      print("Email: ${widget.userModel!.email}");
-      print("Phone: ${widget.userModel!.phone}");
+      if (kDebugMode) print("Received user data in CollegeDetails:");
+      if (kDebugMode) print("Name: ${widget.userModel!.name}");
+      if (kDebugMode) print("Email: ${widget.userModel!.email}");
+      if (kDebugMode) print("Phone: ${widget.userModel!.phone}");
     }
   }
 
@@ -100,7 +100,7 @@ class _CollegedetailsState extends State<Collegedetails> {
         _isLoadingDegrees = false;
       });
     } catch (e) {
-      print('Error loading degrees from JSON: $e');
+      if (kDebugMode) print('Error loading degrees from JSON: $e');
       setState(() {
         _allDegrees = [
           'Bachelor of Engineering (B.E)',
@@ -193,7 +193,7 @@ class _CollegedetailsState extends State<Collegedetails> {
         _setFallbackColleges(query);
       }
     } catch (e) {
-      print('Error searching colleges: $e');
+      if (kDebugMode) print('Error searching colleges: $e');
       _setFallbackColleges(query);
     } finally {
       setState(() {
@@ -798,8 +798,10 @@ class _CollegedetailsState extends State<Collegedetails> {
                 collegeEmailId: selectedEmailId ?? '', // make optional
               );
 
-              print("Extended user model with college details:");
-              print(extendedUserModel.toString());
+              if (kDebugMode) {
+                print("Extended user model with college details:");
+              }
+              if (kDebugMode) print(extendedUserModel.toString());
 
               Navigator.push(
                 context,

@@ -7,7 +7,6 @@ import 'package:internappflutter/features/NewsFeed/domain/entities/article.dart'
 import 'package:internappflutter/features/core/design_systems/app_colors.dart';
 import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/features/core/design_systems/app_typography.dart';
-import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 
 class ArticleTile extends StatelessWidget {
   final Article article;

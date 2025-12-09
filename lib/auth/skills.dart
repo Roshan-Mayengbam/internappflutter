@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:internappflutter/auth/experience.dart';
@@ -61,10 +62,11 @@ class _SkillsState extends State<Skills> {
           allSkills = skillsJson
               .map((item) {
                 if (item is String) return item;
-                if (item is Map)
+                if (item is Map) {
                   return item['name']?.toString() ??
                       item['skill']?.toString() ??
                       '';
+                }
                 return '';
               })
               .where((item) => item.isNotEmpty)
@@ -75,10 +77,11 @@ class _SkillsState extends State<Skills> {
           allJobs = jobsJson
               .map((item) {
                 if (item is String) return item;
-                if (item is Map)
+                if (item is Map) {
                   return item['name']?.toString() ??
                       item['job']?.toString() ??
                       '';
+                }
                 return '';
               })
               .where((item) => item.isNotEmpty)
@@ -88,7 +91,7 @@ class _SkillsState extends State<Skills> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error loading JSON data: $e');
+      if (kDebugMode) print('Error loading JSON data: $e');
       setState(() {
         isLoading = false;
         // Fallback to default values if JSON loading fails
@@ -564,7 +567,9 @@ class _SkillsState extends State<Skills> {
                       final courseRange =
                           widget.extendedUserModel as CourseRange;
                       yearValue = courseRange.year;
-                      print("Found CourseRange with year: $yearValue");
+                      if (kDebugMode) {
+                        print("Found CourseRange with year: $yearValue");
+                      }
                     }
 
                     final userWithSkills = UserWithSkills.fromExtended(
@@ -575,26 +580,40 @@ class _SkillsState extends State<Skills> {
                           yearValue, // Now using the actual year from CourseRange
                     );
 
-                    // Debug print everything - FIXED TO SHOW CORRECT SKILLS
-                    print("---- UserWithSkills ----");
-                    print("Name: ${userWithSkills.name}");
-                    print("Email: ${userWithSkills.email}");
-                    print("Phone: ${userWithSkills.phone}");
-                    print("UID: ${userWithSkills.uid}");
-                    print("Role: ${userWithSkills.role}");
-                    print("College: ${userWithSkills.collegeName}");
-                    print("University: ${userWithSkills.university}");
-                    print("Degree: ${userWithSkills.degree}");
-                    print("College Email: ${userWithSkills.collegeEmailId}");
-                    print("Year: ${userWithSkills.year}");
-                    print(
-                      "Inherited Skills (from ExtendedUserModel): ${userWithSkills.skills}",
-                    );
-                    print(
-                      "User Selected Skills: ${userWithSkills.userSkills}",
-                    ); // FIXED: Show userSkills instead of skills
-                    print("Job Preferences: ${userWithSkills.preferences}");
-                    print("Jobs (inherited): ${userWithSkills.jobs}");
+                    // Debug if (kDebugMode) print everything - FIXED TO SHOW CORRECT SKILLS
+                    if (kDebugMode) print("---- UserWithSkills ----");
+                    if (kDebugMode) print("Name: ${userWithSkills.name}");
+                    if (kDebugMode) print("Email: ${userWithSkills.email}");
+                    if (kDebugMode) print("Phone: ${userWithSkills.phone}");
+                    if (kDebugMode) print("UID: ${userWithSkills.uid}");
+                    if (kDebugMode) print("Role: ${userWithSkills.role}");
+                    if (kDebugMode) {
+                      print("College: ${userWithSkills.collegeName}");
+                    }
+                    if (kDebugMode) {
+                      print("University: ${userWithSkills.university}");
+                    }
+                    if (kDebugMode) print("Degree: ${userWithSkills.degree}");
+                    if (kDebugMode) {
+                      print("College Email: ${userWithSkills.collegeEmailId}");
+                    }
+                    if (kDebugMode) print("Year: ${userWithSkills.year}");
+                    if (kDebugMode) {
+                      print(
+                        "Inherited Skills (from ExtendedUserModel): ${userWithSkills.skills}",
+                      );
+                    }
+                    if (kDebugMode) {
+                      print(
+                        "User Selected Skills: ${userWithSkills.userSkills}",
+                      ); // FIXED: Show userSkills instead of skills
+                    }
+                    if (kDebugMode) {
+                      print("Job Preferences: ${userWithSkills.preferences}");
+                    }
+                    if (kDebugMode) {
+                      print("Jobs (inherited): ${userWithSkills.jobs}");
+                    }
 
                     // Navigate to ExperiencePage
                     Navigator.push(

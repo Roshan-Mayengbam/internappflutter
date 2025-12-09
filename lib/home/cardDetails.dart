@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/chat/chatscreen.dart';
@@ -111,9 +112,9 @@ class _CarddetailsState extends State<Carddetails> {
   }
 
   Future<void> applyJob(String jobId, String jobType) async {
-    print("🔄 Starting job application...");
-    print("📋 Job ID: $jobId");
-    print("🏢 Job Type: $jobType");
+    if (kDebugMode) print("🔄 Starting job application...");
+    if (kDebugMode) print("📋 Job ID: $jobId");
+    if (kDebugMode) print("🏢 Job Type: $jobType");
 
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -133,7 +134,7 @@ class _CarddetailsState extends State<Carddetails> {
       }
 
       final url = '$baseUrl/student/jobs/$jobId/$jobType/apply';
-      print("🌐 API URL: $url");
+      if (kDebugMode) print("🌐 API URL: $url");
 
       final response = await http.post(
         Uri.parse(url),
@@ -144,17 +145,19 @@ class _CarddetailsState extends State<Carddetails> {
         body: jsonEncode({}),
       );
 
-      print("📡 Response Status: ${response.statusCode}");
-      print("📄 Response Body: ${response.body}");
+      if (kDebugMode) print("📡 Response Status: ${response.statusCode}");
+      if (kDebugMode) print("📄 Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("✅ Application submitted successfully");
+        if (kDebugMode) print("✅ Application submitted successfully");
         setState(() {
           _errorMessage = '';
           _isApplied = true;
         });
       } else {
-        print("❌ Application failed with status: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Application failed with status: ${response.statusCode}");
+        }
         final errorData = json.decode(response.body);
         setState(() {
           _errorMessage =
@@ -162,7 +165,7 @@ class _CarddetailsState extends State<Carddetails> {
         });
       }
     } catch (e) {
-      print("⚠️ Exception occurred: $e");
+      if (kDebugMode) print("⚠️ Exception occurred: $e");
       setState(() {
         _errorMessage = "Error applying to job: $e";
       });
@@ -356,11 +359,17 @@ class _CarddetailsState extends State<Carddetails> {
                               padding: const EdgeInsets.all(AppSpacing.sm),
                               child: InkWell(
                                 onTap: () {
-                                  print('🔍 Current User ID: $currentUserId');
-                                  print(
-                                    'Recruiter Firebase ID: $recruiterFirebaseId',
-                                  );
-                                  print('🔍 Recruiter Name: $recruiterName');
+                                  if (kDebugMode) {
+                                    print('🔍 Current User ID: $currentUserId');
+                                  }
+                                  if (kDebugMode) {
+                                    print(
+                                      'Recruiter Firebase ID: $recruiterFirebaseId',
+                                    );
+                                  }
+                                  if (kDebugMode) {
+                                    print('🔍 Recruiter Name: $recruiterName');
+                                  }
 
                                   Navigator.push(
                                     context,
@@ -438,9 +447,17 @@ class _CarddetailsState extends State<Carddetails> {
                                     _isLoading)
                                 ? null
                                 : () async {
-                                    print("Tag Label: ${widget.tagLabel}");
-                                    print("Job Type: ${widget.jobType}");
-                                    print("Website URL: ${widget.websiteUrl}");
+                                    if (kDebugMode) {
+                                      print("Tag Label: ${widget.tagLabel}");
+                                    }
+                                    if (kDebugMode) {
+                                      print("Job Type: ${widget.jobType}");
+                                    }
+                                    if (kDebugMode) {
+                                      print(
+                                        "Website URL: ${widget.websiteUrl}",
+                                      );
+                                    }
 
                                     // Check if it's on-campus or external - open in browser
                                     if (widget.jobType == 'on-campus' ||
@@ -458,7 +475,9 @@ class _CarddetailsState extends State<Carddetails> {
                                             url = 'https://$url';
                                           }
 
-                                          print("Final URL: $url");
+                                          if (kDebugMode) {
+                                            print("Final URL: $url");
+                                          }
 
                                           final Uri uri = Uri.parse(url);
 
@@ -490,7 +509,9 @@ class _CarddetailsState extends State<Carddetails> {
                                             );
                                           }
                                         } catch (e) {
-                                          print("Error launching URL: $e");
+                                          if (kDebugMode) {
+                                            print("Error launching URL: $e");
+                                          }
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(

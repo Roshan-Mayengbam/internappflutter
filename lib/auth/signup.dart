@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:internappflutter/aboutYou/tag.dart';
 import 'package:internappflutter/auth/FirebaseOTPService.dart';
 import 'package:internappflutter/auth/google_signin.dart';
-import 'package:internappflutter/auth/otp_page.dart';
 import 'package:internappflutter/auth/registerpage.dart';
-import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/home/home_page.dart';
 
 import 'package:internappflutter/models/usermodel.dart';
 

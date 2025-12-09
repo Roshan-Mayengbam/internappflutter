@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../domain/entities/article.dart';
 import '../../domain/repositories/news_repository.dart';
 import '../datasources/guardian_api_remote_datasource.dart';
@@ -33,7 +35,7 @@ class NewsRepositoryImpl implements NewsRepository {
       final cachedArticles = localDataSource.getCachedArticles();
       if (cachedArticles.isNotEmpty) {
         // 💡 HINT: Add a log statement here for debugging cache hits
-        print('Returning cached data for tags: $tags');
+        if (kDebugMode) print('Returning cached data for tags: $tags');
         return cachedArticles;
       }
     }

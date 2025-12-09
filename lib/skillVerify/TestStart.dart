@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/skillVerify/test1.dart';
 
@@ -22,8 +23,8 @@ class _TestStartState extends State<TestStart> {
   @override
   void initState() {
     super.initState();
-    print(widget.UserSkillLevel);
-    print(widget.selectedSkill);
+    if (kDebugMode) print(widget.UserSkillLevel);
+    if (kDebugMode) print(widget.selectedSkill);
 
     // Set default selected option based on user's current level
     if (widget.UserSkillLevel.toLowerCase() == 'beginner') {

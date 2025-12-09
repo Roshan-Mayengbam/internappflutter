@@ -1,12 +1,11 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:internappflutter/aboutYou/tag.dart';
-import 'package:internappflutter/auth/courserange.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
 class UploadScreen extends StatefulWidget {
@@ -320,29 +319,43 @@ class _UploadScreenState extends State<UploadScreen> {
                 preferences: widget.userProject!.preferences,
               );
 
-              print('--- UploadResume Details ---');
-              print('Profile Pic: ${uploadResume.profilePic}');
-              print('Resume File: ${uploadResume.resumeFile}');
-              print('Project Name: ${uploadResume.projectName}');
-              print('Project Link: ${uploadResume.projectLink}');
-              print('Project Description: ${uploadResume.projectDescription}');
-              print('Organisation: ${uploadResume.organisation}');
-              print('Position: ${uploadResume.position}');
-              print('Date: ${uploadResume.date}');
-              print('Description: ${uploadResume.description}');
-              print('Year: ${uploadResume.year}');
-              print('Name: ${uploadResume.name}');
-              print('Phone: ${uploadResume.phone}');
-              print('Email: ${uploadResume.email}');
-              print('UID: ${uploadResume.uid}');
-              print('Role: ${uploadResume.role}');
-              print('College Name: ${uploadResume.collegeName}');
-              print('University: ${uploadResume.university}');
-              print('Degree: ${uploadResume.degree}');
-              print('College Email ID: ${uploadResume.collegeEmailId}');
-              print('User Skills: ${uploadResume.userSkills}');
-              print('Preferences: ${uploadResume.preferences}');
-              print('---------------------------');
+              if (kDebugMode) print('--- UploadResume Details ---');
+              if (kDebugMode) print('Profile Pic: ${uploadResume.profilePic}');
+              if (kDebugMode) print('Resume File: ${uploadResume.resumeFile}');
+              if (kDebugMode) {
+                print('Project Name: ${uploadResume.projectName}');
+              }
+              if (kDebugMode) {
+                print('Project Link: ${uploadResume.projectLink}');
+              }
+              if (kDebugMode) {
+                print(
+                  'Project Description: ${uploadResume.projectDescription}',
+                );
+              }
+              if (kDebugMode) {
+                print('Organisation: ${uploadResume.organisation}');
+              }
+              if (kDebugMode) print('Position: ${uploadResume.position}');
+              if (kDebugMode) print('Date: ${uploadResume.date}');
+              if (kDebugMode) print('Description: ${uploadResume.description}');
+              if (kDebugMode) print('Year: ${uploadResume.year}');
+              if (kDebugMode) print('Name: ${uploadResume.name}');
+              if (kDebugMode) print('Phone: ${uploadResume.phone}');
+              if (kDebugMode) print('Email: ${uploadResume.email}');
+              if (kDebugMode) print('UID: ${uploadResume.uid}');
+              if (kDebugMode) print('Role: ${uploadResume.role}');
+              if (kDebugMode) {
+                print('College Name: ${uploadResume.collegeName}');
+              }
+              if (kDebugMode) print('University: ${uploadResume.university}');
+              if (kDebugMode) print('Degree: ${uploadResume.degree}');
+              if (kDebugMode) {
+                print('College Email ID: ${uploadResume.collegeEmailId}');
+              }
+              if (kDebugMode) print('User Skills: ${uploadResume.userSkills}');
+              if (kDebugMode) print('Preferences: ${uploadResume.preferences}');
+              if (kDebugMode) print('---------------------------');
 
               Navigator.of(context).push(
                 MaterialPageRoute(

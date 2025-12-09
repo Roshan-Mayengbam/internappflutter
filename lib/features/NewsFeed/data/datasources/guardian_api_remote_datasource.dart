@@ -1,5 +1,6 @@
 // lib/data/datasources/guardian_api_data_source.dart
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:internappflutter/common/constants/app_constants.dart';
 
@@ -30,7 +31,11 @@ class GuardianApiDataSource {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
       // Handle API key errors, rate limiting, etc.
-      print('API Error: Status ${response.statusCode}, Body: ${response.body}');
+      if (kDebugMode) {
+        print(
+          'API Error: Status ${response.statusCode}, Body: ${response.body}',
+        );
+      }
       throw Exception('Failed to load articles: Status ${response.statusCode}');
     }
   }

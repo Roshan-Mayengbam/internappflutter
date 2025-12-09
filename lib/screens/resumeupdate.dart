@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -35,7 +36,7 @@ class ResumeUploadHelper {
       }
       return null;
     } catch (e) {
-      print('Error picking file: $e');
+      if (kDebugMode) print('Error picking file: $e');
       rethrow;
     }
   }
@@ -97,11 +98,11 @@ class ResumeUploadHelper {
 
       // Get download URL
       final String downloadUrl = await snapshot.ref.getDownloadURL();
-      print("✅ Resume uploaded successfully: $downloadUrl");
+      if (kDebugMode) print("✅ Resume uploaded successfully: $downloadUrl");
 
       return {'url': downloadUrl, 'name': originalFileName};
     } catch (e) {
-      print("❌ Error uploading resume to Firebase Storage: $e");
+      if (kDebugMode) print("❌ Error uploading resume to Firebase Storage: $e");
       rethrow;
     }
   }
@@ -119,11 +120,13 @@ class ResumeUploadHelper {
       String? idToken = await user.getIdToken();
       if (idToken == null) throw Exception('Could not get auth token');
 
-      print('🔄 Updating resume in backend...');
-      print('URL: $baseUrl/student/update-resume');
-      print(
-        'Body: ${json.encode({'resume': resumeUrl, 'resumeName': resumeName})}',
-      );
+      if (kDebugMode) print('🔄 Updating resume in backend...');
+      if (kDebugMode) print('URL: $baseUrl/student/update-resume');
+      if (kDebugMode) {
+        print(
+          'Body: ${json.encode({'resume': resumeUrl, 'resumeName': resumeName})}',
+        );
+      }
 
       final response = await http.put(
         Uri.parse('$baseUrl/student/update-resume'),
@@ -134,18 +137,20 @@ class ResumeUploadHelper {
         body: json.encode({'resume': resumeUrl, 'resumeName': resumeName}),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) print('Response status: ${response.statusCode}');
+      if (kDebugMode) print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        print('✅ Resume updated in backend');
+        if (kDebugMode) print('✅ Resume updated in backend');
         return true;
       } else {
-        print('❌ Failed to update backend: ${response.statusCode}');
+        if (kDebugMode) {
+          print('❌ Failed to update backend: ${response.statusCode}');
+        }
         return false;
       }
     } catch (e) {
-      print('❌ Error updating backend: $e');
+      if (kDebugMode) print('❌ Error updating backend: $e');
       return false;
     }
   }
@@ -264,7 +269,7 @@ class ResumeUploadHelper {
         throw Exception('Could not launch resume URL');
       }
     } catch (e) {
-      print('Error viewing resume: $e');
+      if (kDebugMode) print('Error viewing resume: $e');
       rethrow;
     }
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -144,7 +145,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _skillsLoaded = true;
       return _allSkills.map((s) => s.toLowerCase()).toList();
     } catch (e) {
-      print('Error loading skills: $e');
+      if (kDebugMode) print('Error loading skills: $e');
       return [];
     }
   }
@@ -162,7 +163,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _jobsLoaded = true;
       return _allJobs;
     } catch (e) {
-      print('Error loading jobs: $e');
+      if (kDebugMode) print('Error loading jobs: $e');
       return [];
     }
   }
@@ -170,7 +171,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   /// Pick and upload image from specified source
   Future<void> _pickAndUploadImage(ImageSource source) async {
     try {
-      print("1. Starting image upload process...");
+      if (kDebugMode) print("1. Starting image upload process...");
 
       showDialog(
         context: context,
@@ -184,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         imageQuality: 70,
         maxWidth: 800,
       );
-      print("2. Image picked: ${pickedFile?.path}");
+      if (kDebugMode) print("2. Image picked: ${pickedFile?.path}");
 
       if (pickedFile == null) {
         Navigator.pop(context);
@@ -192,7 +193,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
 
       final User? user = _auth.currentUser;
-      print("3. User: ${user?.uid}");
+      if (kDebugMode) print("3. User: ${user?.uid}");
 
       if (user == null) {
         Navigator.pop(context);
@@ -204,7 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       final String uid = user.uid;
       final String? idToken = await user.getIdToken();
-      print("4. ID Token obtained: ${idToken != null}");
+      if (kDebugMode) print("4. ID Token obtained: ${idToken != null}");
 
       if (idToken == null) {
         Navigator.pop(context);
@@ -219,7 +220,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final String fileName =
           'profile_${uid}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      print("5. Uploading to Firebase Storage...");
+      if (kDebugMode) print("5. Uploading to Firebase Storage...");
       final Reference storageRef = FirebaseStorage.instance
           .ref()
           .child('profile_images')
@@ -227,10 +228,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final UploadTask uploadTask = storageRef.putFile(imageFile);
       final TaskSnapshot snapshot = await uploadTask;
       final String downloadURL = await snapshot.ref.getDownloadURL();
-      print("6. Firebase Storage URL: $downloadURL");
+      if (kDebugMode) print("6. Firebase Storage URL: $downloadURL");
 
       // Send to backend
-      print("7. Sending to backend: $baseUrl2/student/profile-photo");
+      if (kDebugMode) {
+        print("7. Sending to backend: $baseUrl2/student/profile-photo");
+      }
       final response = await http.put(
         Uri.parse('$baseUrl2/student/profile-photo'),
         headers: {
@@ -240,8 +243,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         body: json.encode({'profileUrl': downloadURL}),
       );
 
-      print("8. Backend response status: ${response.statusCode}");
-      print("9. Backend response body: ${response.body}");
+      if (kDebugMode) {
+        print("8. Backend response status: ${response.statusCode}");
+      }
+      if (kDebugMode) print("9. Backend response body: ${response.body}");
 
       Navigator.pop(context);
 
@@ -257,7 +262,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Navigator.pop(context, true);
       } else {
         final errorData = json.decode(response.body);
-        print('Upload failed: ${errorData['message']}');
+        if (kDebugMode) print('Upload failed: ${errorData['message']}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed: ${errorData['message'] ?? 'Unknown error'}'),
@@ -266,7 +271,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       Navigator.pop(context);
-      print('Error uploading image: $e');
+      if (kDebugMode) print('Error uploading image: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
@@ -291,13 +296,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         body: json.encode({'studentId': uid}),
       );
 
-      print(response.statusCode);
+      if (kDebugMode) print(response.statusCode);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           _userData = data['user'];
-          print(_userData);
+          if (kDebugMode) print(_userData);
           _populateFormData();
           _isLoading = false;
         });
@@ -305,7 +310,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         setState(() => _isLoading = false);
       }
     } catch (e) {
-      print("Error loading user data: $e");
+      if (kDebugMode) print("Error loading user data: $e");
       setState(() => _isLoading = false);
     }
   }
@@ -426,7 +431,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "projects": formattedProjects,
       };
 
-      print("Sending update data: ${json.encode(updateData)}");
+      if (kDebugMode) print("Sending update data: ${json.encode(updateData)}");
 
       final response = await http.put(
         Uri.parse('$baseUrl2/student/profile'),
@@ -437,8 +442,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         body: json.encode(updateData),
       );
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
+      if (kDebugMode) print("Response status: ${response.statusCode}");
+      if (kDebugMode) print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -483,11 +488,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   //       );
 
   //       if (response.statusCode != 200) {
-  //         print('Failed to add skill: $skill');
+  //         if (kDebugMode) print('Failed to add skill: $skill');
   //       }
   //     }
   //   } catch (e) {
-  //     print('Error saving skills: $e');
+  //     if (kDebugMode) print('Error saving skills: $e');
   //   }
   // }
 

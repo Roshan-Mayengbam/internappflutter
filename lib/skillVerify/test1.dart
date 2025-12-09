@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -37,9 +38,11 @@ class _test1State extends State<test1> {
 
   Future<void> loadQuestions() async {
     try {
-      print(
-        'Loading questions for: ${widget.selectedSkill} - ${widget.selectedLevel}',
-      );
+      if (kDebugMode) {
+        print(
+          'Loading questions for: ${widget.selectedSkill} - ${widget.selectedLevel}',
+        );
+      }
 
       String fileName = 'assets/skills.json';
       final String response = await rootBundle.loadString(fileName);
@@ -49,7 +52,9 @@ class _test1State extends State<test1> {
 
       // Check if the JSON is an array or object
       if (decodedData is List) {
-        print('JSON is a List with ${decodedData.length} items');
+        if (kDebugMode) {
+          print('JSON is a List with ${decodedData.length} items');
+        }
         // Find the matching skill and level in the array (case-insensitive)
         for (var item in decodedData) {
           if (item['Skill']?.toString().toLowerCase() ==
@@ -62,14 +67,16 @@ class _test1State extends State<test1> {
         }
 
         if (data == null) {
-          print('No matching skill found in list');
-          print('Available skills:');
+          if (kDebugMode) print('No matching skill found in list');
+          if (kDebugMode) print('Available skills:');
           for (var item in decodedData) {
-            print('  - ${item['Skill']} (${item['Difficulty']})');
+            if (kDebugMode) {
+              print('  - ${item['Skill']} (${item['Difficulty']})');
+            }
           }
         }
       } else if (decodedData is Map) {
-        print('JSON is a Map/Object');
+        if (kDebugMode) print('JSON is a Map/Object');
         data = decodedData as Map<String, dynamic>;
 
         // Verify if it matches (case-insensitive)
@@ -77,15 +84,21 @@ class _test1State extends State<test1> {
                 widget.selectedSkill.toLowerCase() ||
             data['Difficulty']?.toString().toLowerCase() !=
                 widget.selectedLevel.toLowerCase()) {
-          print('Skill/Level mismatch');
-          print('Expected: ${widget.selectedSkill} - ${widget.selectedLevel}');
-          print('Got: ${data['Skill']} - ${data['Difficulty']}');
+          if (kDebugMode) print('Skill/Level mismatch');
+          if (kDebugMode) {
+            print(
+              'Expected: ${widget.selectedSkill} - ${widget.selectedLevel}',
+            );
+          }
+          if (kDebugMode) {
+            print('Got: ${data['Skill']} - ${data['Difficulty']}');
+          }
           data = null;
         }
       }
 
       if (data != null) {
-        print('Found matching data!');
+        if (kDebugMode) print('Found matching data!');
 
         // Get all question keys as strings
         List<String> keys = [];
@@ -104,7 +117,7 @@ class _test1State extends State<test1> {
           }
         });
 
-        print('Total questions available: ${keys.length}');
+        if (kDebugMode) print('Total questions available: ${keys.length}');
 
         // Randomly select 10 questions
         List<String> selectedKeys = [];
@@ -133,10 +146,12 @@ class _test1State extends State<test1> {
           isLoading = false;
         });
 
-        print('Selected ${questionKeys.length} random questions');
-        print('Selected question keys: $questionKeys');
+        if (kDebugMode) {
+          print('Selected ${questionKeys.length} random questions');
+        }
+        if (kDebugMode) print('Selected question keys: $questionKeys');
       } else {
-        print('Could not find matching skill data');
+        if (kDebugMode) print('Could not find matching skill data');
         setState(() {
           isLoading = false;
         });
@@ -163,8 +178,8 @@ class _test1State extends State<test1> {
         }
       }
     } catch (e, stackTrace) {
-      print('Error loading questions: $e');
-      print('Stack trace: $stackTrace');
+      if (kDebugMode) print('Error loading questions: $e');
+      if (kDebugMode) print('Stack trace: $stackTrace');
 
       if (mounted) {
         showDialog(
@@ -227,11 +242,13 @@ class _test1State extends State<test1> {
 
       if (userAnswer == correctAnswer) {
         correctAnswersCount++;
-        print('Correct! Total correct: $correctAnswersCount');
+        if (kDebugMode) print('Correct! Total correct: $correctAnswersCount');
       } else {
-        print(
-          'Wrong! Correct answer was: $correctAnswer, User answered: $userAnswer',
-        );
+        if (kDebugMode) {
+          print(
+            'Wrong! Correct answer was: $correctAnswer, User answered: $userAnswer',
+          );
+        }
       }
     }
 
@@ -247,7 +264,7 @@ class _test1State extends State<test1> {
           '${correctAnswersCount}/${questionKeys.length} (${percentage.toStringAsFixed(1)}%)';
       String testResult = '$correctAnswersCount';
 
-      print('Test completed! Score: $testResult');
+      if (kDebugMode) print('Test completed! Score: $testResult');
 
       // Navigate to test end screen with results
       Navigator.pushReplacement(
@@ -382,16 +399,22 @@ class _test1State extends State<test1> {
                           left: 16,
                           child: InkWell(
                             onTap: () {
-                              print(
-                                'Question: ${currentQuestion['Question']?.toString()}',
-                              );
-                              print('Options:');
-                              for (int i = 0; i < options.length; i++) {
-                                print('  ${i + 1}. ${options[i]}');
+                              if (kDebugMode) {
+                                print(
+                                  'Question: ${currentQuestion['Question']?.toString()}',
+                                );
                               }
-                              print(
-                                'Correct Answer: ${currentQuestion['Correct']?.toString()}',
-                              );
+                              if (kDebugMode) print('Options:');
+                              for (int i = 0; i < options.length; i++) {
+                                if (kDebugMode) {
+                                  print('  ${i + 1}. ${options[i]}');
+                                }
+                              }
+                              if (kDebugMode) {
+                                print(
+                                  'Correct Answer: ${currentQuestion['Correct']?.toString()}',
+                                );
+                              }
                             },
                             child: SizedBox(
                               width: 230,

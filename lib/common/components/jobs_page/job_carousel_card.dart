@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:internappflutter/common/constants/job_carousel_card_constants.dart';
 import 'package:internappflutter/features/core/design_systems/app_typography.dart';
 
 import '../../../features/core/design_systems/app_colors.dart';
