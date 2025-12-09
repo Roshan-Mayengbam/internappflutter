@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:internappflutter/common/components/custom_search_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../common/components/custom_button.dart';

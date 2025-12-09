@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:internappflutter/bottomnavbar.dart';
-import 'package:internappflutter/home/home_page.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
 class TagPage extends StatefulWidget {
@@ -77,11 +77,10 @@ class _TagPageState extends State<TagPage> {
 
       // Get download URL
       final String downloadUrl = await snapshot.ref.getDownloadURL();
-      print("✅ File uploaded successfully: $downloadUrl");
-
+      if (kDebugMode) print("✅ File uploaded successfully: $downloadUrl");
       return downloadUrl;
     } catch (e) {
-      print("❌ Error uploading file to Firebase Storage: $e");
+      if (kDebugMode) print("❌ Error uploading file to Firebase Storage: $e");
       _showErrorSnackbar("Failed to upload ${folder}: $e");
       return null;
     }
@@ -116,7 +115,7 @@ class _TagPageState extends State<TagPage> {
 
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        print("❌ No authenticated user found");
+        if (kDebugMode) print("❌ No authenticated user found");
         _showErrorSnackbar("Authentication required");
         return false;
       }
@@ -223,8 +222,8 @@ class _TagPageState extends State<TagPage> {
         },
       };
 
-      print("📤 Calling: $baseUrl/signup");
-      print("📄 Request body: ${jsonEncode(requestBody)}");
+      if (kDebugMode) print("📤 Calling: $baseUrl/signup");
+      if (kDebugMode) print("📄 Request body: ${jsonEncode(requestBody)}");
 
       final response = await http.post(
         Uri.parse("$baseUrl/signup"),
@@ -235,17 +234,21 @@ class _TagPageState extends State<TagPage> {
         body: jsonEncode(requestBody),
       );
 
-      print("📡 Backend response status: ${response.statusCode}");
-      print("📄 Backend response body: ${response.body}");
+      if (kDebugMode) {
+        print("📡 Backend response status: ${response.statusCode}");
+      }
+      if (kDebugMode) print("📄 Backend response body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("✅ User data submitted successfully");
+        if (kDebugMode) print("✅ User data submitted successfully");
         setState(() {
           _uploadProgress = "Upload completed successfully!";
         });
         return true;
       } else {
-        print("❌ Backend submission failed: ${response.statusCode}");
+        if (kDebugMode) {
+          print("❌ Backend submission failed: ${response.statusCode}");
+        }
         final errorData = jsonDecode(response.body);
         _showErrorSnackbar(
           "Upload failed: ${errorData['message'] ?? 'Unknown error'}",
@@ -256,7 +259,7 @@ class _TagPageState extends State<TagPage> {
         return false;
       }
     } catch (e) {
-      print("❌ Error submitting user data: $e");
+      if (kDebugMode) print("❌ Error submitting user data: $e");
       _showErrorSnackbar("Network error: $e");
       return false;
     } finally {
@@ -274,14 +277,14 @@ class _TagPageState extends State<TagPage> {
     try {
       if (profileUrl != null) {
         await _storage.refFromURL(profileUrl).delete();
-        print("🗑️ Cleaned up profile image");
+        if (kDebugMode) print("🗑️ Cleaned up profile image");
       }
       if (resumeUrl != null) {
         await _storage.refFromURL(resumeUrl).delete();
-        print("🗑️ Cleaned up resume file");
+        if (kDebugMode) print("🗑️ Cleaned up resume file");
       }
     } catch (e) {
-      print("⚠️ Error cleaning up files: $e");
+      if (kDebugMode) print("⚠️ Error cleaning up files: $e");
     }
   }
 
@@ -328,10 +331,12 @@ class _TagPageState extends State<TagPage> {
       }
 
       // If no valid year found, return default
-      print("⚠️ Could not parse year from '$yearString', using default");
+      if (kDebugMode) {
+        print("⚠️ Could not parse year from '$yearString', using default");
+      }
       return DateTime.now().year + 1; // Default to next year
     } catch (e) {
-      print("❌ Error parsing year: $e");
+      if (kDebugMode) print("❌ Error parsing year: $e");
       return DateTime.now().year + 1; // Default to next year
     }
   }

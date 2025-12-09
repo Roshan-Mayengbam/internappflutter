@@ -5,7 +5,6 @@ import 'package:internappflutter/features/core/design_systems/app_typography.dar
 import 'package:internappflutter/features/core/design_systems/app_spacing.dart';
 import 'package:internappflutter/features/core/design_systems/app_shapes.dart';
 import 'package:internappflutter/skillVerify/TestStart.dart';
-import 'package:internappflutter/skillVerify/test1.dart';
 import 'package:lottie/lottie.dart'; // Import Lottie package
 
 class SkillVerification extends StatefulWidget {

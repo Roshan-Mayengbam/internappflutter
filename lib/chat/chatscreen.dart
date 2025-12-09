@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
-import 'package:path/path.dart' as path;
 import 'package:internappflutter/chat/fileshow.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
@@ -61,11 +61,12 @@ class _ChatScreenState extends State<ChatScreen> {
         final androidInfo = await DeviceInfoPlugin().androidInfo;
         final sdkInt = androidInfo.version.sdkInt;
 
-        print('📱 Android SDK: $sdkInt');
+        if (kDebugMode) print('📱 Android SDK: $sdkInt');
 
         if (sdkInt >= 33) {
           // Android 13+ (API 33+) - Request granular media permissions
-          print('📋 Requesting media permissions for Android 13+');
+          if (kDebugMode)
+            print('📋 Requesting media permissions for Android 13+');
 
           Map<Permission, PermissionStatus> statuses = await [
             Permission.photos,
@@ -91,7 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
           return hasAnyPermission;
         } else if (sdkInt >= 30) {
           // Android 11-12 (API 30-32)
-          print('📋 Requesting storage permission for Android 11-12');
+          if (kDebugMode)
+            print('📋 Requesting storage permission for Android 11-12');
 
           final status = await Permission.storage.request();
 
@@ -105,7 +107,8 @@ class _ChatScreenState extends State<ChatScreen> {
           return status.isGranted;
         } else {
           // Android 10 and below (API 29 and below)
-          print('📋 Requesting storage permission for Android 10 and below');
+          if (kDebugMode)
+            print('📋 Requesting storage permission for Android 10 and below');
 
           final status = await Permission.storage.request();
 
@@ -120,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       } else if (Platform.isIOS) {
         // iOS - Request photos permission
-        print('📋 Requesting photos permission for iOS');
+        if (kDebugMode) print('📋 Requesting photos permission for iOS');
 
         final status = await Permission.photos.request();
 
@@ -137,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
       // Other platforms - assume permission granted
       return true;
     } catch (e) {
-      print('❌ Error requesting permissions: $e');
+      if (kDebugMode) print('❌ Error requesting permissions: $e');
       return false;
     }
   }
@@ -172,7 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pickFile() async {
     try {
-      print('🔍 Starting file picker...');
+      if (kDebugMode) print('🔍 Starting file picker...');
 
       // Request permissions first
       final hasPermission = await _requestPermissions();
@@ -189,7 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
         return;
       }
 
-      print('✅ Permissions granted. Opening file picker...');
+      if (kDebugMode) print('✅ Permissions granted. Opening file picker...');
 
       // Pick file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -215,7 +218,8 @@ class _ChatScreenState extends State<ChatScreen> {
         final file = File(filePath);
         final mimeType = lookupMimeType(filePath) ?? '';
 
-        print('📄 File selected: ${picked.name}, type: $mimeType');
+        if (kDebugMode)
+          print('📄 File selected: ${picked.name}, type: $mimeType');
 
         if (mimeType.startsWith('image/') || mimeType.startsWith('video/')) {
           if (!mounted) return;
@@ -234,10 +238,10 @@ class _ChatScreenState extends State<ChatScreen> {
           await _uploadAndSendFile(file, picked.name, mimeType);
         }
       } else {
-        print('❌ No file selected');
+        if (kDebugMode) print('❌ No file selected');
       }
     } catch (e) {
-      print('❌ File picker error: $e');
+      if (kDebugMode) print('❌ File picker error: $e');
 
       if (!mounted) return;
 
@@ -289,13 +293,13 @@ class _ChatScreenState extends State<ChatScreen> {
         'chat_files/$chatId/$uniqueFileName',
       );
 
-      print('📤 Uploading file: $uniqueFileName');
+      if (kDebugMode) print('📤 Uploading file: $uniqueFileName');
 
       final uploadTask = storageRef.putFile(file);
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
 
-      print('✅ File uploaded successfully: $downloadUrl');
+      if (kDebugMode) print('✅ File uploaded successfully: $downloadUrl');
 
       await _sendFileMessage(
         fileUrl: downloadUrl,
@@ -311,7 +315,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } on FirebaseAuthException catch (e) {
-      print('❌ Auth Error: ${e.code} - ${e.message}');
+      if (kDebugMode) print('❌ Auth Error: ${e.code} - ${e.message}');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -320,7 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } on FirebaseException catch (e) {
-      print('❌ Firebase Error: ${e.code} - ${e.message}');
+      if (kDebugMode) print('❌ Firebase Error: ${e.code} - ${e.message}');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -329,7 +333,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } catch (e) {
-      print('❌ Error uploading file: $e');
+      if (kDebugMode) print('❌ Error uploading file: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -387,9 +391,9 @@ class _ChatScreenState extends State<ChatScreen> {
       }, SetOptions(merge: true));
 
       _scrollToBottom();
-      print('✅ File message sent to Firestore');
+      if (kDebugMode) print('✅ File message sent to Firestore');
     } catch (e) {
-      print('❌ Error sending file message: $e');
+      if (kDebugMode) print('❌ Error sending file message: $e');
       rethrow;
     }
   }
@@ -865,7 +869,10 @@ class _ChatScreenState extends State<ChatScreen> {
         fileUrl,
         filePath,
         onReceiveProgress: (received, total) {
-          print('Download progress: ${(received / total * 100).toStringAsFixed(0)}%');
+          if (kDebugMode)
+            print(
+              'Download progress: ${(received / total * 100).toStringAsFixed(0)}%',
+            );
         },
       );
 
@@ -881,11 +888,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
 
-      print('✅ File downloaded successfully: $filePath');
+      if (kDebugMode) print('✅ File downloaded successfully: $filePath');
     } on DioException catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close progress dialog
-      print('❌ Download error: ${e.message}');
+      if (kDebugMode) print('❌ Download error: ${e.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Download failed: ${e.message}'),
@@ -895,7 +902,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close progress dialog
-      print('❌ Error downloading file: $e');
+      if (kDebugMode) print('❌ Error downloading file: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error downloading file: $e'),
@@ -910,7 +917,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final Uri url = Uri.parse(fileUrl);
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
-        print('✅ File opened in browser');
+        if (kDebugMode) print('✅ File opened in browser');
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -922,7 +929,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      print('❌ Error opening file: $e');
+      if (kDebugMode) print('❌ Error opening file: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error opening file: $e'),
@@ -973,7 +980,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     } catch (e) {
-      print('Error opening file dialog: $e');
+      if (kDebugMode) print('Error opening file dialog: $e');
     }
   }
 
@@ -1133,7 +1140,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       });
       _controller.play();
     } catch (e) {
-      print('Error initializing video: $e');
+      if (kDebugMode) print('Error initializing video: $e');
       setState(() {
         _hasError = true;
       });

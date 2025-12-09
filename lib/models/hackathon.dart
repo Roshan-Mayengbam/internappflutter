@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Hackathon {
   final String id;
   final String title;
@@ -41,7 +43,7 @@ class Hackathon {
         }
         return fallback;
       } catch (e) {
-        print('Error parsing date: $dateValue, error: $e');
+        if (kDebugMode) print('Error parsing date: $dateValue, error: $e');
         return fallback;
       }
     }

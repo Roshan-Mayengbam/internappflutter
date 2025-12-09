@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internappflutter/aboutYou/uploadProfilePic.dart';
-import 'package:internappflutter/auth/skills.dart';
 import 'package:internappflutter/models/usermodel.dart';
 
 class ProjectsPage extends StatefulWidget {
@@ -136,7 +136,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
     // Validation removed to make project optional
     // If form is started but not complete, show dialog
 
-
     // Create UserProject model from the most recent project (if any)
     UserProject? userProject;
 
@@ -166,29 +165,31 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
       );
 
-      // Debug print all fields
-      print("---- Navigating to UploadScreen ----");
-      print("User Details:");
-      print("Name: ${userProject.name}");
-      print("Email: ${userProject.email}");
-      print("UID: ${userProject.uid}");
-      print("Role: ${userProject.role}");
-      print("College: ${userProject.collegeName}");
-      print("University: ${userProject.university}");
-      print("Degree: ${userProject.degree}");
-      print("College Email: ${userProject.collegeEmailId}");
-      print("Year: ${userProject.year}");
-      print("Skills: ${userProject.userSkills}");
-      print("Preferences: ${userProject.preferences}");
-      print("Experience:");
-      print("Organisation: ${userProject.organisation}");
-      print("Position: ${userProject.position}");
-      print("Date: ${userProject.date}");
-      print("Description: ${userProject.description}");
-      print("Project:");
-      print("Project Name: ${userProject.projectName}");
-      print("Project Link: ${userProject.projectLink}");
-      print("Project Description: ${userProject.projectDescription}");
+      // Debug if (kDebugMode) print all fields
+      if (kDebugMode) print("---- Navigating to UploadScreen ----");
+      if (kDebugMode) print("User Details:");
+      if (kDebugMode) print("Name: ${userProject.name}");
+      if (kDebugMode) print("Email: ${userProject.email}");
+      if (kDebugMode) print("UID: ${userProject.uid}");
+      if (kDebugMode) print("Role: ${userProject.role}");
+      if (kDebugMode) print("College: ${userProject.collegeName}");
+      if (kDebugMode) print("University: ${userProject.university}");
+      if (kDebugMode) print("Degree: ${userProject.degree}");
+      if (kDebugMode) print("College Email: ${userProject.collegeEmailId}");
+      if (kDebugMode) print("Year: ${userProject.year}");
+      if (kDebugMode) print("Skills: ${userProject.userSkills}");
+      if (kDebugMode) print("Preferences: ${userProject.preferences}");
+      if (kDebugMode) print("Experience:");
+      if (kDebugMode) print("Organisation: ${userProject.organisation}");
+      if (kDebugMode) print("Position: ${userProject.position}");
+      if (kDebugMode) print("Date: ${userProject.date}");
+      if (kDebugMode) print("Description: ${userProject.description}");
+      if (kDebugMode) print("Project:");
+      if (kDebugMode) print("Project Name: ${userProject.projectName}");
+      if (kDebugMode) print("Project Link: ${userProject.projectLink}");
+      if (kDebugMode) {
+        print("Project Description: ${userProject.projectDescription}");
+      }
     }
   }
 

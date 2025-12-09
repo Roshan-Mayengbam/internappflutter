@@ -48,3 +48,4 @@ app.*.map.json
 /lib/temp
 
 /test
+/android

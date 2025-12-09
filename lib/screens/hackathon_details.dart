@@ -1,4 +1,4 @@
-import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -257,7 +257,9 @@ class _HackathonDetailsScreenState extends State<HackathonDetailsScreen> {
                             onPressed: _isLoading
                                 ? null
                                 : () async {
-                                    print("Website URL: ${widget.website}");
+                                    if (kDebugMode) {
+                                      print("Website URL: ${widget.website}");
+                                    }
 
                                     if (widget.website != null &&
                                         widget.website!.isNotEmpty &&
@@ -272,7 +274,9 @@ class _HackathonDetailsScreenState extends State<HackathonDetailsScreen> {
                                           url = 'https://$url';
                                         }
 
-                                        print("Final URL: $url");
+                                        if (kDebugMode) {
+                                          print("Final URL: $url");
+                                        }
 
                                         final Uri uri = Uri.parse(url);
 
@@ -304,7 +308,9 @@ class _HackathonDetailsScreenState extends State<HackathonDetailsScreen> {
                                           );
                                         }
                                       } catch (e) {
-                                        print("Error launching URL: $e");
+                                        if (kDebugMode) {
+                                          print("Error launching URL: $e");
+                                        }
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(

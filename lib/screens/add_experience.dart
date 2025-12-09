@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AddExperienceScreen extends StatefulWidget {
@@ -24,7 +25,7 @@ class _AddExperienceScreenState extends State<AddExperienceScreen> {
     // Check if we're editing an existing experience
     if (widget.experience != null && widget.experience!.isNotEmpty) {
       _isEditing = true;
-      print('Editing experience: ${widget.experience}');
+      if (kDebugMode) print('Editing experience: ${widget.experience}');
       _organizationController.text = widget.experience!['nameOfOrg'] ?? '';
       _positionController.text = widget.experience!['position'] ?? '';
       _timelineController.text = widget.experience!['timeline'] ?? '';
@@ -74,7 +75,7 @@ class _AddExperienceScreenState extends State<AddExperienceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Editing: $_isEditing');
+    if (kDebugMode) print('Editing: $_isEditing');
     return Scaffold(
       backgroundColor: const Color(0xFFF8F4ED),
       appBar: AppBar(
