@@ -55,10 +55,10 @@ class CustomAppBar extends StatelessWidget {
             onPressed: onChatPressed,
           ),
           const SizedBox(width: 10),
-          CustomButton(
-            buttonIcon: Icons.notifications_none,
-            onPressed: onNotificationPressed,
-          ),
+          // CustomButton(
+          //   buttonIcon: Icons.notifications_none,
+          //   onPressed: onNotificationPressed,
+          // ),
         ],
       ),
     );
