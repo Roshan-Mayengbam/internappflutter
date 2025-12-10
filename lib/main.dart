@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -268,6 +269,173 @@ class _SplashScreenState extends State<SplashScreen> {
           fit: BoxFit.fitWidth,
           animate: true,
         ),
+      ),
+    );
+  }
+}
+
+class UploadCollegesPage extends StatefulWidget {
+  @override
+  State<UploadCollegesPage> createState() => _UploadCollegesPageState();
+}
+
+class _UploadCollegesPageState extends State<UploadCollegesPage> {
+  bool isUploading = false;
+
+  Future<void> uploadColleges() async {
+    setState(() {
+      isUploading = true;
+    });
+
+    final List<Map<String, dynamic>> colleges = [
+  { "name": "A.C. College of Engineering and Technology" },
+  { "name": "A.R. College of Engineering and Technology" },
+  { "name": "A.V.C. College of Engineering" },
+  { "name": "Aalim Muhammed Salegh College of Engineering" },
+  { "name": "Adhiparasakthi College of Engineering" },
+  { "name": "Adhiparasakthi Engineering College" },
+  { "name": "Adithya Institute of Technology" },
+  { "name": "Aishwarya College of Engineering and Technology" },
+  { "name": "Akshaya College of Engineering and Technology" },
+  { "name": "Alagappa College of Technology" },
+  { "name": "Alex College of Engineering and Technology" },
+  { "name": "Angel College of Engineering and Technology" },
+  { "name": "Anjalai Ammal Mahalingam Engineering College" },
+  { "name": "Annai College of Engineering and Technology" },
+  { "name": "Annai Mathammal Sheela Engineering College" },
+  { "name": "Annai Mira College of Engineering and Technology" },
+  { "name": "Annai Teresa College of Engineering" },
+  { "name": "Annamalaiar College of Engineering" },
+  { "name": "Arasu Engineering College" },
+  { "name": "Arignar Anna Institute of Science and Technology" },
+  { "name": "Arjun College of Technology" },
+  { "name": "Arulmigu Meenakshi Amman College of Engineering" },
+  { "name": "Arulmurugan College of Engineering" },
+  { "name": "As-Salam College of Engineering and Technology" },
+  { "name": "Audisankara College of Engineering for Women" },
+  { "name": "AVS Engineering College" },
+  { "name": "Bannari Amman Institute of Technology" },
+  { "name": "Bethlahem Institute of Engineering" },
+  { "name": "Bharath Institute of Higher Education and Research" },
+  { "name": "Bharathiyar Institute of Engineering for Women" },
+  { "name": "Bharath Niketan Engineering College" },
+  { "name": "Bharath University - BIHER" },
+  { "name": "C Abdul Hakeem College of Engineering and Technology" },
+  { "name": "C.K. College of Engineering and Technology" },
+  { "name": "C.M.S. College of Engineering and Technology" },
+  { "name": "C.R. College of Engineering and Technology" },
+  { "name": "Cape Institute of Technology" },
+  { "name": "Chandy College of Engineering" },
+  { "name": "Chendhuran College of Engineering and Technology" },
+  { "name": "Cheran College of Engineering" },
+  { "name": "Chennai Institute of Technology" },
+  { "name": "Christian College of Engineering and Technology" },
+  { "name": "Coimbatore Institute of Engineering and Technology" },
+  { "name": "Coimbatore Institute of Technology" },
+  { "name": "CSI College of Engineering" },
+  { "name": "CSI Institute of Technology" },
+  { "name": "D.M.I. College of Engineering" },
+  { "name": "Dhanalakshmi College of Engineering" },
+  { "name": "Dhanalakshmi Srinivasan College of Engineering" },
+  { "name": "Dhanalakshmi Srinivasan Engineering College" },
+  { "name": "Dhaanish Ahmed College of Engineering" },
+  { "name": "Dhaanish Ahmed Institute of Technology" },
+  { "name": "Don Bosco College of Engineering" },
+  { "name": "Dr. M.G.R. Educational and Research Institute" },
+  { "name": "Dr. N.G.P. Institute of Technology" },
+  { "name": "Dr. Sivanthi Aditanar College of Engineering" },
+  { "name": "Ebenezer College of Engineering and Technology" },
+  { "name": "Edayathangudy G S Pillay Engineering College" },
+  { "name": "E.G.S. Pillay Engineering College" },
+  { "name": "Erode Builder Educational Trust's Group of Institutions" },
+  { "name": "Excel College of Engineering and Technology" },
+  { "name": "Excel Engineering College" },
+  { "name": "Excel Institute of Engineering and Technology" },
+  { "name": "SNS College of Engineering" },
+  { "name": "SNS College of Technology" },
+  { "name": "Sona College of Technology" },
+  { "name": "Francis Xavier Engineering College" },
+  { "name": "G.K.M. College of Engineering and Technology" },
+  { "name": "Gnanamani College of Technology" },
+  { "name": "Gojan School of Business and Technology" },
+  { "name": "Government College of Engineering, Bargur" },
+  { "name": "Government College of Engineering, Bodinayakanur" },
+  { "name": "Government College of Engineering, Dharmapuri" },
+  { "name": "Government College of Engineering, Salem" },
+  { "name": "Government College of Engineering, Tirunelveli" },
+  { "name": "Government College of Technology, Coimbatore" },
+  { "name": "Hindustan College of Engineering and Technology" },
+  { "name": "Hindusthan Institute of Technology" },
+  { "name": "Holy Kings College of Engineering and Technology" },
+  { "name": "Idhaya Engineering College for Women" },
+  { "name": "Immanuel Arasar JJ College of Engineering" },
+  { "name": "Indira Gandhi College of Engineering and Technology for Women" },
+  { "name": "Indra Ganesan College of Engineering" },
+  { "name": "Info Institute of Engineering" },
+  { "name": "J.J. College of Engineering and Technology" },
+  { "name": "J.K.K. Nattraja College of Engineering and Technology" },
+  { "name": "Jai Shriram Engineering College" },
+  { "name": "Jairupaa Institute of Engineering" },
+  { "name": "Jansons Institute of Technology" },
+  { "name": "Jaya College of Engineering and Technology" },
+  { "name": "Jaya Engineering College" },
+  { "name": "Jayaraj Annapackiam CSI College of Engineering" },
+  { "name": "Jeppiaar Engineering College" },
+  { "name": "Jerusalem College of Engineering" }
+];
+
+
+
+
+    try {
+      final collection = FirebaseFirestore.instance.collection("colleges");
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+
+      for (var college in colleges) {
+        final docName = college['name']!.replaceAll('/', '-');
+        final doc = collection.doc(docName);
+
+        // Add searchName field for case-insensitive searching
+        batch.set(doc, {
+          ...college,
+          'searchName': college['name']!.toLowerCase(),
+        });
+      }
+
+      await batch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Uploaded ${colleges.length} colleges 🎉")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+
+    setState(() {
+      isUploading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Upload Colleges"), centerTitle: true),
+      body: Center(
+        child: isUploading
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 15),
+                  Text("Uploading... Please wait"),
+                ],
+              )
+            : ElevatedButton(
+                onPressed: uploadColleges,
+                child: Text("Upload Colleges to Firestore"),
+              ),
       ),
     );
   }

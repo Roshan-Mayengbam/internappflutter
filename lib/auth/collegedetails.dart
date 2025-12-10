@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:internappflutter/auth/courserange.dart';
@@ -18,7 +18,7 @@ class Collegedetails extends StatefulWidget {
 
 class _CollegedetailsState extends State<Collegedetails> {
   int filledFields = 0;
-  final int totalFields = 3; // Changed from 3 to 4
+  final int totalFields = 3;
 
   String? selectedCollege;
   String? selectedUniversity;
@@ -29,11 +29,12 @@ class _CollegedetailsState extends State<Collegedetails> {
   final TextEditingController _collegeSearchController =
       TextEditingController();
   final TextEditingController _degreeSearchController = TextEditingController();
-  final TextEditingController _emailController =
-      TextEditingController(); // Added controller
+  final TextEditingController _emailController = TextEditingController();
 
   Timer? _debounce;
   List<Map<String, dynamic>> _collegeSearchResults = [];
+  // Cache for the large universities dataset fetched from GitHub raw JSON.
+  List<dynamic>? _universitiesCache;
   List<String> _allDegrees = [];
   List<String> _filteredDegrees = [];
 
@@ -68,7 +69,7 @@ class _CollegedetailsState extends State<Collegedetails> {
     _debounce?.cancel();
     _collegeSearchController.dispose();
     _degreeSearchController.dispose();
-    _emailController.dispose(); // Dispose email controller
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -149,102 +150,160 @@ class _CollegedetailsState extends State<Collegedetails> {
     updateProgress();
   }
 
-  Future<void> _searchColleges(String query) async {
-    if (query.length < 2) {
-      setState(() {
-        _collegeSearchResults = [];
-        _showCollegeDropdown = false;
-      });
-      return;
-    }
+// Replace your entire _searchColleges method with this:
 
+Future<void> _searchColleges(String query) async {
+  if (query.length < 1) {
     setState(() {
-      _isSearching = true;
-      _showCollegeDropdown = true;
+      _collegeSearchResults = [];
+      _showCollegeDropdown = false;
     });
-
-    try {
-      final response = await http
-          .get(
-            Uri.parse(
-              'http://universities.hipolabs.com/search?name=$query&country=India',
-            ),
-            headers: {'Content-Type': 'application/json'},
-          )
-          .timeout(Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _collegeSearchResults = data
-              .take(20)
-              .map(
-                (item) => {
-                  'name': item['name'] ?? 'Unknown',
-                  'state': item['state-province'] ?? 'Unknown State',
-                  'domain': item['domains']?.isNotEmpty == true
-                      ? item['domains'][0]
-                      : null,
-                },
-              )
-              .toList();
-        });
-      } else {
-        _setFallbackColleges(query);
-      }
-    } catch (e) {
-      if (kDebugMode) print('Error searching colleges: $e');
-      _setFallbackColleges(query);
-    } finally {
-      setState(() {
-        _isSearching = false;
-      });
-    }
+    return;
   }
 
+  setState(() {
+    _isSearching = true;
+    _showCollegeDropdown = true;
+  });
+
+  try {
+    final collection = FirebaseFirestore.instance.collection("colleges");
+    String lowerQuery = query.toLowerCase();
+
+    if (kDebugMode) print('Searching for: $lowerQuery');
+
+    // Try Method 1: Using orderBy with startAt/endAt
+    QuerySnapshot querySnapshot;
+    
+    try {
+      querySnapshot = await collection
+          .orderBy('searchName')
+          .startAt([lowerQuery])
+          .endAt([lowerQuery + '\uf8ff'])
+          .limit(50)
+          .get();
+      
+      if (kDebugMode) print('Method 1 returned ${querySnapshot.docs.length} docs');
+    } catch (e) {
+      if (kDebugMode) print('Method 1 failed: $e, trying Method 2');
+      
+      // Method 2: Simple get all and filter client-side (works without index)
+      querySnapshot = await collection.limit(100).get();
+      if (kDebugMode) print('Method 2 returned ${querySnapshot.docs.length} docs');
+    }
+
+    List<Map<String, dynamic>> results = [];
+    
+    for (var doc in querySnapshot.docs) {
+      try {
+        String docName = doc['name'] ?? '';
+        String searchName = doc.data().toString().contains('searchName') 
+            ? (doc['searchName'] ?? '') 
+            : docName.toLowerCase();
+        
+        if (kDebugMode) print('Doc: $docName, SearchName: $searchName');
+        
+        // Check if it matches the query
+        if (searchName.startsWith(lowerQuery) || 
+            docName.toLowerCase().startsWith(lowerQuery)) {
+          results.add({
+            'name': docName,
+            'state': doc.data().toString().contains('state') ? (doc['state'] ?? '') : '',
+            'city': doc.data().toString().contains('city') ? (doc['city'] ?? '') : '',
+            'address': doc.data().toString().contains('address') ? (doc['address'] ?? '') : '',
+          });
+        }
+      } catch (e) {
+        if (kDebugMode) print('Error processing doc: $e');
+      }
+    }
+
+    // Limit to top 10 results
+    results = results.take(10).toList();
+
+    if (kDebugMode) print('Final results: ${results.length}');
+
+    setState(() {
+      _collegeSearchResults = results;
+      _isSearching = false;
+    });
+
+    // If no results from Firestore, use fallback
+    if (results.isEmpty) {
+      if (kDebugMode) print('No results, using fallback');
+      _setFallbackColleges(query);
+    }
+  } catch (e) {
+    if (kDebugMode) print('Error searching colleges: $e');
+    setState(() {
+      _isSearching = false;
+    });
+    _setFallbackColleges(query);
+  }
+}
+
+  
   void _setFallbackColleges(String query) {
     final fallbackColleges = [
       {
         'name': 'Indian Institute of Technology Delhi',
         'state': 'Delhi',
-        'domain': 'iitd.ac.in',
+        'city': 'New Delhi',
+        'address': 'Hauz Khas',
       },
       {
         'name': 'Indian Institute of Technology Bombay',
         'state': 'Maharashtra',
-        'domain': 'iitb.ac.in',
+        'city': 'Mumbai',
+        'address': 'Powai',
       },
       {
         'name': 'Indian Institute of Science',
         'state': 'Karnataka',
-        'domain': 'iisc.ac.in',
+        'city': 'Bangalore',
+        'address': 'Malleshwaram',
       },
       {
         'name': 'Jawaharlal Nehru University',
         'state': 'Delhi',
-        'domain': 'jnu.ac.in',
+        'city': 'New Delhi',
+        'address': 'New Mehrauli Road',
       },
-      {'name': 'University of Delhi', 'state': 'Delhi', 'domain': 'du.ac.in'},
+      {
+        'name': 'University of Delhi',
+        'state': 'Delhi',
+        'city': 'New Delhi',
+        'address': 'Delhi University North Campus',
+      },
       {
         'name': 'Anna University',
         'state': 'Tamil Nadu',
-        'domain': 'annauniv.edu',
+        'city': 'Chennai',
+        'address': 'Sardar Patel Road, Guindy',
       },
-      {'name': 'VIT University', 'state': 'Tamil Nadu', 'domain': 'vit.ac.in'},
+      {
+        'name': 'VIT University',
+        'state': 'Tamil Nadu',
+        'city': 'Vellore',
+        'address': 'Katpadi',
+      },
       {
         'name': 'SRM Institute of Science and Technology',
         'state': 'Tamil Nadu',
-        'domain': 'srmist.edu.in',
+        'city': 'Chennai',
+        'address': 'Kattankulathur',
       },
       {
         'name': 'Manipal Academy of Higher Education',
         'state': 'Karnataka',
-        'domain': 'manipal.edu',
+        'city': 'Manipal',
+        'address': 'Madhav Nagar',
       },
       {
         'name': 'Birla Institute of Technology and Science',
         'state': 'Rajasthan',
-        'domain': 'bits-pilani.ac.in',
+        'city': 'Pilani',
+        'address': 'Vidya Vihar',
       },
     ];
 
@@ -296,8 +355,6 @@ class _CollegedetailsState extends State<Collegedetails> {
     if (selectedCollege == null) missingFields.add('College Name');
     if (selectedUniversity == null) missingFields.add('University');
     if (selectedDegree == null) missingFields.add('Degree');
-    // if (selectedEmailId == null || selectedEmailId!.isEmpty)
-    //   missingFields.add('College Email'); // Added email
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -445,7 +502,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                                     horizontal: 16,
                                     vertical: 16,
                                   ),
-                                  hintText: 'Search for your college...',
+                                  hintText: 'Search from 43,000+ colleges...',
                                   hintStyle: TextStyle(color: Colors.grey[500]),
                                   suffixIcon: _isSearching
                                       ? Padding(
@@ -467,12 +524,23 @@ class _CollegedetailsState extends State<Collegedetails> {
                                           color: Colors.grey[400],
                                         ),
                                 ),
+                                textInputAction: TextInputAction.search,
+                                onFieldSubmitted: (value) {
+                                  if (value.isNotEmpty) {
+                                    _searchColleges(value);
+                                  }
+                                },
                                 onChanged: _onCollegeSearchChanged,
                                 onTap: () {
-                                  if (_collegeSearchResults.isNotEmpty) {
-                                    setState(() {
-                                      _showCollegeDropdown = true;
-                                    });
+                                  setState(() {
+                                    _showCollegeDropdown = true;
+                                  });
+                                  if (_collegeSearchController
+                                      .text
+                                      .isNotEmpty) {
+                                    _searchColleges(
+                                      _collegeSearchController.text,
+                                    );
                                   }
                                 },
                               ),
@@ -499,7 +567,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                                           style: TextStyle(fontSize: 14),
                                         ),
                                         subtitle: Text(
-                                          college['state'],
+                                          '${college['city']}, ${college['state']}',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[600],
@@ -683,7 +751,7 @@ class _CollegedetailsState extends State<Collegedetails> {
 
                         SizedBox(height: 24),
 
-                        // College Email ID (Now Required)
+                        // College Email ID (Optional)
                         Text(
                           'College Email ID ',
                           style: TextStyle(
@@ -717,7 +785,6 @@ class _CollegedetailsState extends State<Collegedetails> {
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
-                              // filled: true,
                               fillColor: Colors.white,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -733,16 +800,6 @@ class _CollegedetailsState extends State<Collegedetails> {
                               });
                               updateProgress();
                             },
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return 'College email is required';
-                            //   }
-                            //   if (!value.contains('@') ||
-                            //       !value.contains('.')) {
-                            //     return 'Enter a valid email address';
-                            //   }
-                            //   return null;
-                            // },
                           ),
                         ),
 
@@ -795,7 +852,7 @@ class _CollegedetailsState extends State<Collegedetails> {
                 collegeName: selectedCollege!,
                 university: selectedUniversity!,
                 degree: selectedDegree!,
-                collegeEmailId: selectedEmailId ?? '', // make optional
+                collegeEmailId: selectedEmailId ?? '',
               );
 
               if (kDebugMode) {

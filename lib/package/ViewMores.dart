@@ -10,20 +10,18 @@ class ViewMores extends StatelessWidget {
   final List<Map<String, dynamic>> items;
   final bool statusPage;
   final bool isAppliedSection;
-  final bool hackathonPage; // <-- Added flag
+  final bool hackathonPage;
 
   const ViewMores({
     super.key,
     required this.items,
     required this.statusPage,
     this.isAppliedSection = false,
-    this.hackathonPage = false, // <-- Default value
+    this.hackathonPage = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Take only 10 items if list is longer
-
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       body: SafeArea(
@@ -58,7 +56,7 @@ class ViewMores extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: items.isEmpty
                     ? Center(
                         child: Column(
@@ -81,83 +79,113 @@ class ViewMores extends StatelessWidget {
                           ],
                         ),
                       )
-                    : GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1,
-                              childAspectRatio: 1.4,
-                              mainAxisSpacing: 16,
-                            ),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Calculate dynamic aspect ratio based on screen size
+                          // This ensures cards fit properly on all devices
+                          final screenHeight = MediaQuery.of(
+                            context,
+                          ).size.height;
+                          final availableHeight = constraints.maxHeight;
 
-                          return InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => Carddetails(
-                                    jobTitle: item['jobTitle'] ?? '',
-                                    companyName: item['companyName'] ?? '',
-                                    location: item['location'] ?? '',
-                                    experienceLevel:
-                                        item['experienceLevel'] ?? '',
-                                    requirements: List<String>.from(
-                                      item['requirements'] ?? [],
+                          // Adjust aspect ratio for different screen sizes
+                          double aspectRatio;
+                          if (screenHeight < 700) {
+                            // Small devices (e.g., iPhone SE)
+                            aspectRatio = 1.5;
+                          } else if (screenHeight < 800) {
+                            // Medium devices
+                            aspectRatio = 1.45;
+                          } else {
+                            // Large devices
+                            aspectRatio = 1.4;
+                          }
+
+                          return ListView.separated(
+                            padding: const EdgeInsets.only(top: 8, bottom: 16),
+                            itemCount: items.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => Carddetails(
+                                        jobTitle: item['jobTitle'] ?? '',
+                                        companyName: item['companyName'] ?? '',
+                                        location: item['location'] ?? '',
+                                        experienceLevel:
+                                            item['experienceLevel'] ?? '',
+                                        requirements: List<String>.from(
+                                          item['requirements'] ?? [],
+                                        ),
+                                        websiteUrl: item['websiteUrl'] ?? '',
+                                        tagLabel: item['tagLabel'],
+                                        employmentType: item['jobType'] ?? '',
+                                        rolesAndResponsibilities:
+                                            item['rolesAndResponsibilities'] ??
+                                            '',
+                                        duration:
+                                            item['duration'] ?? 'Not specified',
+                                        stipend:
+                                            item['stipend']?.toString() ??
+                                            'Not specified',
+                                        details: item['description'] ?? '',
+                                        noOfOpenings:
+                                            item['noOfOpenings']?.toString() ??
+                                            '0',
+                                        mode: item['mode'] ?? 'N/A',
+                                        skills: List<String>.from(
+                                          item['requirements'] ?? [],
+                                        ),
+                                        id: item['jobId'] ?? '',
+                                        jobType: item['jobType'] ?? '',
+                                        recruiter: item['recruiter'],
+                                        about:
+                                            item['about'] ??
+                                            'Description not available',
+                                        salaryRange:
+                                            item['salaryRange'] ??
+                                            'Salary not available',
+                                        perks: List<String>.from(
+                                          item['perks'] ?? [],
+                                        ),
+                                        description: item['description'] ?? '',
+                                        applicationStatus:
+                                            item['applicationStatus'],
+                                        matchScore: item['matchScore'],
+                                      ),
                                     ),
-                                    websiteUrl: item['websiteUrl'] ?? '',
-                                    tagLabel: item['tagLabel'],
-                                    employmentType: item['jobType'] ?? '',
-                                    rolesAndResponsibilities:
-                                        item['rolesAndResponsibilities'] ?? '',
-                                    duration:
-                                        item['duration'] ?? 'Not specified',
-                                    stipend:
-                                        item['stipend']?.toString() ??
-                                        'Not specified',
-                                    details: item['description'] ?? '',
-                                    noOfOpenings:
-                                        item['noOfOpenings']?.toString() ?? '0',
-                                    mode: item['mode'] ?? 'N/A',
-                                    skills: List<String>.from(
-                                      item['requirements'] ?? [],
-                                    ),
-                                    id: item['jobId'] ?? '',
-                                    jobType: item['jobType'] ?? '',
-                                    recruiter: item['recruiter'],
-                                    about:
-                                        item['about'] ??
-                                        'Description not available',
-                                    salaryRange:
-                                        item['salaryRange'] ??
-                                        'Salary not available',
-                                    perks: List<String>.from(
-                                      item['perks'] ?? [],
-                                    ),
-                                    description: item['description'] ?? '',
-                                    applicationStatus: item['applicationStatus'],
-                                    matchScore: item['matchScore'],
+                                  );
+                                },
+                                child: AspectRatio(
+                                  aspectRatio: aspectRatio,
+                                  child: CarouselCard(
+                                    title: item["jobTitle"] ?? "Unknown Job",
+                                    subtitle:
+                                        item["companyName"] ??
+                                        "Unknown Company",
+                                    location: item["location"],
+                                    tag1: isAppliedSection
+                                        ? (item["applicationStatus"] ??
+                                              "Applied")
+                                        : statusPage
+                                        ? (item["applied"] == true
+                                              ? "Applied"
+                                              : "Not Applied")
+                                        : (item["location"] ?? "Location N/A"),
+                                    tag2: isAppliedSection
+                                        ? null
+                                        : item['experienceLevel'] ??
+                                              "Entry level",
+                                    statusCard: isAppliedSection,
                                   ),
                                 ),
                               );
                             },
-                            child: CarouselCard(
-                              title: item["jobTitle"] ?? "Unknown Job",
-                              subtitle:
-                                  item["companyName"] ?? "Unknown Company",
-                              location: item["location"],
-                              tag1: isAppliedSection
-                                  ? (item["applicationStatus"] ?? "Applied")
-                                  : statusPage
-                                  ? (item["applied"] == true
-                                        ? "Applied"
-                                        : "Not Applied")
-                                  : (item["location"] ?? "Location N/A"),
-                              tag2: isAppliedSection
-                                  ? null
-                                  : item['experienceLevel'] ?? "Entry level",
-                              statusCard: isAppliedSection,
-                            ),
                           );
                         },
                       ),
